@@ -95,9 +95,19 @@ def test_drops_the_leading_title_only() -> None:
 
 
 def test_keeps_a_blockquote_that_is_not_metadata() -> None:
+    # A quotation that happens to sit at the top is content, not a build note.
     markdown = "# Guia\n\n> Os diagramas seguem a norma ASTM E112.\n\n## Capítulo\n\nTexto.\n"
     result = trim_cover(markdown)
     assert "ASTM E112" in result
+
+
+def test_drops_a_leading_build_note() -> None:
+    markdown = (
+        "# DSA Guide\n\n"
+        "> Theory pass, generated from subsection files. Do not edit by hand; rebuild "
+        "with scripts/build_guide.py.\n"
+    )
+    assert trim_cover(markdown) == ""
 
 
 def test_empty_input_stays_empty() -> None:
