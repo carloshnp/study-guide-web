@@ -449,10 +449,6 @@
       font-size: 16px;
     }
 
-    /* The laptop margin setting must not squeeze a phone: fixed 20px here. */
-    :root {
-      --content-gutter: 20px;
-    }
   }
 
   h1,
@@ -503,4 +499,13 @@
  * --------------------------------------------------------------------------- */
 [data-layout="full"] [data-slot="chapter-body"] {
   justify-content: space-between;
+}
+
+/* The reader's margin setting must never squeeze a phone: below 768px the applied
+   gutter is fixed at 20px, whatever a laptop stored. Unlayered on purpose — the
+   token block above is unlayered too, so an @layer rule would lose to it. */
+@media (max-width: 767px) {
+  :root {
+    --content-gutter: 20px;
+  }
 }
