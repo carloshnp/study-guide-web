@@ -25,6 +25,8 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
+from pipeline.mathtext import plain_math
+
 MIN_LEVEL = 1
 MAX_LEVEL = 6
 
@@ -46,6 +48,9 @@ FRONT_MATTER_TITLES: frozenset[str] = frozenset(
         "conventions",
         "how to use this guide",
         "a0 about this appendix",
+        # Portuguese cover blocks of the review guides (`P1-resumo-e-questoes`).
+        "como este documento esta organizado",
+        "convencoes usadas em todo o documento",
     }
 )
 
@@ -187,6 +192,10 @@ def classify_kind(title: str, *, fallback: str = "teoria") -> str:
     if ":" in key:
         # "Magnésio: referência rápida" is a quick reference, not an appendix.
         keys.append(key.split(":", 1)[1].strip())
+    # "Cálculo Numérico: Módulo 1, Séries de Taylor, Banco de Questões" names its
+    # kind in the last segment, after the commas.
+    for candidate in list(keys):
+        keys.extend(segment.strip() for segment in candidate.split(",") if segment.strip())
     for kind, prefixes in KIND_PREFIXES:
         for candidate in keys:
             for prefix in prefixes:
@@ -218,6 +227,23 @@ def _clean_title(raw: str | None) -> str:
         return ""
     title = CLOSING_HASHES_RE.sub("", raw.strip())
     return title.strip()
+
+
+def _segment_has_body(lines: list[str], start_line: int, end_line: int) -> bool:
+    """True when the lines between two boundaries carry text of their own.
+
+    Used to tell a chapter from a divider: a heading that is followed straight
+    away by the next heading of the same level (``## Resumo`` over a block of
+    chapters, ``## Questões`` over its lists) groups content instead of owning
+    it, and is not a chapter.
+    """
+    for raw in lines[start_line : end_line - 1]:
+        if not raw.strip():
+            continue
+        if ATX_RE.match(raw) is not None:
+            continue
+        return True
+    return False
 
 
 def scan_headings(markdown: str) -> list[Heading]:
@@ -259,17 +285,38 @@ def front_matter_headings(markdown: str) -> list[Heading]:
 def chapter_headings(markdown: str, level: int) -> list[Heading]:
     """Headings that start a chapter, at the catalogued split level.
 
-    Two kinds of heading are excluded even at the split level: front matter
-    blocks, and the document title (the first heading of the document when it
-    sits at the split level, as in the DSA guide, which splits at H1).
+    Three kinds of heading are excluded even at the split level: front matter
+    blocks; the document title (the first heading of the document when it sits
+    at the split level and carries no number, as in the DSA guide, which splits
+    at H1); and a split-level heading with no body of its own, which divides the
+    chapters that follow instead of being one.
     """
     if not MIN_LEVEL <= level <= MAX_LEVEL:
         raise ValueError(f"split level must be between {MIN_LEVEL} and {MAX_LEVEL}, got {level}")
     headings = scan_headings(markdown)
+    lines = markdown.splitlines(keepends=True)
     body = [heading for heading in headings if not is_front_matter(heading.title)]
-    if body and headings and body[0] is headings[0] and body[0].level == level:
+    if (
+        body
+        and headings
+        and body[0] is headings[0]
+        and body[0].level == level
+        and strip_numbering(body[0].title)[0] is None
+    ):
         body = body[1:]
-    return [heading for heading in body if heading.level == level]
+    kept: list[Heading] = []
+    for index, heading in enumerate(body):
+        if heading.level != level:
+            continue
+        next_line = len(lines) + 1
+        for following in body[index + 1 :]:
+            if following.level <= heading.level:
+                next_line = following.line
+                break
+        if not _segment_has_body(lines, heading.line, next_line):
+            continue
+        kept.append(heading)
+    return kept
 
 
 def count_chapters(markdown: str, level: int) -> int:
@@ -312,6 +359,13 @@ def _unique(base: str, seen: set[str]) -> str:
     return candidate
 
 
+def _section_title(title: str) -> str:
+    """The title as the reader sees it: numbering kept, math made readable."""
+    number, rest = strip_numbering(title)
+    readable = plain_math(rest)
+    return f"{number} {readable}" if number else readable
+
+
 def _section_id(title: str, seen: set[str]) -> str:
     number, rest = strip_numbering(title)
     slug = slugify(rest) or "secao"
@@ -335,7 +389,7 @@ def _sections(chapter_markdown: str, chapter_level: int) -> tuple[Section, ...]:
             continue
         while stack and stack[-1].level >= heading.level:
             stack.pop()
-        node = _Node(_section_id(heading.title, seen), heading.title, heading.level)
+        node = _Node(_section_id(heading.title, seen), _section_title(heading.title), heading.level)
         if stack:
             stack[-1].children.append(node)
         else:
@@ -366,8 +420,10 @@ def split_document(
     if not headings:
         return SplitDocument(cover=markdown.strip(), chapters=(), parts=())
 
-    # The first heading of a guide is its document title, never a chapter.
-    body_headings = headings[1:]
+    # A guide opens with its document title, which is never a chapter; but a
+    # numbered first heading (`## 15. Banco de Questões` in a standalone question
+    # bank) is already a chapter of its own.
+    body_headings = headings[1:] if strip_numbering(headings[0].title)[0] is None else headings
     boundaries: list[tuple[Heading, str, str | None]] = []
     parts: list[str] = []
     current_level: int | None = None
@@ -392,6 +448,28 @@ def split_document(
         boundaries.append((heading, kind, current_part))
         current_level = heading.level
 
+    # A split-level heading with nothing under it before the next boundary only
+    # divides what follows, so it is not a chapter.
+    kept: list[tuple[Heading, str, str | None]] = []
+    for index, (heading, kind, part) in enumerate(boundaries):
+        if kind != "part" and heading.level == level:
+            next_line = (
+                boundaries[index + 1][0].line if index + 1 < len(boundaries) else len(lines) + 1
+            )
+            if not _segment_has_body(lines, heading.line, next_line):
+                continue
+        kept.append((heading, kind, part))
+    boundaries = kept
+
+    if not any(kind != "part" for _, kind, _ in boundaries):
+        # A document with a single heading section (a standalone question bank,
+        # `# ... Banco de Questões` over h3 questions) is one chapter: the title
+        # is the chapter instead of an empty cover.
+        if not any(not is_front_matter(heading.title) for heading in headings[1:]):
+            return SplitDocument(cover=markdown.strip(), chapters=(), parts=())
+        first = headings[0]
+        boundaries = [(first, classify_kind(first.title, fallback=default_kind), None)]
+
     if not boundaries:
         return SplitDocument(cover=markdown.strip(), chapters=(), parts=())
 
@@ -411,6 +489,7 @@ def split_document(
         number += 1
         chapter_id = _chapter_id(number, heading.title, seen_ids)
         _, title = strip_numbering(heading.title)
+        title = plain_math(title)
         chapters.append(
             Chapter(
                 id=chapter_id,

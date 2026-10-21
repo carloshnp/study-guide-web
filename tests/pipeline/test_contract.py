@@ -211,3 +211,23 @@ def test_build_reports_the_chapter_count(built: tuple[Path, Path]) -> None:
 
     assert [(g.guide_id, g.chapters) for g in report.guides] == [("aluminio", 2)]
     assert report.content_root == content_root
+
+
+def test_build_prunes_guides_that_left_the_catalog(tmp_path: Path) -> None:
+    catalog_path, data_root, content_root = build_example_tree(tmp_path)
+    build_all(
+        catalog_path=catalog_path, data_root=data_root, content_root=content_root
+    )
+    orphan = content_root / "guides" / "dsa"
+    (orphan / "chapters").mkdir(parents=True)
+    (orphan / "guide.json").write_text("{}", encoding="utf-8")
+    orphan_cover = content_root / "media" / "covers" / "dsa.webp"
+    orphan_cover.write_bytes(b"stale")
+
+    build_all(
+        catalog_path=catalog_path, data_root=data_root, content_root=content_root
+    )
+
+    assert (content_root / "guides" / "aluminio" / "guide.json").is_file()
+    assert not orphan.exists()
+    assert not orphan_cover.exists()

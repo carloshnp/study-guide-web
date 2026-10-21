@@ -52,6 +52,16 @@ guides:
 YAML
 ```
 
+A guide may list several files instead of one; they are concatenated in that order, which is how
+a Cálculo Numérico module keeps its theory and its question bank in a single guide:
+
+```yaml
+guides:
+  cn-erros:
+    - ".../Guias/calculo-numerico-modulo2-erros.md"
+    - ".../Guias/calculo-numerico-modulo2-erros-questoes.md"
+```
+
 ## Content
 
 ```bash

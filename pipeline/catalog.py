@@ -264,8 +264,14 @@ def load(path: str | Path) -> Catalog:
     return Catalog(version=version, path=catalog_path, subjects=subjects, guides=guides)
 
 
-def load_sources(path: str | Path) -> dict[str, Path]:
-    """Load `sources.local.yaml` into ``{guide_id: absolute path}``."""
+def load_sources(path: str | Path) -> dict[str, tuple[Path, ...]]:
+    """Load `sources.local.yaml` into ``{guide_id: (absolute paths...)}``.
+
+    A guide may be composed of more than one markdown file: the value is then a
+    list, read in order and concatenated by `pipeline.ingest` (a theory guide
+    followed by its question bank, for instance). A single string stays the
+    common case and yields a one-item tuple.
+    """
     sources_path = Path(path)
     if not sources_path.is_file():
         raise CatalogError(
@@ -278,16 +284,24 @@ def load_sources(path: str | Path) -> dict[str, Path]:
         raise CatalogError(f"{sources_path}: invalid YAML: {exc}") from exc
     data = _require_mapping(sources_path, "top level", raw)
     guides = _require_mapping(sources_path, "guides", data.get("guides"))
-    sources: dict[str, Path] = {}
+    sources: dict[str, tuple[Path, ...]] = {}
     for guide_id, value in guides.items():
         where = f"guides.{guide_id}"
         key = _check_slug(sources_path, where, "guide id", str(guide_id))
-        if not isinstance(value, str) or not value.strip():
-            raise CatalogError(f"{sources_path}: {where}: expected a path string, got {value!r}")
-        source = Path(value).expanduser()
-        if not source.is_absolute():
-            raise CatalogError(
-                f"{sources_path}: {where}: expected an absolute source path, got {value!r}"
-            )
-        sources[key] = source
+        values = value if isinstance(value, list) else [value]
+        if not values:
+            raise CatalogError(f"{sources_path}: {where}: expected at least one source path")
+        paths: list[Path] = []
+        for item in values:
+            if not isinstance(item, str) or not item.strip():
+                raise CatalogError(
+                    f"{sources_path}: {where}: expected a path string, got {item!r}"
+                )
+            source = Path(item).expanduser()
+            if not source.is_absolute():
+                raise CatalogError(
+                    f"{sources_path}: {where}: expected an absolute source path, got {item!r}"
+                )
+            paths.append(source)
+        sources[key] = tuple(paths)
     return sources

@@ -70,7 +70,7 @@ export function Home() {
       <PageHeader
         kicker="Estudos"
         title="Guias de estudo"
-        description="Metalurgia, programação e fundamentos, divididos em capítulos legíveis no telefone."
+        description="Todos os guias publicados, agrupados por disciplina e divididos em capítulos legíveis no telefone."
       />
 
       {status === "loading" ? (

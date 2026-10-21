@@ -25,7 +25,7 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Mapping, Sequence
 from urllib.parse import unquote
 
 from pipeline.catalog import Catalog, CatalogError, GuideEntry, load, load_sources
@@ -328,8 +328,35 @@ def _prune_assets(dest: Path, keep: set[Path]) -> None:
             path.rmdir()
 
 
+def compose_markdown(paths: Sequence[Path]) -> tuple[str, str, int]:
+    """Join the source files of a guide into the markdown the site serves.
+
+    A guide is normally one file, and then the text is returned untouched (so
+    the stored copy stays byte for byte identical to the source). With more than
+    one file, the parts are concatenated in the given order with exactly one
+    blank line between them, and the digest is taken over the result: the guide
+    is then one document whose provenance is the list of files.
+    """
+    if len(paths) == 1:
+        path = paths[0]
+        return path.read_text(encoding="utf-8"), sha256_file(path), path.stat().st_size
+    parts = [path.read_text(encoding="utf-8").strip("\n") for path in paths]
+    markdown = "\n\n".join(parts) + "\n"
+    encoded = markdown.encode("utf-8")
+    return markdown, hashlib.sha256(encoded).hexdigest(), len(encoded)
+
+
+def _as_source_list(source: str | Path | Sequence[str | Path]) -> list[Path]:
+    if isinstance(source, (str, Path)):
+        return [Path(source)]
+    paths = [Path(item) for item in source]
+    if not paths:
+        raise IngestError("a guide needs at least one source file")
+    return paths
+
+
 def ingest(
-    source: str | Path,
+    source: str | Path | Sequence[str | Path],
     data_root: str | Path,
     request: IngestRequest,
     *,
@@ -338,18 +365,31 @@ def ingest(
 ) -> IngestResult:
     """Adopt `source` into `data_root/guides/<subject>/<slug>/`.
 
-    Returns an `IngestResult` whose `status` is one of `new`, `updated`,
-    `unchanged`, `drift` (refused without `force`) or `would-ingest`.
+    `source` is one markdown file, or a sequence of them composing a single
+    guide (its parts are concatenated in order). Returns an `IngestResult`
+    whose `status` is one of `new`, `updated`, `unchanged`, `drift` (refused
+    without `force`) or `would-ingest`.
     """
-    source_path = validate_source(Path(source))
+    requested = _as_source_list(source)
+    source_paths = [validate_source(path) for path in requested]
+    source_path = source_paths[0]
     data_path = Path(data_root)
     dest = data_path / "guides" / request.subject / request.slug
 
-    markdown = source_path.read_text(encoding="utf-8")
-    digest = sha256_file(source_path)
-    size = source_path.stat().st_size
+    markdown, digest, size = compose_markdown(source_paths)
     chapters = count_chapters(markdown, request.split)
-    planned, warnings = _plan_assets(markdown, source_path)
+    planned: list[tuple[str, Path, Path]] = []
+    warnings: list[dict[str, str]] = []
+    seen_links: set[str] = set()
+    for path in source_paths:
+        text = markdown if len(source_paths) == 1 else path.read_text(encoding="utf-8")
+        planned_part, warnings_part = _plan_assets(text, path)
+        warnings.extend(warnings_part)
+        for link, dest_rel, target in planned_part:
+            if link in seen_links:
+                continue
+            seen_links.add(link)
+            planned.append((link, dest_rel, target))
     records = tuple(
         AssetRecord(
             link=link,
@@ -413,7 +453,10 @@ def ingest(
 
     ensure_data_repo(data_path)
     dest.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(source_path, dest / "guide.md")
+    if len(source_paths) == 1:
+        shutil.copyfile(source_path, dest / "guide.md")
+    else:
+        (dest / "guide.md").write_text(markdown, encoding="utf-8")
     for _link, dest_rel, target in planned:
         _copy_if_changed(target, dest / dest_rel)
     _prune_assets(dest, {dest_rel for _link, dest_rel, _target in planned})
@@ -433,6 +476,14 @@ def ingest(
         .isoformat(timespec="seconds"),
         "sha256": digest,
         "bytes": size,
+        "sources": [
+            {
+                "path": str(path.resolve()),
+                "sha256": sha256_file(path),
+                "bytes": path.stat().st_size,
+            }
+            for path in source_paths
+        ],
         "chapters": chapters,
         "ingestedAt": utc_now(),
         "assets": [record.to_dict() for record in records],
@@ -465,7 +516,7 @@ def ingest(
 
 def ingest_catalog(
     catalog: Catalog,
-    sources: Mapping[str, Path],
+    sources: Mapping[str, Path | Sequence[Path]],
     data_root: str | Path,
     *,
     force: bool = False,

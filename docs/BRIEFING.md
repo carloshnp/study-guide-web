@@ -56,11 +56,17 @@ guides:
     published: true
 ```
 
-`sources.local.yaml`:
+`sources.local.yaml` maps each id to one file, or to a list of files when the guide is a
+composition (theory followed by its question bank). A list is concatenated in order with one
+blank line between parts, and every file is recorded in the guide's `meta.json` under
+`sources`, so drift is reported per part:
 
 ```yaml
 guides:
   aluminio: "/run/media/carloshnp/D/Faculdade/Disciplinas e Conteúdos/Metalurgia/outputs/metfis_2_aluminio/aluminio-final.md"
+  cn-taylor:
+    - "/run/media/carloshnp/D/Obsidian/.../Guias/calculo-numerico-modulo1-taylor.md"
+    - "/run/media/carloshnp/D/Obsidian/.../Guias/calculo-numerico-modulo1-taylor-questoes.md"
 ```
 
 Generated output (gitignored), exact shapes:

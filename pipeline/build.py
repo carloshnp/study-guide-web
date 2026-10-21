@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import sys
 import time
 from dataclasses import dataclass
@@ -330,6 +331,25 @@ def build_guide(
     )
 
 
+def _prune_removed_guides(content_root: Path, keep: set[str]) -> None:
+    """Delete the output of guides that left the catalog.
+
+    Chapter files of a guide are pruned by `emit_guide`, but a guide that is no
+    longer published would otherwise keep its folder (and its cover) in
+    ``content/`` and stay reachable by URL.
+    """
+    guides_root = content_root / "guides"
+    if guides_root.is_dir():
+        for path in sorted(guides_root.iterdir()):
+            if path.is_dir() and path.name not in keep:
+                shutil.rmtree(path)
+    covers = content_root / "media" / "covers"
+    if covers.is_dir():
+        for cover in sorted(covers.glob("*.webp")):
+            if cover.stem not in keep:
+                cover.unlink()
+
+
 def build_all(
     *,
     catalog_path: Path = DEFAULT_CATALOG,
@@ -372,6 +392,8 @@ def build_all(
                 "cover": build.cover,
             }
         )
+
+    _prune_removed_guides(content_root, {entry.id for entry in entries})
 
     index = {
         "generatedAt": stamp,

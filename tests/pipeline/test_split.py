@@ -5,9 +5,11 @@ from pathlib import Path
 from pipeline.split import (
     Heading,
     chapter_headings,
+    classify_kind,
     count_chapters,
     is_front_matter,
     scan_headings,
+    split_document,
 )
 
 
@@ -125,7 +127,75 @@ def test_four_space_indented_hash_is_code_not_a_heading() -> None:
     assert scan_headings(markdown) == [Heading(level=1, title="Tabbed heading", line=3)]
 
 
+def test_kind_is_named_after_a_comma_separated_segment() -> None:
+    assert classify_kind("Cálculo Numérico: Módulo 1, Séries de Taylor, Banco de Questões") == "banco"
+    assert classify_kind("Cálculo Numérico: Módulo 4, Glossário") == "glossario"
+
+
 def test_heading_without_text_is_ignored() -> None:
     markdown = "#\n##   \n### Real\n"
 
     assert [h.title for h in scan_headings(markdown)] == ["Real"]
+
+
+def test_numbered_first_heading_is_a_chapter_not_the_document_title() -> None:
+    markdown = (
+        "## 15. Banco de Questões\n\n"
+        "texto do banco\n\n"
+        "### Questão 1\n\n"
+        "enunciado\n"
+    )
+
+    document = split_document(markdown, 2)
+
+    assert [chapter.title for chapter in document.chapters] == ["Banco de Questões"]
+    assert document.cover == ""
+
+
+def test_document_with_a_single_heading_is_one_chapter() -> None:
+    markdown = (
+        "# Cálculo Numérico: Módulo 3, Banco de Questões\n\n"
+        "abertura\n\n"
+        "### Questão 1\n\n"
+        "enunciado\n"
+    )
+
+    document = split_document(markdown, 2, default_kind="banco")
+
+    assert [chapter.title for chapter in document.chapters] == [
+        "Cálculo Numérico: Módulo 3, Banco de Questões"
+    ]
+    assert document.chapters[0].kind == "banco"
+    assert [section.title for section in document.chapters[0].flat_sections()] == ["Questão 1"]
+
+
+def test_heading_at_split_level_without_body_is_a_divider() -> None:
+    markdown = (
+        "# Guia\n\n"
+        "## Resumo\n\n"
+        "## 1. Primeiro capítulo\n\n"
+        "corpo\n\n"
+        "## Questões\n\n"
+        "## Lista 1\n\n"
+        "corpo da lista\n"
+    )
+
+    document = split_document(markdown, 2)
+
+    assert [chapter.title for chapter in document.chapters] == [
+        "Primeiro capítulo",
+        "Lista 1",
+    ]
+
+
+def test_chapter_with_sections_but_no_own_text_is_not_a_divider() -> None:
+    markdown = (
+        "# Guia\n\n"
+        "## 1. Capítulo\n\n"
+        "### Seção\n\n"
+        "corpo\n"
+    )
+
+    document = split_document(markdown, 2)
+
+    assert [chapter.title for chapter in document.chapters] == ["Capítulo"]

@@ -144,7 +144,7 @@ def test_missing_catalog_file_fails_with_the_path(tmp_path: Path) -> None:
     assert str(path) in str(excinfo.value)
 
 
-def test_real_catalog_publishes_the_five_measured_guides(repo_root: Path) -> None:
+def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
     catalog = load(repo_root / "catalog.yaml")
 
     measured = {
@@ -154,6 +154,18 @@ def test_real_catalog_publishes_the_five_measured_guides(repo_root: Path) -> Non
         "magnesio": (2, 9),
         "dsa": (1, 12),
         "llm-l0l1": (2, 14),
+        # Resistência dos Materiais (EEA338) and its P1 review, which is 34 and
+        # not 39 because six empty dividers are not chapters.
+        "isostatica": (2, 14),
+        "tensao-normal": (2, 14),
+        "torcao": (2, 9),
+        "resmat-p1": (2, 34),
+        # Cálculo Numérico: four modules, each one guide composed of its theory
+        # plus the question bank, which closes the module as its last chapter.
+        "cn-taylor": (2, 12),
+        "cn-erros": (2, 18),
+        "cn-sistemas": (2, 20),
+        "cn-contorno": (2, 25),
     }
     assert {g.id: (g.split, g.expected_chapters) for g in catalog.guides} == measured
     assert {g.subject for g in catalog.guides} <= {s.id for s in catalog.subjects}
@@ -169,7 +181,40 @@ def test_load_sources_maps_ids_to_absolute_paths(tmp_path: Path) -> None:
 
     sources = load_sources(path)
 
-    assert sources == {"aluminio": Path("/run/media/x/aluminio-final.md")}
+    assert sources == {"aluminio": (Path("/run/media/x/aluminio-final.md"),)}
+
+
+def test_load_sources_accepts_a_list_of_files_per_guide(tmp_path: Path) -> None:
+    path = write(
+        tmp_path,
+        "guides:\n"
+        "  cn-taylor:\n"
+        '    - "/run/media/x/modulo1-taylor.md"\n'
+        '    - "/run/media/x/modulo1-taylor-questoes.md"\n',
+        name="sources.local.yaml",
+    )
+
+    sources = load_sources(path)
+
+    assert sources == {
+        "cn-taylor": (
+            Path("/run/media/x/modulo1-taylor.md"),
+            Path("/run/media/x/modulo1-taylor-questoes.md"),
+        )
+    }
+
+
+def test_load_sources_rejects_a_relative_path_in_a_list(tmp_path: Path) -> None:
+    path = write(
+        tmp_path,
+        'guides:\n  cn-taylor:\n    - "modulo1-taylor.md"\n',
+        name="sources.local.yaml",
+    )
+
+    with pytest.raises(CatalogError) as excinfo:
+        load_sources(path)
+
+    assert "absolute source path" in str(excinfo.value)
 
 
 def test_load_sources_missing_file_names_the_path(tmp_path: Path) -> None:

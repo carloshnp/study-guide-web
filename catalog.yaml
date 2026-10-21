@@ -7,6 +7,8 @@ version: 1
 subjects:
   - {id: metalurgia, title: Metalurgia, order: 1}
   - {id: programacao, title: Programação, order: 2}
+  - {id: resistencia-dos-materiais, title: Resistência dos Materiais, order: 3}
+  - {id: calculo-numerico, title: Cálculo Numérico, order: 4}
 
 guides:
   - id: aluminio
@@ -60,5 +62,92 @@ guides:
     split: 2
     expected_chapters: 14
     order: 5
+    published: true
+    updated: 2026-10-21
+
+  # Resistência dos Materiais (EEA338), the four study guides of the 2026.2 P1.
+  - id: isostatica
+    title: "Isostática: equilíbrio e esforços internos"
+    subject: resistencia-dos-materiais
+    type: teoria
+    split: 2
+    expected_chapters: 14
+    order: 6
+    published: true
+    updated: 2026-10-21
+
+  - id: tensao-normal
+    title: Tensão e deformação normal
+    subject: resistencia-dos-materiais
+    type: teoria
+    split: 2
+    expected_chapters: 14
+    order: 7
+    published: true
+    updated: 2026-10-21
+
+  - id: torcao
+    title: Torção
+    subject: resistencia-dos-materiais
+    type: teoria
+    split: 2
+    expected_chapters: 9
+    order: 8
+    published: true
+    updated: 2026-10-21
+
+  # 34, not 39: the three "Resumo: <assunto>" and three "Questões de <assunto>"
+  # headings are dividers (no body of their own), and the two opening blocks
+  # ("Como este documento está organizado", "Convenções...") are cover matter.
+  - id: resmat-p1
+    title: "P1: resumo e questões"
+    subject: resistencia-dos-materiais
+    type: teoria
+    split: 2
+    expected_chapters: 34
+    order: 9
+    published: true
+    updated: 2026-10-21
+
+  # Cálculo Numérico: one guide per module, each composed of two source files --
+  # the theory and its question bank, concatenated in that order (the catalog
+  # counts the bank as the last chapter of the module, where it belongs).
+  - id: cn-taylor
+    title: "Módulo 1: séries de Taylor"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 12
+    order: 10
+    published: true
+    updated: 2026-10-21
+
+  - id: cn-erros
+    title: "Módulo 2: erros e ponto flutuante"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 18
+    order: 11
+    published: true
+    updated: 2026-10-21
+
+  - id: cn-sistemas
+    title: "Módulo 3: sistemas lineares"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 20
+    order: 12
+    published: true
+    updated: 2026-10-21
+
+  - id: cn-contorno
+    title: "Módulo 4: problemas de contorno"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 25
+    order: 13
     published: true
     updated: 2026-10-21

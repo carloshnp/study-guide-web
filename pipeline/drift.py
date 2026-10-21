@@ -10,10 +10,11 @@ import argparse
 import json
 import sys
 from dataclasses import asdict, dataclass
+from collections.abc import Mapping
 from pathlib import Path
 
 from pipeline.catalog import Catalog, CatalogError, load, load_sources
-from pipeline.ingest import REPO_ROOT, IngestError, sha256_file
+from pipeline.ingest import REPO_ROOT, IngestError, compose_markdown
 
 PROBLEM_STATUSES = frozenset({"changed", "missing-source"})
 
@@ -41,23 +42,39 @@ def _read_meta(dest: Path) -> dict[str, object] | None:
         raise IngestError(f"{meta_path}: corrupt meta.json: {exc}") from exc
 
 
+def _source_paths(source: Path | tuple[Path, ...] | None) -> tuple[Path, ...]:
+    if source is None:
+        return ()
+    if isinstance(source, Path):
+        return (source,)
+    return tuple(source)
+
+
 def check_drift(
-    catalog: Catalog, sources: dict[str, Path], data_root: str | Path
+    catalog: Catalog,
+    sources: Mapping[str, Path | tuple[Path, ...]],
+    data_root: str | Path,
 ) -> list[DriftReport]:
-    """One report per catalog guide, in catalog order. Read-only."""
+    """One report per catalog guide, in catalog order. Read-only.
+
+    A guide composed of several source files is compared through the digest of
+    the text they compose, so any edit in any part is reported as drift.
+    """
     data_path = Path(data_root)
     reports: list[DriftReport] = []
     for guide in catalog.guides:
-        source = sources.get(guide.id)
-        resolved = source.expanduser().resolve() if source is not None else None
+        paths = _source_paths(sources.get(guide.id))
+        resolved = paths[0].expanduser().resolve() if paths else None
         dest = data_path / "guides" / guide.subject / guide.id
         meta = _read_meta(dest)
         stored = meta.get("sha256") if meta else None
         chapters = meta.get("chapters") if meta else None
         chapters = chapters if isinstance(chapters, int) else None
 
+        complete = bool(paths) and all(path.is_file() for path in paths)
+
         if meta is None:
-            current = sha256_file(resolved) if resolved is not None and resolved.is_file() else None
+            current = compose_markdown(paths)[1] if complete else None
             reports.append(
                 DriftReport(
                     guide_id=guide.id,
@@ -71,7 +88,7 @@ def check_drift(
             )
             continue
 
-        if resolved is None or not resolved.is_file():
+        if not complete:
             reports.append(
                 DriftReport(
                     guide_id=guide.id,
@@ -85,7 +102,7 @@ def check_drift(
             )
             continue
 
-        current = sha256_file(resolved)
+        current = compose_markdown(paths)[1]
         status = "ok" if stored == current else "changed"
         reports.append(
             DriftReport(

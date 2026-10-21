@@ -290,3 +290,71 @@ def test_meta_json_has_the_contract_keys(source_tree: Path, data_root: Path) -> 
     for key in ("sourcePath", "sha256", "ingestedAt", "slug", "title", "subject", "type", "split"):
         assert key in meta
     assert os.path.isabs(meta["sourcePath"])
+
+
+def test_multiple_sources_compose_one_guide(source_tree: Path, data_root: Path) -> None:
+    theory = source_tree
+    bank = theory.parent / "aluminio-banco.md"
+    bank.write_text(
+        "# Banco de Questões\n\n## Exercícios\n\n### Questão 1\n\nenunciado\n",
+        encoding="utf-8",
+    )
+
+    result = ingest([theory, bank], data_root, request())
+
+    dest = data_root / "guides" / "metalurgia" / "aluminio"
+    composed = (dest / "guide.md").read_text(encoding="utf-8")
+    assert composed == theory.read_text(encoding="utf-8").strip("\n") + "\n\n" + bank.read_text(
+        encoding="utf-8"
+    ).strip("\n") + "\n"
+    assert result.status == "new"
+    assert result.chapters == 3  # two theory chapters plus the appended bank
+    meta = json.loads((dest / "meta.json").read_text(encoding="utf-8"))
+    assert [source["path"] for source in meta["sources"]] == [
+        str(theory.resolve()),
+        str(bank.resolve()),
+    ]
+    assert meta["sha256"] == result.sha256
+    assert meta["sourcePath"] == str(theory.resolve())
+
+
+def test_composed_guide_is_unchanged_on_reingest(source_tree: Path, data_root: Path) -> None:
+    bank = source_tree.parent / "aluminio-banco.md"
+    bank.write_text("# Banco\n\n## Exercícios\n\ncorpo\n", encoding="utf-8")
+
+    first = ingest([source_tree, bank], data_root, request())
+    again = ingest([source_tree, bank], data_root, request())
+
+    assert first.status == "new"
+    assert again.status == "unchanged"
+    assert again.sha256 == first.sha256
+
+
+def test_editing_the_second_part_of_a_composed_guide_is_drift(
+    source_tree: Path, data_root: Path
+) -> None:
+    bank = source_tree.parent / "aluminio-banco.md"
+    bank.write_text("# Banco\n\n## Exercícios\n\ncorpo\n", encoding="utf-8")
+    ingest([source_tree, bank], data_root, request())
+
+    bank.write_text("# Banco\n\n## Exercícios\n\ncorpo editado\n", encoding="utf-8")
+    again = ingest([source_tree, bank], data_root, request())
+
+    assert again.status == "drift"
+    assert again.stored_sha256 != again.sha256
+
+
+def test_single_source_guide_keeps_its_byte_for_byte_copy(
+    source_tree: Path, data_root: Path
+) -> None:
+    result = ingest([source_tree], data_root, request())
+
+    assert (result.dest / "guide.md").read_bytes() == source_tree.read_bytes()
+    meta = json.loads((result.dest / "meta.json").read_text(encoding="utf-8"))
+    assert meta["sources"] == [
+        {
+            "path": str(source_tree.resolve()),
+            "sha256": sha256_file(source_tree),
+            "bytes": source_tree.stat().st_size,
+        }
+    ]
