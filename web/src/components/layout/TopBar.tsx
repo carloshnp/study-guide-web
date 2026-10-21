@@ -1,7 +1,7 @@
 import { MenuIcon, SearchIcon } from "lucide-react"
 import { Link } from "react-router"
 
-import { ThemeToggle } from "@/components/layout/ThemeToggle"
+import { SettingsMenu } from "@/components/layout/SettingsMenu"
 import { Button } from "@/components/ui/button"
 
 type TopBarProps = {
@@ -11,7 +11,7 @@ type TopBarProps = {
 
 /**
  * Sticky top bar: navigation trigger under `lg`, brand, search entry point and the
- * theme cycle. 56px on phones, 64px from `md` (`viewport-units`, `fixed-element-offset`).
+ * settings menu (theme, panel width, side margin). 56px on phones, 64px from `md` (`viewport-units`, `fixed-element-offset`).
  */
 export function TopBar({ onOpenNav }: TopBarProps) {
   return (
@@ -47,7 +47,7 @@ export function TopBar({ onOpenNav }: TopBarProps) {
           <SearchIcon aria-hidden="true" className="size-5" />
         </Link>
 
-        <ThemeToggle />
+        <SettingsMenu />
       </div>
     </header>
   )

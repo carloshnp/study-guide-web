@@ -98,9 +98,12 @@ export function Shell() {
           ref={mainRef}
           id="conteudo"
           tabIndex={-1}
-          className="min-w-0 flex-1 px-5 pb-24 pt-8 sm:px-8 lg:px-[var(--reading-gutter)]"
+          className="min-w-0 flex-1 px-[var(--content-gutter)] pb-24 pt-8"
         >
-          <Outlet />
+          {/* Centred by default and switchable to full width in the settings menu. */}
+          <div className="mx-auto w-full max-w-[var(--content-max)]" data-slot="content-column">
+            <Outlet />
+          </div>
         </main>
       </div>
 

@@ -119,6 +119,13 @@
   --reading-gutter: 32px;
   --reading-gutter-phone: 20px;
 
+  /* Content column: the settings menu writes --content-gutter-pref and
+     --content-max; the shell derives the applied gutter so a phone setting never
+     squeezes the text (see the max-width override below). */
+  --content-gutter-pref: 24px;
+  --content-gutter: var(--content-gutter-pref);
+  --content-max: 1280px;
+
   /* Elevation: one soft shadow, drawer and lightbox only. */
   --shadow-pop: 0 12px 32px rgb(21 24 30 / 0.12);
 
@@ -441,6 +448,11 @@
     body {
       font-size: 16px;
     }
+
+    /* The laptop margin setting must not squeeze a phone: fixed 20px here. */
+    :root {
+      --content-gutter: 20px;
+    }
   }
 
   h1,
@@ -482,4 +494,13 @@
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* --------------------------------------------------------------------------- *
+ * full-width panel: the reader asked for the whole width, so the article keeps
+ * its 66ch measure at the start and the in-page TOC moves to the far edge
+ * instead of sitting right after the text with empty space beyond it.
+ * --------------------------------------------------------------------------- */
+[data-layout="full"] [data-slot="chapter-body"] {
+  justify-content: space-between;
 }

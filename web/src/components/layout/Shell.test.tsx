@@ -85,9 +85,19 @@ describe("Shell", () => {
     expect(within(drawer).getByRole("link", { name: /início/i })).toBeInTheDocument()
   })
 
-  it("renders the theme control in the top bar", () => {
+  it("renders the settings entry in the top bar, with the theme inside it", () => {
     renderAt("/")
     const topbar = screen.getByRole("banner")
-    expect(within(topbar).getByRole("button", { name: /tema/i })).toBeInTheDocument()
+    // The bare theme cycle moved into the settings panel; the bar exposes one
+    // entry point for theme, panel width and margin.
+    expect(within(topbar).queryByRole("button", { name: /tema/i })).not.toBeInTheDocument()
+    expect(
+      within(topbar).getByRole("button", { name: /configurações de leitura/i }),
+    ).toBeInTheDocument()
+  })
+
+  it("centres the routed page in a content column", () => {
+    renderAt("/")
+    expect(document.querySelector("[data-slot='content-column']")).not.toBeNull()
   })
 })

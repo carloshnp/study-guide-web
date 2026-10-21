@@ -148,7 +148,7 @@ export function Chapter() {
         ) : null}
       </header>
 
-      <div className="flex flex-col gap-12 xl:flex-row xl:items-start xl:gap-16">
+      <div className="flex flex-col gap-12 xl:flex-row xl:items-start xl:gap-16" data-slot="chapter-body">
         <article className="min-w-0 max-w-[var(--measure)] flex-1">
           {chapter.status === "loading" ? (
             <div aria-busy="true" data-slot="chapter-loading">
