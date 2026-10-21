@@ -5,17 +5,17 @@ Verify with the command in the task, not with a claim.
 
 ## Phase 0: scaffolding
 
-- [ ] T00 Repo hygiene and runtime
+- [x] T00 Repo hygiene and runtime
   - Acceptance: `.gitignore` excludes `data/`, `content/`, `builds/`, `current`, `sources.local.yaml`, `.venv`, `node_modules`; `git remote -v` points at `github.com/carloshnp/study-guide-web`; `data/` is its own repo with no remote.
   - Verify: `git status --short`, `git -C data remote -v` (empty), `ls -a data/.git`.
   - Files: `.gitignore`, `README.md`.
 
-- [ ] T01 Python environment
+- [x] T01 Python environment
   - Acceptance: `.venv` exists with fastapi, uvicorn, httpx, pyyaml, pillow, pytest; `pytest -q` collects one health test.
   - Verify: `.venv/bin/pytest -q`.
   - Files: `requirements.txt`, `requirements-dev.txt`, `app/main.py`, `tests/test_health.py`.
 
-- [ ] T02 Vite + React + TS + Tailwind + coss/ui
+- [x] T02 Vite + React + TS + Tailwind + coss/ui
   - Acceptance: `npm run dev` serves the shell; `npx shadcn@latest init @coss/style` and `@coss/ui` completed; `src/components/ui/button.tsx` exists and is imported by the shell.
   - Verify: `npm run dev` then `curl -s localhost:5173 | head`, `npm run typecheck`.
   - Files: `package.json`, `vite.config.ts`, `tsconfig.json`, `web/src/main.tsx`, `web/src/components/ui/*`, `web/src/styles/globals.css`.

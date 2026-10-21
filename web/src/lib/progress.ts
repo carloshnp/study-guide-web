@@ -128,3 +128,15 @@ export function percentDone(counts: ProgressCounts): number {
   const percent = Math.round((counts.done / counts.total) * 100)
   return Math.min(100, Math.max(0, percent))
 }
+
+/**
+ * Printed form of `percentDone`. Rounding hides real progress on long guides
+ * (1 of 313 rounds to 0%), which reads as "nothing done"; anything above zero but
+ * below half a percent says so instead of lying.
+ */
+export function percentLabel(counts: ProgressCounts): string {
+  if (counts.total <= 0) return "0%"
+  const percent = percentDone(counts)
+  if (percent === 0 && counts.done > 0) return "<1%"
+  return `${percent}%`
+}

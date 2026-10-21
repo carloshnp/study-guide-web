@@ -16,7 +16,7 @@ import {
   MeterTrack,
 } from "@/components/ui/meter"
 import { cn } from "@/lib/utils"
-import { percentDone, type ProgressCounts } from "@/lib/progress"
+import { percentLabel, type ProgressCounts } from "@/lib/progress"
 
 export type GuideMeterProps = {
   counts: ProgressCounts
@@ -27,7 +27,6 @@ export type GuideMeterProps = {
 
 export function GuideMeter({ counts, label = "Progresso", className }: GuideMeterProps) {
   const { done, review, total } = counts
-  const percent = percentDone(counts)
   // A guide with no units still needs a valid range; value stays 0.
   const max = total > 0 ? total : 1
 
@@ -46,7 +45,7 @@ export function GuideMeter({ counts, label = "Progresso", className }: GuideMete
           <span className="font-semibold text-foreground" data-slot="guide-meter-counts">
             {`${done}/${total}`}
           </span>
-          <span className="ms-2">{`${percent}%`}</span>
+          <span className="ms-2">{percentLabel(counts)}</span>
           {review > 0 ? (
             <span className="ms-2 text-warning" data-slot="guide-meter-review">
               {`· ${review} em revisão`}

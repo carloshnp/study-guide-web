@@ -5,6 +5,7 @@ import {
   makeUnitId,
   parseUnitId,
   percentDone,
+  percentLabel,
   statusOf,
   summarizeByChapter,
   type ProgressStatus,
@@ -93,5 +94,12 @@ describe("progress aggregation", () => {
     expect(percentDone({ done: 2, review: 1, total: 3 })).toBe(67)
     expect(percentDone({ done: 3, review: 2, total: 3 })).toBe(100)
     expect(percentDone({ done: 0, review: 0, total: 0 })).toBe(0)
+  })
+
+  it("prints real but tiny progress instead of 0%", () => {
+    expect(percentLabel({ done: 1, review: 0, total: 313 })).toBe("<1%")
+    expect(percentLabel({ done: 0, review: 0, total: 313 })).toBe("0%")
+    expect(percentLabel({ done: 1, review: 0, total: 3 })).toBe("33%")
+    expect(percentLabel({ done: 0, review: 0, total: 0 })).toBe("0%")
   })
 })
