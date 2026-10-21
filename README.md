@@ -117,6 +117,52 @@ npx playwright test --headed                      # needs a desktop session
 npx playwright show-trace test-results/<case>/trace.zip
 ```
 
+## Two hosts: laptop (authoring) and carloshnp-1 (serving)
+
+The site runs on **carloshnp-1** (`https://carloshnp-1.tailfa3301.ts.net/`), the
+always-on machine, because the laptop travels. The laptop stays the authoring
+host: the source folders live on its `D:` drive, `pipeline.ingest` runs there, and
+`data/` is canonical there. The server holds a copy of `data/` and the published
+build only.
+
+```
+laptop  D: sources --> pipeline.ingest --> ~/study-site/data (canonical, own git)
+                                              |
+                                              |  scripts/sync-remote.sh (rsync + build + publish)
+                                              v
+carloshnp-1  ~/study-site/data --> pipeline.build --> content/ --> builds/<ts>/ <-- current
+                                              ^                                  |
+                                              |                                  v
+                        estudos.service (127.0.0.1:8080) <-- tailscale serve 443
+                                              |
+                                     state.db (progress + notes, lives HERE)
+```
+
+Rules that keep the two hosts sane:
+
+- **Never sync `state.db`.** It holds the reading progress and notes written from
+  the phone; the laptop's copy is stale the moment the phone marks a section.
+- **The watcher runs on the laptop only.** `estudos-watch.service` needs the
+  `D:` sources and `sources.local.yaml`; on the server those paths do not exist.
+  Do not enable it there.
+- **One public edge.** `tailscale serve --https=443` is on carloshnp-1 and off on
+  the laptop (`tailscale serve --https=443 off`), so there is a single URL and a
+  single database.
+- `tailscale serve` needs the operator bit once per host:
+  `sudo tailscale set --operator=$USER`. `loginctl enable-linger $USER` keeps the
+  user unit alive without a login session.
+
+Adding or regenerating a guide:
+
+```bash
+# laptop
+cd ~/study-site
+.venv/bin/python -m pipeline.ingest --all          # adopt from D:
+.venv/bin/python -m pipeline.drift                 # expect "ok" for all
+scripts/sync-remote.sh                             # rsync data/, rebuild, publish, restart
+curl -s https://carloshnp-1.tailfa3301.ts.net/content/index.json | jq '.guides | length'
+```
+
 ## Deploy (systemd user units + Tailscale)
 
 The service serves the **published** tree, never the working directories:

@@ -2,7 +2,7 @@
 // service on 127.0.0.1:8080 (uvicorn + published build), not from a dev server.
 import { chromium } from "playwright"
 
-const BASE = "http://127.0.0.1:8080"
+const BASE = process.env.BASE ?? "http://127.0.0.1:8080"
 const OUT = "/home/carloshnp/.hermes/cache/scratch/shots"
 
 const states = [
