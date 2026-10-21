@@ -127,7 +127,7 @@ export function SettingsMenu() {
               </Button>
             </div>
             <p className="text-caption text-faint">
-              Muda só o texto dos capítulos, de {FONT_SIZE.min} a {FONT_SIZE.max} px.
+              Aumenta ou diminui todo o texto do site, de {FONT_SIZE.min} a {FONT_SIZE.max} px.
             </p>
           </section>
 
