@@ -5,7 +5,7 @@ import { chromium } from "playwright"
 
 const BASE = process.env.BASE ?? "https://carloshnp-1.tailfa3301.ts.net"
 const OUT = "/home/carloshnp/.hermes/cache/scratch/shots"
-const CHAPTER = "/g/aluminio/c/13-o-diagrama-ternario-al-cu-mg-e-o-glossario-do-capitulo"
+const CHAPTER = "/g/aluminio/c/13-diagramas-de-equilibrio-ternarios-al-cu-mg"
 
 const browser = await chromium.launch()
 

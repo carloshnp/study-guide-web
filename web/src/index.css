@@ -493,11 +493,12 @@
 }
 
 /* --------------------------------------------------------------------------- *
- * full-width panel: the reader asked for the whole width, so the article keeps
- * its 66ch measure at the start and the in-page TOC moves to the far edge
- * instead of sitting right after the text with empty space beyond it.
+ * chapter body: whichever width the reader chose, the article keeps its 66ch
+ * measure at the start of the column and the in-page TOC sits at the far edge.
+ * Without this the pair packed left inside a centred column and left an empty
+ * band on the right, which is what made the page look off-centre.
  * --------------------------------------------------------------------------- */
-[data-layout="full"] [data-slot="chapter-body"] {
+[data-slot="chapter-body"] {
   justify-content: space-between;
 }
 
