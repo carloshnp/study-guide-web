@@ -123,8 +123,6 @@
      --content-max; the shell derives the applied gutter so a phone setting never
      squeezes the text (see the max-width override below). */
   --content-gutter-pref: 40px;
-  /* Reading size: the settings menu moves it between 16 and 24px. */
-  --reader-size: 18px;
   --content-gutter: var(--content-gutter-pref);
   --content-max: 1280px;
 
@@ -274,41 +272,6 @@
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "FiraCode Nerd Font", monospace;
-
-  /* Type scale from MASTER.md › Typography */
-  --text-kicker: 12px;
-  --text-kicker--line-height: 1;
-  --text-kicker--letter-spacing: 0.16em;
-  --text-kicker--font-weight: 700;
-  --text-caption: 13px;
-  --text-caption--line-height: 1.45;
-  --text-caption--font-weight: 400;
-  --text-meta: 14px;
-  --text-meta--line-height: 1.5;
-  --text-meta--font-weight: 500;
-  --text-table: 15px;
-  --text-table--line-height: 1.4;
-  --text-table--font-weight: 400;
-  --text-h4: 17px;
-  --text-h4--line-height: 1.4;
-  --text-h4--font-weight: 600;
-  --text-body: 18px;
-  --text-body--line-height: 1.65;
-  --text-body--font-weight: 400;
-  --text-h3: 19px;
-  --text-h3--line-height: 1.35;
-  --text-h3--font-weight: 600;
-  --text-h2: 23px;
-  --text-h2--line-height: 1.3;
-  --text-h2--font-weight: 700;
-  --text-chapter: 30px;
-  --text-chapter--line-height: 1.2;
-  --text-chapter--letter-spacing: -0.015em;
-  --text-chapter--font-weight: 700;
-  --text-page: 34px;
-  --text-page--line-height: 1.15;
-  --text-page--letter-spacing: -0.02em;
-  --text-page--font-weight: 800;
 
   /* Radius scale. `rounded-card` is the 14px surface from the design system. */
   --radius-sm: calc(var(--radius) * 0.6);
@@ -528,18 +491,78 @@
   }
 }
 
+/* Type scale from MASTER.md › Typography. Deliberately not `@theme inline`: the
+   utilities must emit `var(--text-…)` so the reading-size setting can scale every
+   token from one place (see --font-scale below). Layout spacing stays in rem and
+   is untouched, so the interface grows the text without reflowing the grid. */
+@theme {
+  --text-kicker: 12px;
+  --text-kicker--line-height: 1;
+  --text-kicker--letter-spacing: 0.16em;
+  --text-kicker--font-weight: 700;
+  --text-caption: 13px;
+  --text-caption--line-height: 1.45;
+  --text-caption--font-weight: 400;
+  --text-meta: 14px;
+  --text-meta--line-height: 1.5;
+  --text-meta--font-weight: 500;
+  --text-table: 15px;
+  --text-table--line-height: 1.4;
+  --text-table--font-weight: 400;
+  --text-h4: 17px;
+  --text-h4--line-height: 1.4;
+  --text-h4--font-weight: 600;
+  --text-body: 18px;
+  --text-body--line-height: 1.65;
+  --text-body--font-weight: 400;
+  --text-h3: 19px;
+  --text-h3--line-height: 1.35;
+  --text-h3--font-weight: 600;
+  --text-h2: 23px;
+  --text-h2--line-height: 1.3;
+  --text-h2--font-weight: 700;
+  --text-chapter: 30px;
+  --text-chapter--line-height: 1.2;
+  --text-chapter--letter-spacing: -0.015em;
+  --text-chapter--font-weight: 700;
+  --text-page: 34px;
+  --text-page--line-height: 1.15;
+  --text-page--letter-spacing: -0.02em;
+  --text-page--font-weight: 800;
+}
+
+
 /* --------------------------------------------------------------------------- *
- * Reading size: the article scales with --reader-size. The type utilities read
- * their sizes from these tokens, so redefining them inside the prose scope scales
- * the whole article without touching the sidebar or the top bar, and headings and
- * tables keep their ratio to the body text.
+ * Text scale: one multiplier moves every type token on the site, so the reading
+ * size setting grows the whole interface instead of only the article. Layout
+ * spacing, radii and column widths are untouched. The setting writes --font-scale
+ * (18px base = 1); these declarations are unlayered on purpose, since the theme
+ * tokens above are layered and an @theme rule would lose to them.
  * --------------------------------------------------------------------------- */
-[data-slot="reader-prose"] {
-  --text-body: var(--reader-size);
-  --text-h2: calc(var(--reader-size) * 1.278);
-  --text-h3: calc(var(--reader-size) * 1.056);
-  --text-h4: calc(var(--reader-size) * 0.945);
-  --text-table: calc(var(--reader-size) * 0.833);
+:root {
+  --font-scale: 1;
+
+  --text-kicker: calc(12px * var(--font-scale));
+  --text-caption: calc(13px * var(--font-scale));
+  --text-meta: calc(14px * var(--font-scale));
+  --text-table: calc(15px * var(--font-scale));
+  --text-h4: calc(17px * var(--font-scale));
+  --text-body: calc(18px * var(--font-scale));
+  --text-h3: calc(19px * var(--font-scale));
+  --text-h2: calc(23px * var(--font-scale));
+  --text-chapter: calc(30px * var(--font-scale));
+  --text-page: calc(34px * var(--font-scale));
+
+  /* Tailwind's own sizes, used by the UI kit around the article. */
+  --text-xs: calc(0.75rem * var(--font-scale));
+  --text-sm: calc(0.875rem * var(--font-scale));
+  --text-base: calc(1rem * var(--font-scale));
+  --text-lg: calc(1.125rem * var(--font-scale));
+  --text-xl: calc(1.25rem * var(--font-scale));
+  --text-2xl: calc(1.5rem * var(--font-scale));
+  --text-3xl: calc(1.875rem * var(--font-scale));
+  --text-4xl: calc(2.25rem * var(--font-scale));
+  --text-5xl: calc(3rem * var(--font-scale));
 }
 
 /* The measure is in ch, so a larger size would otherwise widen the column past

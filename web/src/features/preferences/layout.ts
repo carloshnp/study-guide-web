@@ -8,9 +8,9 @@
  * owns the value, writes the CSS custom properties the layout already reads, and
  * notifies subscribers, so no component has to pass props down the tree.
  *
- * The reading size lives here too: it is the same kind of device-local preference,
- * shares the storage key, and is applied as `--reader-size`, which only the prose
- * scope reads, so the UI chrome does not grow with the article.
+ * The text size lives here too: it is the same kind of device-local preference and
+ * shares the storage key. It is applied as a `--font-scale` ratio, which every type
+ * token multiplies, so the whole interface grows instead of only the article.
  *
  * Mobile safety: the chosen margin is written to `--content-gutter-pref`, and the
  * stylesheet derives `--content-gutter` from it with a phone override. A laptop
@@ -28,7 +28,7 @@ export type LayoutPrefs = {
   mode: LayoutMode
   /** Side margin in px, applied through `--content-gutter-pref`. */
   gutter: number
-  /** Reading size in px, applied through `--reader-size`. 18 is the design default. */
+  /** Text size in px, applied as a `--font-scale` ratio. 18 is the design default. */
   fontSize: number
 }
 
@@ -98,7 +98,7 @@ export function applyLayout(prefs: LayoutPrefs, root: HTMLElement | null = null)
   const element = root ?? (typeof document === "undefined" ? null : document.documentElement)
   if (element === null) return
   element.style.setProperty("--content-gutter-pref", `${prefs.gutter}px`)
-  element.style.setProperty("--reader-size", `${prefs.fontSize}px`)
+  element.style.setProperty("--font-scale", `${prefs.fontSize / FONT_SIZE.default}`)
   element.style.setProperty("--content-max", prefs.mode === "full" ? "none" : `${CONTENT_MAX_PX}px`)
   element.dataset.layout = prefs.mode
 }

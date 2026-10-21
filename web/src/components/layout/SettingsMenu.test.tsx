@@ -63,8 +63,8 @@ describe("SettingsMenu", () => {
 
     await user.click(await screen.findByRole("button", { name: /aumentar fonte/i }))
     expect(screen.getByText(`${FONT_SIZE.default + 1} px`)).toBeInTheDocument()
-    expect(document.documentElement.style.getPropertyValue("--reader-size")).toBe(
-      `${FONT_SIZE.default + 1}px`,
+    expect(Number(document.documentElement.style.getPropertyValue("--font-scale"))).toBeCloseTo(
+      (FONT_SIZE.default + 1) / FONT_SIZE.default,
     )
 
     await user.click(screen.getByRole("button", { name: /diminuir fonte/i }))

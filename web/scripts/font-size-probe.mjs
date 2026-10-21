@@ -15,11 +15,16 @@ const prose = () =>
   page.evaluate(() => {
     const p = document.querySelector("[data-slot='reader-prose'] p")
     const h2 = document.querySelector("[data-slot='reader-prose'] h2")
+    const sidebar = document.querySelector("aside a, aside button")
+    const topbar = document.querySelector("header a, header button")
+    const size = (el) => (el ? getComputedStyle(el).fontSize : null)
     const root = getComputedStyle(document.documentElement)
     return {
-      token: root.getPropertyValue("--reader-size").trim(),
-      paragraph: p ? getComputedStyle(p).fontSize : null,
-      h2: h2 ? getComputedStyle(h2).fontSize : null,
+      scale: root.getPropertyValue("--font-scale").trim(),
+      paragraph: size(p),
+      h2: size(h2),
+      sidebar: size(sidebar),
+      topbar: size(topbar),
       articleWidth: Math.round(document.querySelector("[data-slot='chapter-body'] > article")?.getBoundingClientRect().width ?? 0),
       scrollW: document.documentElement.scrollWidth,
       viewport: window.innerWidth,

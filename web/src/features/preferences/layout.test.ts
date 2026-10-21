@@ -70,7 +70,7 @@ describe("layout preferences", () => {
 
     setLayoutFontSize(30)
     expect(getLayoutPrefs().fontSize).toBe(24)
-    expect(document.documentElement.style.getPropertyValue("--reader-size")).toBe("24px")
+    expect(Number(document.documentElement.style.getPropertyValue("--font-scale"))).toBeCloseTo(24 / 18)
 
     setLayoutFontSize(4)
     expect(getLayoutPrefs().fontSize).toBe(16)
