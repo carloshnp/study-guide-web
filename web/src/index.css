@@ -507,8 +507,16 @@
    ~85 characters, 80ch ~100, 74ch ~90, and uncapped reached 135, which the visual check
    rejected). The pair stays centred so the extra width does not become a void on
    one side, and the TOC stays next to the text instead of drifting to the edge. */
+/* The chapter shrinks to its own content width and centres as a block, so the
+   header, the text and the TOC share one left edge instead of each centring in the
+   full column on its own. */
+[data-layout="full"] [data-slot="chapter-root"] {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
 [data-layout="full"] [data-slot="chapter-body"] {
-  justify-content: center;
   gap: 4rem;
 }
 

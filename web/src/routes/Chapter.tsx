@@ -123,7 +123,7 @@ export function Chapter() {
   }, [chapterSlug, data, guide.data?.title, guideId])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6" data-slot="chapter-root">
       <header className="flex max-w-[var(--measure)] flex-col gap-3" data-slot="chapter-header">
         <Link
           className="inline-flex min-h-11 w-fit items-center gap-1.5 text-meta font-semibold text-brand underline-offset-4 hover:underline"
