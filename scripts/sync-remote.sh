@@ -21,7 +21,7 @@ if ! ssh "${SSH_OPTS[@]}" "$HOST" true 2>/dev/null; then
 fi
 
 echo "== drift on this machine =="
-(cd "$ROOT" && .venv/bin/python -m pipeline.drift --json | jq -r '.[] | "\(.guide)\t\(.status)"')
+(cd "$ROOT" && .venv/bin/python -m pipeline.drift --json 2>/dev/null | jq -r '.[] | "\(.guide_id)\t\(.status)"') || true
 
 echo "== updating code on $HOST =="
 ssh "${SSH_OPTS[@]}" "$HOST" 'cd ~/study-site && git pull --ff-only --quiet && git log --oneline -1'
