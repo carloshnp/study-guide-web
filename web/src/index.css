@@ -502,13 +502,20 @@
   justify-content: space-between;
 }
 
-/* Full-width mode means the text uses the room it was given: the article and the
-   prose inside it drop the 66ch cap, and the TOC stays at the far edge. Centred
-   mode keeps the readable measure on purpose. */
+/* Full-width mode widens the prose to 80ch — noticeably more text than the 66ch
+   default, still short enough to read a line without losing it (measured: 66ch is
+   ~85 characters, 80ch ~100, and uncapped reached 135, which the visual check
+   rejected). The pair stays centred so the extra width does not become a void on
+   one side, and the TOC stays next to the text instead of drifting to the edge. */
+[data-layout="full"] [data-slot="chapter-body"] {
+  justify-content: center;
+  gap: 4rem;
+}
+
 [data-layout="full"] [data-slot="chapter-body"] > article,
 [data-layout="full"] [data-slot="chapter-header"],
 [data-layout="full"] [data-slot="reader-prose"] {
-  max-width: none;
+  max-width: 80ch;
 }
 
 /* The reader's margin setting must never squeeze a phone: below 768px the applied
