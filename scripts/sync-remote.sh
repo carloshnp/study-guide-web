@@ -32,4 +32,4 @@ echo "== rebuilding and publishing on $HOST =="
 ssh "${SSH_OPTS[@]}" "$HOST" 'cd ~/study-site && .venv/bin/python -m pipeline.build --all | tail -7 && .venv/bin/python -m pipeline.publish --restart | tail -8'
 
 echo "== live check =="
-ssh "${SSH_OPTS[@]}" "$HOST" 'curl -s -m 5 http://127.0.0.1:8080/api/health; echo; curl -s -m 5 -o /dev/null -w "index %{http_code}\n" http://127.0.0.1:8080/content/index.json'
+ssh "${SSH_OPTS[@]}" "$HOST" 'for i in $(seq 1 10); do code=$(curl -s -m 3 -o /dev/null -w "%{http_code}" http://127.0.0.1:8080/api/health); [ "$code" = 200 ] && break; sleep 1; done; echo "health $code"; curl -s -m 5 http://127.0.0.1:8080/api/health; echo; curl -s -m 5 -o /dev/null -w "index %{http_code}\n" http://127.0.0.1:8080/content/index.json'
