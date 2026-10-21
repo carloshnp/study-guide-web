@@ -23,6 +23,9 @@ fi
 echo "== drift on this machine =="
 (cd "$ROOT" && .venv/bin/python -m pipeline.drift --json | jq -r '.[] | "\(.guide)\t\(.status)"')
 
+echo "== updating code on $HOST =="
+ssh "${SSH_OPTS[@]}" "$HOST" 'cd ~/study-site && git pull --ff-only --quiet && git log --oneline -1'
+
 echo "== syncing data/ to $HOST =="
 rsync -a --delete --itemize-changes \
   -e "ssh ${SSH_OPTS[*]}" \

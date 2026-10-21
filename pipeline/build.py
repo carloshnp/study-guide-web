@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 from pipeline.assets import cover_image, rewrite_links
+from pipeline.cover_links import CoverLinkStats, rewrite_cover_anchors
 from pipeline.catalog import Catalog, CatalogError, GuideEntry, load
 from pipeline.search import build_documents
 from pipeline.split import Chapter, SplitDocument, split_document
@@ -57,6 +58,7 @@ class GuideBuild:
     images: int
     cover: str | None
     bytes_written: int
+    cover_links: CoverLinkStats = CoverLinkStats()
 
 
 @dataclass(frozen=True)
@@ -248,6 +250,11 @@ def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
         media_root,
         assets=source.assets,
     )
+    # The authored index still holds in-page anchors from the one-page era; point
+    # them at the chapter and section routes this build just created.
+    cover_markdown, cover_links = rewrite_cover_anchors(
+        cover_markdown, guide_id=entry.id, chapters=source.document.chapters
+    )
 
     written = 0
     image_count = 0
@@ -302,6 +309,7 @@ def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
         images=image_count,
         cover=cover_path,
         bytes_written=written,
+        cover_links=cover_links,
     )
 
 
@@ -385,7 +393,8 @@ def describe(report: BuildReport) -> str:
     """One plain-text line per guide plus a total, for the CLI."""
     lines = [
         f"{build.guide_id:<12} chapters={build.chapters:<3} sections={build.sections:<4} "
-        f"images={build.images:<4} cover={build.cover or '-'}"
+        f"images={build.images:<4} cover={build.cover or '-'} "
+        f"links={build.cover_links.rewritten}/{build.cover_links.total}"
         for build in report.guides
     ]
     megabytes = report.bytes_written / (1024 * 1024)
