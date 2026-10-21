@@ -96,8 +96,8 @@ export function SettingsMenu() {
               </label>
               <p className="text-meta text-muted-foreground" id="config-largura-ajuda">
                 {layout.isFullWidth
-                  ? "O texto usa toda a largura, com o sumário encostado à direita."
-                  : "Centralizado, com margens iguais dos dois lados."}
+                  ? "O texto ocupa todo o painel, até o sumário. Linhas mais longas."
+                  : "Centralizado, com largura de leitura confortável."}
               </p>
             </div>
             <Switch
