@@ -502,33 +502,17 @@
   justify-content: space-between;
 }
 
-/* Full-width mode widens the prose to 74ch — noticeably more text than the 66ch
-   default, still short enough to read a line without losing it (measured: 66ch is
-   ~85 characters, 80ch ~100, 74ch ~90, and uncapped reached 135, which the visual check
-   rejected). The pair stays centred so the extra width does not become a void on
-   one side, and the TOC stays next to the text instead of drifting to the edge. */
-/* The chapter shrinks to its own content width and centres as a block, so the
-   header, the text and the TOC share one left edge instead of each centring in the
-   full column on its own. */
-[data-layout="full"] [data-slot="chapter-root"] {
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
-}
-
-[data-layout="full"] [data-slot="chapter-body"] {
-  gap: 4rem;
-}
-
+/* Full-width mode means exactly that: the text takes the whole panel, from the
+   side gutter to the TOC rail, so no empty band is left beside it. The 66ch
+   measure stays in centred mode, which is the default; here the reader asked for
+   the width and long lines are the accepted cost (measured at 1920: ~135
+   characters per line, versus ~85 in centred mode). */
 [data-layout="full"] [data-slot="chapter-body"] > article,
 [data-layout="full"] [data-slot="chapter-header"],
 [data-layout="full"] [data-slot="reader-prose"] {
-  max-width: 74ch;
+  max-width: none;
 }
 
-/* The header sits above the two-column body and only stretches to its text, so it
-   needs an explicit full width to start at the same left edge as the body text. The
-   centring comes from the chapter root, not from auto margins here. */
 [data-layout="full"] [data-slot="chapter-header"] {
   width: 100%;
 }
