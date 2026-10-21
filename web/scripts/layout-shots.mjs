@@ -32,6 +32,16 @@ async function measure(page) {
       maxWidth: root.getPropertyValue("--content-max").trim(),
       gutter: root.getPropertyValue("--content-gutter").trim(),
       column: rect ? { left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width) } : null,
+      article: (() => {
+        const el = document.querySelector("[data-slot='chapter-body'] > article")
+        const r = el?.getBoundingClientRect()
+        return r ? { left: Math.round(r.left), right: Math.round(r.right) } : null
+      })(),
+      toc: (() => {
+        const el = document.querySelector("[data-slot='chapter-body'] > aside, [data-slot='chapter-body'] > nav")
+        const r = el?.getBoundingClientRect()
+        return r ? { left: Math.round(r.left), right: Math.round(r.right) } : null
+      })(),
       viewport: window.innerWidth,
       scrollW: document.documentElement.scrollWidth,
     }

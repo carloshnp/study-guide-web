@@ -27,7 +27,7 @@ export type LayoutPrefs = {
 }
 
 export const LAYOUT_STORAGE_KEY = "estudos-layout"
-export const CONTENT_MAX_PX = 1280
+export const CONTENT_MAX_PX = 1120
 
 export const GUTTER = {
   min: 0,

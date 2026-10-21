@@ -502,6 +502,15 @@
   justify-content: space-between;
 }
 
+/* Full-width mode means the text uses the room it was given: the article and the
+   prose inside it drop the 66ch cap, and the TOC stays at the far edge. Centred
+   mode keeps the readable measure on purpose. */
+[data-layout="full"] [data-slot="chapter-body"] > article,
+[data-layout="full"] [data-slot="chapter-header"],
+[data-layout="full"] [data-slot="reader-prose"] {
+  max-width: none;
+}
+
 /* The reader's margin setting must never squeeze a phone: below 768px the applied
    gutter is fixed at 20px, whatever a laptop stored. Unlayered on purpose — the
    token block above is unlayered too, so an @layer rule would lose to it. */
