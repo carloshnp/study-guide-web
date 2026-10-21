@@ -529,28 +529,17 @@
 }
 
 /* --------------------------------------------------------------------------- *
- * Reading size: the article scales with --reader-size, headings and tables keep
- * their ratio to the body text, and the UI chrome around it does not move. Only
- * the prose scope is affected, so a 24px article does not blow up the sidebar.
+ * Reading size: the article scales with --reader-size. The type utilities read
+ * their sizes from these tokens, so redefining them inside the prose scope scales
+ * the whole article without touching the sidebar or the top bar, and headings and
+ * tables keep their ratio to the body text.
  * --------------------------------------------------------------------------- */
 [data-slot="reader-prose"] {
-  font-size: var(--reader-size);
-}
-
-[data-slot="reader-prose"] h2 {
-  font-size: calc(var(--reader-size) * 1.278);
-}
-
-[data-slot="reader-prose"] h3 {
-  font-size: calc(var(--reader-size) * 1.056);
-}
-
-[data-slot="reader-prose"] h4 {
-  font-size: calc(var(--reader-size) * 0.945);
-}
-
-[data-slot="reader-prose"] table {
-  font-size: calc(var(--reader-size) * 0.833);
+  --text-body: var(--reader-size);
+  --text-h2: calc(var(--reader-size) * 1.278);
+  --text-h3: calc(var(--reader-size) * 1.056);
+  --text-h4: calc(var(--reader-size) * 0.945);
+  --text-table: calc(var(--reader-size) * 0.833);
 }
 
 /* The measure is in ch, so a larger size would otherwise widen the column past
