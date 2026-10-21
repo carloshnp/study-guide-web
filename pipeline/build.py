@@ -29,6 +29,7 @@ from typing import Any, Iterable, Sequence
 
 from pipeline.assets import cover_image, rewrite_links
 from pipeline.cover_links import CoverLinkStats, rewrite_cover_anchors
+from pipeline.cover_trim import trim_cover
 from pipeline.catalog import Catalog, CatalogError, GuideEntry, load
 from pipeline.search import build_documents
 from pipeline.split import Chapter, SplitDocument, split_document
@@ -255,6 +256,9 @@ def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
     cover_markdown, cover_links = rewrite_cover_anchors(
         cover_markdown, guide_id=entry.id, chapters=source.document.chapters
     )
+    # The page header repeats the metadata and the chapter list is a better index,
+    # so the cover is trimmed to the narrative it alone carries (often nothing).
+    cover_markdown = trim_cover(cover_markdown)
 
     written = 0
     image_count = 0

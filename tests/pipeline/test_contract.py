@@ -96,9 +96,9 @@ def test_guide_json_shape_and_cover_markdown(built: tuple[Path, Path]) -> None:
     assert guide["meta"]["sources"] == []
     assert set(guide["cover"]) == {"markdown"}
     cover = guide["cover"]["markdown"]
-    assert cover.startswith("# Alumínio")
-    assert "## Índice" in cover
-    assert "1. Capítulo um" in cover
+    # The cover held only a title, the metadata block and the manual index, all of
+    # which the page header and the chapter list already provide, so it is empty.
+    assert cover == ""
     assert "## 1. O alumínio" not in cover
     assert "Texto do capítulo um" not in cover
     assert len(guide["chapters"]) == 2
