@@ -527,11 +527,10 @@
 }
 
 /* The header sits above the two-column body and only stretches to its text, so it
-   needs an explicit full width plus auto margins to start at the same left edge as
-   the body text it introduces. */
+   needs an explicit full width to start at the same left edge as the body text. The
+   centring comes from the chapter root, not from auto margins here. */
 [data-layout="full"] [data-slot="chapter-header"] {
   width: 100%;
-  margin-inline: auto;
 }
 
 /* The reader's margin setting must never squeeze a phone: below 768px the applied
