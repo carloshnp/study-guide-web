@@ -1,0 +1,64 @@
+version: 1
+
+# Curated list of published guides. Absolute source paths live in
+# sources.local.yaml, which is gitignored. Chapter counts are measured by
+# pipeline.ingest --all --check and must match expected_chapters exactly.
+
+subjects:
+  - {id: metalurgia, title: Metalurgia, order: 1}
+  - {id: programacao, title: Programação, order: 2}
+
+guides:
+  - id: aluminio
+    title: Alumínio
+    subject: metalurgia
+    type: teoria
+    split: 2
+    expected_chapters: 29
+    order: 1
+    published: true
+    updated: 2026-10-21
+
+  - id: titanio
+    title: Titânio
+    subject: metalurgia
+    type: teoria
+    split: 2
+    expected_chapters: 39
+    order: 2
+    published: true
+    updated: 2026-10-21
+
+  # 9, not 16: `split_document` promotes the trailing H1 blocks (banco de
+  # questões, referência rápida, glossário) to chapters of their own, so the
+  # question and quick-reference sections counted here before are now sections
+  # of those three chapters. 6 theory chapters + 3 appendix chapters = 9.
+  - id: magnesio
+    title: Magnésio
+    subject: metalurgia
+    type: teoria
+    split: 2
+    expected_chapters: 9
+    order: 3
+    published: true
+    updated: 2026-10-21
+
+  - id: dsa
+    title: Estruturas de Dados e Algoritmos
+    subject: programacao
+    type: teoria
+    split: 1
+    expected_chapters: 12
+    order: 4
+    published: true
+    updated: 2026-10-21
+
+  - id: llm-l0l1
+    title: Fundamentos para L0 e L1 (LLM)
+    subject: programacao
+    type: teoria
+    split: 2
+    expected_chapters: 14
+    order: 5
+    published: true
+    updated: 2026-10-21

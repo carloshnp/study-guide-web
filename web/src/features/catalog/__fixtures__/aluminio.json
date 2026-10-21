@@ -1,0 +1,46 @@
+{
+  "id": "aluminio",
+  "title": "Alumínio",
+  "subject": "metalurgia",
+  "type": "teoria",
+  "meta": {
+    "discipline": "EET 428",
+    "professor": "Luiz Henrique de Almeida",
+    "sources": ["3 Metalurgia Física das Ligas Não Ferrosas - Alumínio I 2026.pdf"],
+    "generated": "2026-09-21"
+  },
+  "cover": { "markdown": "# Alumínio\n\n> Guia de estudo.\n" },
+  "chapters": [
+    {
+      "id": "01-o-aluminio",
+      "number": 1,
+      "title": "O alumínio como metal de engenharia",
+      "slug": "01-o-aluminio",
+      "part": null,
+      "kind": "teoria",
+      "sections": [
+        {
+          "id": "11-propriedades",
+          "title": "1.1 Propriedades físicas",
+          "level": 3,
+          "parentId": null
+        },
+        {
+          "id": "111-ligas",
+          "title": "1.1.1 Ligas leves",
+          "level": 4,
+          "parentId": "11-propriedades"
+        }
+      ]
+    },
+    {
+      "id": "02-ligas",
+      "number": 2,
+      "title": "Classificação das ligas",
+      "slug": "02-ligas",
+      "part": null,
+      "kind": "teoria",
+      "sections": []
+    }
+  ]
+}

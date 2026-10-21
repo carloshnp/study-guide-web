@@ -1,0 +1,31 @@
+{
+  "id": "dsa",
+  "title": "Estruturas de Dados e Algoritmos",
+  "subject": "programacao",
+  "type": "banco",
+  "meta": { "discipline": null, "professor": null, "sources": [], "generated": null },
+  "cover": { "markdown": "# Estruturas de Dados\n" },
+  "chapters": [
+    {
+      "id": "01-complexidade",
+      "number": 1,
+      "title": "Complexidade",
+      "slug": "01-complexidade",
+      "part": null,
+      "kind": "teoria",
+      "sections": [
+        { "id": "11-big-o", "title": "1.1 Big O", "level": 2, "parentId": null },
+        { "id": "12-amortizado", "title": "1.2 Custo amortizado", "level": 2, "parentId": null }
+      ]
+    },
+    {
+      "id": "90-banco",
+      "number": 2,
+      "title": "Banco de questões",
+      "slug": "90-banco",
+      "part": null,
+      "kind": "banco",
+      "sections": []
+    }
+  ]
+}

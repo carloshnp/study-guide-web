@@ -1,0 +1,21 @@
+{
+  "id": "titanio",
+  "title": "Titânio",
+  "subject": "metalurgia",
+  "type": "teoria",
+  "meta": { "discipline": "EET 428", "professor": "Luiz Henrique de Almeida", "sources": [], "generated": null },
+  "cover": { "markdown": "# Titânio\n" },
+  "chapters": [
+    {
+      "id": "01-titanio",
+      "number": 1,
+      "title": "O titânio na engenharia",
+      "slug": "01-titanio",
+      "part": null,
+      "kind": "teoria",
+      "sections": [
+        { "id": "11-abundancia", "title": "1.1 Abundância", "level": 3, "parentId": null }
+      ]
+    }
+  ]
+}

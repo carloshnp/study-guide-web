@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Guias de estudo: metalurgia, programação e fundamentos." />
+    <title>Estudos</title>
+    <script>
+      /*
+       * Resolve the colour scheme before the first paint so the wrong theme never
+       * flashes. Mirrors src/lib/theme.ts: `estudos-theme` holds auto|light|dark,
+       * `auto` follows prefers-color-scheme. Keep the two in sync.
+       */
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("estudos-theme");
+          var choice = stored === "light" || stored === "dark" ? stored : "auto";
+          var prefersDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var dark = choice === "dark" || (choice === "auto" && !!prefersDark);
+          var root = document.documentElement;
+          root.classList.toggle("dark", dark);
+          root.style.colorScheme = dark ? "dark" : "light";
+          root.setAttribute("data-theme", choice);
+        } catch (error) {
+          /* A blocked localStorage should not stop the page from rendering. */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# content and builds are generated
+content/
+builds/
+current
+state.db
+state.db-wal
+state.db-shm
+# local provenance and canonical corpus (own git repo)
+sources.local.yaml
+data/
+# node
+node_modules/
+web/dist/
+web/node_modules/
+# playwright
+test-results/
+playwright-report/
+# editors
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,65 @@
+[
+  {
+    "id": "magnesio/01-o-magnesio-como-metal-de-engenharia",
+    "guideId": "magnesio",
+    "guideTitle": "Magnésio",
+    "chapterId": "01-o-magnesio-como-metal-de-engenharia",
+    "title": "O magnésio como metal de engenharia",
+    "headings": ["1.1 Obtenção e viabilidade comercial", "1.2 Propriedades físicas"],
+    "text": "O magnésio é o metal estrutural mais leve usado em larga escala. A obtenção industrial segue a eletrólise do cloreto ou a redução térmica do óxido. Ligas de magnésio com alumínio e zinco elevam a resistência mecânica sem comprometer a densidade, mas a oxidação superficial exige proteção."
+  },
+  {
+    "id": "magnesio/04-ligas-de-magnesio-e-suas-aplicacoes",
+    "guideId": "magnesio",
+    "guideTitle": "Magnésio",
+    "chapterId": "04-ligas-de-magnesio-e-suas-aplicacoes",
+    "title": "Ligas de magnésio e suas aplicações",
+    "headings": ["4.1 Ligas Mg-Al-Zn", "4.2 Fundição sob pressão"],
+    "text": "As ligas de magnésio com alumínio formam a família Mg-Al-Zn, usada em componentes automotivos fundidos sob pressão. A resistência específica é alta, porém a resistência à corrosão depende do controle de impurezas como ferro e níquel."
+  },
+  {
+    "id": "aluminio/04-solucao-solida-e-precipitacao",
+    "guideId": "aluminio",
+    "guideTitle": "Alumínio",
+    "chapterId": "04-solucao-solida-e-precipitacao",
+    "title": "Solução sólida e precipitação",
+    "headings": ["4.1 Solubilidade do cobre", "4.2 Zonas de Guinier-Preston"],
+    "text": "A solubilidade do cobre no alumínio cai com a temperatura. O tratamento térmico de solubilização leva a liga a uma solução sólida homogênea; a têmpera retém essa solução sólida supersaturada e o envelhecimento precipita fases finas que endurecem o material."
+  },
+  {
+    "id": "aluminio/05-tratamentos-termicos-do-aluminio",
+    "guideId": "aluminio",
+    "guideTitle": "Alumínio",
+    "chapterId": "05-tratamentos-termicos-do-aluminio",
+    "title": "Tratamentos térmicos do alumínio",
+    "headings": ["5.1 Recozimento", "5.2 Têmpera e envelhecimento"],
+    "text": "O aquecimento controlado promove a solução sólida dos elementos de liga na matriz. O resfriamento rápido retém a solução sólida supersaturada, condição necessária para o endurecimento por precipitação. A solução sólida também explica a queda de condutividade elétrica observada após a têmpera."
+  },
+  {
+    "id": "titanio/02-fases-alfa-e-beta-do-titanio",
+    "guideId": "titanio",
+    "guideTitle": "Titânio",
+    "chapterId": "02-fases-alfa-e-beta-do-titanio",
+    "title": "Fases alfa e beta do titânio",
+    "headings": ["2.1 Transformação alotrópica", "2.2 Elementos estabilizadores"],
+    "text": "A fase alfa tem estrutura hexagonal compacta e a fase beta, cúbica de corpo centrado. O nióbio e o molibdênio estabilizam a fase beta, enquanto o alumínio estabiliza a fase alfa. A transformação ocorre a 882 °C no titânio puro."
+  },
+  {
+    "id": "titanio/06-endurecimento-por-precipitacao",
+    "guideId": "titanio",
+    "guideTitle": "Titânio",
+    "chapterId": "06-endurecimento-por-precipitacao",
+    "title": "Endurecimento por precipitação",
+    "headings": ["6.1 Envelhecimento isotérmico"],
+    "text": "Ligas beta metaestáveis respondem ao envelhecimento com a precipitação de alfa fina. O ganho de resistência depende do tempo e da temperatura de envelhecimento, e o excesso de precipitação coalesce as partículas e reduz a dureza."
+  },
+  {
+    "id": "dsa/03-arvores-binarias-de-busca",
+    "guideId": "dsa",
+    "guideTitle": "DSA",
+    "chapterId": "03-arvores-binarias-de-busca",
+    "title": "Árvores binárias de busca",
+    "headings": ["3.1 Percurso em ordem", "3.2 Complexidade"],
+    "text": "Uma árvore binária de busca mantém, em cada nó, chaves menores à esquerda e maiores à direita. O percurso em ordem devolve as chaves ordenadas e a altura média fica em O(log n) quando a árvore permanece balanceada."
+  }
+]

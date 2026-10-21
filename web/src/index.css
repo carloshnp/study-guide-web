@@ -1,0 +1,485 @@
+/*
+ * Estudos — design system entry.
+ *
+ * Source of truth: design-system/estudos/MASTER.md. One accent, hairline borders,
+ * comfortable measure, no serif, no per-subject colours. Components consume the
+ * Tailwind utilities generated here and never a raw hex value.
+ *
+ * Layer order: fonts → semantic tokens (light, dark) → Tailwind theme mapping →
+ * base element styles → motion preferences.
+ */
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* --------------------------------------------------------------------------- *
+ * Montserrat, self-hosted. Variable woff2, latin subset, one file per style.
+ * `font-display: swap` keeps first paint usable; the pre-paint script in
+ * index.html already resolved the colour scheme so the swap never flashes.
+ * --------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/montserrat-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Montserrat";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/montserrat-latin-italic.woff2") format("woff2");
+}
+
+/* --------------------------------------------------------------------------- *
+ * Semantic tokens — light.
+ * MASTER.md colour table, verbatim. Everything else in this block is a derived
+ * alias of one of those values, so there is exactly one place to change a hue.
+ * --------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  /* MASTER.md › Color tokens */
+  --background: #ffffff;
+  --foreground: #15181e;
+  --muted-foreground: #5c6470;
+  --faint: #8a92a0;
+  --card: #ffffff;
+  --border: #e7eaf0;
+  --accent: #1d4ed8;
+  --accent-ink: #14357f;
+  --accent-soft: #eef3fe;
+  --success: #157347;
+  --warning: #b42318;
+  --code-bg: #f5f7fa;
+
+  /* Surfaces derived from the table above */
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --muted: var(--code-bg);
+  --secondary: var(--code-bg);
+  --secondary-foreground: var(--foreground);
+  --input: var(--faint);
+  --ring: var(--accent);
+
+  /* Accent is the blue; `accent-*` surfaces are the blue's soft variants. */
+  --accent-foreground: var(--accent-ink);
+  --primary: var(--accent);
+  --primary-foreground: #ffffff;
+
+  /* States. Review is `warning`, done is `success`; text uses the same hue. */
+  --destructive: var(--warning);
+  --destructive-foreground: var(--warning);
+  --success-foreground: var(--success);
+  --warning-foreground: var(--warning);
+  --info: var(--accent);
+  --info-foreground: var(--accent-ink);
+
+  /* Code */
+  --code: var(--code-bg);
+  --code-foreground: var(--foreground);
+  --code-highlight: var(--accent-soft);
+
+  /* Sidebar shares the card surface, separated by a hairline. */
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--muted-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-accent: var(--accent-soft);
+  --sidebar-accent-foreground: var(--accent-ink);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-ring: var(--ring);
+
+  /* Charts are out of scope in v1; coss primitives still reference the names. */
+  --chart-1: var(--accent);
+  --chart-2: var(--success);
+  --chart-3: var(--warning);
+  --chart-4: var(--muted-foreground);
+  --chart-5: var(--faint);
+
+  /* Typography */
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "FiraCode Nerd Font", monospace;
+  --measure: 66ch;
+  --measure-phone: 60ch;
+
+  /* Radius: 14 cards, 12 code and strips, 10 figures, 6 inline code, 999 chips. */
+  --radius: 12px;
+
+  /* Layout: 280 sidebar, 64 rail, 64 bar, 56 bar on phone, 32/20 gutters. */
+  --sidebar-w: 280px;
+  --rail-w: 64px;
+  --bar-h: 64px;
+  --bar-h-phone: 56px;
+  --reading-gutter: 32px;
+  --reading-gutter-phone: 20px;
+
+  /* Elevation: one soft shadow, drawer and lightbox only. */
+  --shadow-pop: 0 12px 32px rgb(21 24 30 / 0.12);
+
+  /* Motion: enter 180/240, exit faster at 160. */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 240ms;
+  --dur-exit: 160ms;
+  --ease-enter: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* z-index scale: content 0, bar 10, sidebar 20, drawer 40, dialog 60, toast 80. */
+  --z-content: 0;
+  --z-bar: 10;
+  --z-sidebar: 20;
+  --z-drawer: 40;
+  --z-dialog: 60;
+  --z-toast: 80;
+}
+
+/* --------------------------------------------------------------------------- *
+ * Semantic tokens — dark. Verified independently of light, not inferred.
+ * --------------------------------------------------------------------------- */
+.dark {
+  color-scheme: dark;
+
+  /* MASTER.md › Color tokens */
+  --background: #0f1116;
+  --foreground: #e8eaef;
+  --muted-foreground: #a3abba;
+  --faint: #7b8496;
+  --card: #15181e;
+  --border: #262b36;
+  --accent: #7aa2ff;
+  --accent-ink: #c7d6ff;
+  --accent-soft: #16213c;
+  --success: #4ade80;
+  --warning: #f87171;
+  --code-bg: #111522;
+
+  /* Surfaces derived from the table above */
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --muted: var(--code-bg);
+  --secondary: var(--code-bg);
+  --secondary-foreground: var(--foreground);
+  --input: var(--faint);
+  --ring: var(--accent);
+
+  --accent-foreground: var(--accent-ink);
+  --primary: var(--accent);
+  --primary-foreground: var(--background);
+
+  --destructive: var(--warning);
+  --destructive-foreground: var(--warning);
+  --success-foreground: var(--success);
+  --warning-foreground: var(--warning);
+  --info: var(--accent);
+  --info-foreground: var(--accent-ink);
+
+  --code: var(--code-bg);
+  --code-foreground: var(--foreground);
+  --code-highlight: var(--accent-soft);
+
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--muted-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-accent: var(--accent-soft);
+  --sidebar-accent-foreground: var(--accent-ink);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-ring: var(--ring);
+
+  --chart-1: var(--accent);
+  --chart-2: var(--success);
+  --chart-3: var(--warning);
+  --chart-4: var(--muted-foreground);
+  --chart-5: var(--faint);
+
+  /* A hairline reads as a line only if it stays visible against the card. */
+  --shadow-pop: 0 12px 32px rgb(0 0 0 / 0.48);
+}
+
+/* --------------------------------------------------------------------------- *
+ * Tailwind theme mapping (coss/ui contract).
+ *
+ * `@theme inline` emits no variables of its own: every utility inlines the
+ * semantic token, so switching `.dark` flips the whole palette in one place.
+ *
+ * coss reserves `bg-accent` / `text-accent-foreground` for its calm hover
+ * surface, and MASTER reserves `--accent` for the blue. Both survive: the
+ * utilities point at the soft pair and the blue is exposed as `brand`
+ * (`text-brand`, `bg-brand`, `border-brand`) plus `primary` for filled buttons.
+ * --------------------------------------------------------------------------- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent-soft);
+  --color-accent-foreground: var(--accent-ink);
+  --color-brand: var(--accent);
+  --color-brand-ink: var(--accent-ink);
+  --color-brand-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-highlight: var(--code-highlight);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Families. Kept in sync with `:root` so utilities and plain CSS agree. */
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "FiraCode Nerd Font", monospace;
+
+  /* Type scale from MASTER.md › Typography */
+  --text-kicker: 12px;
+  --text-kicker--line-height: 1;
+  --text-kicker--letter-spacing: 0.16em;
+  --text-kicker--font-weight: 700;
+  --text-caption: 13px;
+  --text-caption--line-height: 1.45;
+  --text-caption--font-weight: 400;
+  --text-meta: 14px;
+  --text-meta--line-height: 1.5;
+  --text-meta--font-weight: 500;
+  --text-table: 15px;
+  --text-table--line-height: 1.4;
+  --text-table--font-weight: 400;
+  --text-h4: 17px;
+  --text-h4--line-height: 1.4;
+  --text-h4--font-weight: 600;
+  --text-body: 18px;
+  --text-body--line-height: 1.65;
+  --text-body--font-weight: 400;
+  --text-h3: 19px;
+  --text-h3--line-height: 1.35;
+  --text-h3--font-weight: 600;
+  --text-h2: 23px;
+  --text-h2--line-height: 1.3;
+  --text-h2--font-weight: 700;
+  --text-chapter: 30px;
+  --text-chapter--line-height: 1.2;
+  --text-chapter--letter-spacing: -0.015em;
+  --text-chapter--font-weight: 700;
+  --text-page: 34px;
+  --text-page--line-height: 1.15;
+  --text-page--letter-spacing: -0.02em;
+  --text-page--font-weight: 800;
+
+  /* Radius scale. `rounded-card` is the 14px surface from the design system. */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-card: 14px;
+  --radius-code: 12px;
+  --radius-figure: 10px;
+  --radius-inline-code: 6px;
+  --radius-chip: 999px;
+
+  /* Motion utilities: `ease-enter`, `ease-exit`, `animate-*`. */
+  --ease-enter: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --shadow-pop: 0 12px 32px rgb(21 24 30 / 0.12);
+
+  /* Primitives from the coss preset that this app still uses. */
+  --animate-skeleton: skeleton 2s -1s infinite linear;
+  --animate-caret-blink: 1s ease-out infinite caret-blink;
+  --animate-toast-success-odd: toast-success-odd 0.32s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-success-even: toast-success-even 0.32s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
+  --animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
+
+  @keyframes skeleton {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes caret-blink {
+    0%,
+    70%,
+    to {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes toast-success-odd {
+    0% {
+      scale: 1;
+    }
+    30% {
+      scale: 1.025;
+    }
+    60% {
+      scale: 0.99;
+    }
+    100% {
+      scale: 1;
+    }
+  }
+
+  @keyframes toast-success-even {
+    0% {
+      scale: 1;
+    }
+    30% {
+      scale: 1.025;
+    }
+    60% {
+      scale: 0.99;
+    }
+    100% {
+      scale: 1;
+    }
+  }
+
+  @keyframes toast-error-odd {
+    0% {
+      translate: 0 0;
+    }
+    25% {
+      translate: -3px 0;
+    }
+    50% {
+      translate: 3px 0;
+    }
+    75% {
+      translate: -3px 0;
+    }
+    100% {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes toast-error-even {
+    0% {
+      translate: 0 0;
+    }
+    25% {
+      translate: -3px 0;
+    }
+    50% {
+      translate: 3px 0;
+    }
+    75% {
+      translate: -3px 0;
+    }
+    100% {
+      translate: 0 0;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------- *
+ * Base element styles.
+ * --------------------------------------------------------------------------- */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* readable-font-size: never below 16px on a phone. */
+  @media (max-width: 767px) {
+    body {
+      font-size: 16px;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    text-wrap: balance;
+  }
+
+  /* Anchors land below the sticky bar instead of under it. */
+  [id] {
+    scroll-margin-top: calc(var(--bar-h) + 24px);
+  }
+
+  ::selection {
+    background-color: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+
+  /* focus-states: 2px accent ring, 2px offset, never removed. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* --------------------------------------------------------------------------- *
+ * reduced-motion: transform and opacity only, and none of it when asked.
+ * --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,140 @@
+/*
+ * Reader-only styles.
+ *
+ * Everything that a utility class cannot express stays here, and every value is a
+ * token from design-system/estudos/MASTER.md — no raw hex, so both themes follow
+ * `index.css` alone. The global sheet belongs to another task; this file is
+ * imported by MarkdownRenderer so the reader owns its own visual contract.
+ */
+
+/* -------------------------------------------------------------------------- *
+ * Tables: the sticky first column of a wide table, and the scroll hint.
+ * MASTER.md › Reading elements › Tables.
+ * -------------------------------------------------------------------------- */
+@media (min-width: 768px) {
+  .chapter-table[data-sticky-first] thead tr > *:first-child,
+  .chapter-table[data-sticky-first] tbody tr > *:first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    background-color: var(--card);
+    box-shadow: 1px 0 0 var(--border);
+  }
+}
+
+.chapter-table {
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* -------------------------------------------------------------------------- *
+ * Math: display blocks scroll inside themselves, never clipped and never
+ * pushing the page sideways (`horizontal-scroll`).
+ * -------------------------------------------------------------------------- */
+.reader-prose .katex-display {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.25rem;
+}
+
+.reader-prose .katex {
+  font-size: 1.05em;
+}
+
+.reader-prose .katex-display > .katex {
+  font-size: 1.15em;
+}
+
+/* -------------------------------------------------------------------------- *
+ * Syntax highlighting, two themes, tokens only.
+ * `rehype-highlight` emits `hljs-*` classes; the palette maps them onto the
+ * semantic tokens so dark mode needs no second stylesheet.
+ * -------------------------------------------------------------------------- */
+.hljs {
+  color: var(--foreground);
+  background: transparent;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-doctag,
+.hljs-type,
+.hljs-name,
+.hljs-strong {
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string {
+  color: var(--success);
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-link,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: var(--warning);
+}
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-title.class_,
+.hljs-attr,
+.hljs-property,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: var(--accent);
+}
+
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-params,
+.hljs-meta,
+.hljs-deletion {
+  color: var(--muted-foreground);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+/* -------------------------------------------------------------------------- *
+ * Prose details the utilities do not cover.
+ * -------------------------------------------------------------------------- */
+.reader-prose li > ul,
+.reader-prose li > ol {
+  margin-top: 0.25rem;
+}
+
+.reader-prose figcaption a,
+.reader-prose p a {
+  overflow-wrap: anywhere;
+}
+
+/* Footnotes keep their marker tight against the text. */
+.reader-prose sup {
+  line-height: 0;
+}

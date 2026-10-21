@@ -1,0 +1,37 @@
+[Unit]
+Description=Estudos — FastAPI reader, built SPA and content API
+Documentation=file:///home/carloshnp/study-site/README.md
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=/home/carloshnp/study-site
+Environment=PYTHONUNBUFFERED=1
+# The SQLite store lives at the project root, never inside data/ (which is its own
+# git repository) and never inside builds/ (which are immutable published trees).
+Environment=ESTUDOS_DB=/home/carloshnp/study-site/state.db
+# `app.main:app` binds the code's default paths (web/dist, content). Production
+# serves the published version instead, so the app is built through the same
+# `create_app(web_dist=, content_dir=)` seam the tests use, against `current`.
+# `current` is a symlink swapped atomically by `python -m pipeline.publish`;
+# uvicorn resolves it once at startup, so publish restarts this unit afterwards
+# (`--restart`). 127.0.0.1 only: `tailscale serve` is the public edge.
+ExecStart=/home/carloshnp/study-site/.venv/bin/python -c "import uvicorn; from pathlib import Path; from app.main import create_app; uvicorn.run(create_app(web_dist=Path('/home/carloshnp/study-site/current/web'), content_dir=Path('/home/carloshnp/study-site/current/content')), host='127.0.0.1', port=8080, log_level='info', proxy_headers=True, forwarded_allow_ips='127.0.0.1')"
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=10
+KillSignal=SIGINT
+
+# The service reads the published tree and writes only state.db.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/carloshnp/study-site/state.db /home/carloshnp/study-site
+UMask=0022
+
+[Install]
+WantedBy=default.target

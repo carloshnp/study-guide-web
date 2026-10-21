@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-10-21T05:45:41Z",
+  "subjects": [
+    {
+      "id": "metalurgia",
+      "title": "Metalurgia",
+      "order": 1
+    },
+    {
+      "id": "programacao",
+      "title": "Programação",
+      "order": 2
+    }
+  ],
+  "guides": [
+    {
+      "id": "aluminio",
+      "title": "Alumínio",
+      "subject": "metalurgia",
+      "type": "teoria",
+      "chapterCount": 2,
+      "updatedAt": "2026-10-21T00:00:00Z",
+      "cover": "/media/covers/aluminio.webp"
+    },
+    {
+      "id": "titanio",
+      "title": "Titânio",
+      "subject": "metalurgia",
+      "type": "teoria",
+      "chapterCount": 1,
+      "updatedAt": "2026-10-21T00:00:00Z",
+      "cover": "/media/covers/titanio.webp"
+    },
+    {
+      "id": "dsa",
+      "title": "Estruturas de Dados e Algoritmos",
+      "subject": "programacao",
+      "type": "banco",
+      "chapterCount": 2,
+      "updatedAt": null,
+      "cover": null
+    }
+  ]
+}

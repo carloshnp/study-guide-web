@@ -1,0 +1,22 @@
+[Unit]
+Description=Estudos — rebuild and publish when a guide source changes
+Documentation=file:///home/carloshnp/study-site/README.md
+After=estudos.service
+Wants=estudos.service
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=/home/carloshnp/study-site
+Environment=PYTHONUNBUFFERED=1
+Environment=ESTUDOS_DB=/home/carloshnp/study-site/state.db
+ExecStart=/home/carloshnp/study-site/systemd/estudos-watch.sh
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target
