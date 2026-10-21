@@ -10,7 +10,7 @@ import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it } from "vitest"
 
 import { SettingsMenu } from "@/components/layout/SettingsMenu"
-import { GUTTER, resetLayoutStore } from "@/features/preferences/layout"
+import { FONT_SIZE, GUTTER, resetLayoutStore } from "@/features/preferences/layout"
 import { ThemeProvider } from "@/lib/theme-provider"
 
 function renderMenu() {
@@ -41,7 +41,50 @@ describe("SettingsMenu", () => {
     expect(await screen.findByText("Configurações")).toBeInTheDocument()
     expect(screen.getByRole("switch", { name: /largura total/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /tema claro/i })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /tema auto/i })).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: /restaurar padrão/i })).not.toBeInTheDocument()
+  })
+
+  it("shows the reading size with a minus and a plus button", async () => {
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    expect(await screen.findByText("Tamanho da fonte")).toBeInTheDocument()
+    expect(screen.getByText(`${FONT_SIZE.default} px`)).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /diminuir fonte/i })).toBeEnabled()
+    expect(screen.getByRole("button", { name: /aumentar fonte/i })).toBeEnabled()
+  })
+
+  it("grows and shrinks the reading size one step at a time", async () => {
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    await user.click(await screen.findByRole("button", { name: /aumentar fonte/i }))
+    expect(screen.getByText(`${FONT_SIZE.default + 1} px`)).toBeInTheDocument()
+    expect(document.documentElement.style.getPropertyValue("--reader-size")).toBe(
+      `${FONT_SIZE.default + 1}px`,
+    )
+
+    await user.click(screen.getByRole("button", { name: /diminuir fonte/i }))
+    expect(screen.getByText(`${FONT_SIZE.default} px`)).toBeInTheDocument()
+  })
+
+  it("stops at the bounds instead of running past them", async () => {
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    const grow = await screen.findByRole("button", { name: /aumentar fonte/i })
+    for (let step = FONT_SIZE.default; step < FONT_SIZE.max; step += 1) await user.click(grow)
+    expect(screen.getByText(`${FONT_SIZE.max} px`)).toBeInTheDocument()
+    expect(grow).toBeDisabled()
+
+    const shrink = screen.getByRole("button", { name: /diminuir fonte/i })
+    for (let step = FONT_SIZE.max; step > FONT_SIZE.min; step -= 1) await user.click(shrink)
+    expect(screen.getByText(`${FONT_SIZE.min} px`)).toBeInTheDocument()
+    expect(shrink).toBeDisabled()
   })
 
   it("hides the margin control while the panel is centred", async () => {
@@ -97,8 +140,8 @@ describe("SettingsMenu", () => {
     fireEvent.input(input as HTMLInputElement, { target: { value: "48" } })
     fireEvent.change(input as HTMLInputElement, { target: { value: "48" } })
 
-    const shown = await screen.findByText(/^\d+ px$/)
-    const value = Number(shown.textContent?.replace(" px", ""))
+    const shown = container.ownerDocument.querySelector("[data-slot='gutter-value']")
+    const value = Number(shown?.textContent?.replace(" px", ""))
     expect(value).toBeGreaterThan(GUTTER.default)
     expect(document.documentElement.style.getPropertyValue("--content-gutter-pref")).toBe(
       `${value}px`,

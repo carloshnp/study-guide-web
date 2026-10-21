@@ -18,7 +18,7 @@ export type ResolvedTheme = "light" | "dark"
 const THEME_ORDER: readonly ThemeChoice[] = ["auto", "light", "dark"]
 
 export const THEME_LABEL: Record<ThemeChoice, string> = {
-  auto: "Automático",
+  auto: "Auto",
   light: "Claro",
   dark: "Escuro",
 }

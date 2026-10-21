@@ -11,11 +11,13 @@ import { beforeEach, describe, expect, it } from "vitest"
 import {
   CONTENT_MAX_PX,
   DEFAULT_LAYOUT,
+  FONT_SIZE,
   GUTTER,
   LAYOUT_STORAGE_KEY,
   getLayoutPrefs,
   resetLayoutStore,
   sanitizeLayout,
+  setLayoutFontSize,
   setLayoutGutter,
   setLayoutMode,
   useLayout,
@@ -27,10 +29,11 @@ describe("layout preferences", () => {
     resetLayoutStore()
   })
 
-  it("starts centered with the default margin", () => {
+  it("starts centered with the default margin and reading size", () => {
     expect(getLayoutPrefs()).toEqual(DEFAULT_LAYOUT)
     expect(getLayoutPrefs().mode).toBe("centered")
     expect(getLayoutPrefs().gutter).toBe(GUTTER.default)
+    expect(getLayoutPrefs().fontSize).toBe(18)
   })
 
   it("writes the custom properties the shell reads", () => {
@@ -54,10 +57,34 @@ describe("layout preferences", () => {
     expect(JSON.parse(window.localStorage.getItem(LAYOUT_STORAGE_KEY) ?? "{}")).toEqual({
       mode: "full",
       gutter: 95,
+      fontSize: 18,
     })
 
     resetLayoutStore()
-    expect(getLayoutPrefs()).toEqual({ mode: "full", gutter: 95 })
+    expect(getLayoutPrefs()).toEqual({ mode: "full", gutter: 95, fontSize: 18 })
+  })
+
+  it("keeps the reading size between 16 and 24 px", () => {
+    expect(FONT_SIZE.min).toBe(16)
+    expect(FONT_SIZE.max).toBe(24)
+
+    setLayoutFontSize(30)
+    expect(getLayoutPrefs().fontSize).toBe(24)
+    expect(document.documentElement.style.getPropertyValue("--reader-size")).toBe("24px")
+
+    setLayoutFontSize(4)
+    expect(getLayoutPrefs().fontSize).toBe(16)
+
+    setLayoutFontSize(20)
+    expect(getLayoutPrefs().fontSize).toBe(20)
+  })
+
+  it("persists the reading size and reads back a stored value", () => {
+    setLayoutFontSize(21)
+    expect(JSON.parse(window.localStorage.getItem(LAYOUT_STORAGE_KEY) ?? "{}").fontSize).toBe(21)
+
+    resetLayoutStore()
+    expect(getLayoutPrefs().fontSize).toBe(21)
   })
 
   it("clamps and steps the margin inside the 40-150 window", () => {
@@ -79,6 +106,7 @@ describe("layout preferences", () => {
     expect(sanitizeLayout(null)).toEqual(DEFAULT_LAYOUT)
     expect(sanitizeLayout("full")).toEqual(DEFAULT_LAYOUT)
     expect(sanitizeLayout({ mode: "diagonal", gutter: "wide" })).toEqual(DEFAULT_LAYOUT)
+    expect(sanitizeLayout({ mode: "full", gutter: 40, fontSize: 99 }).fontSize).toBe(24)
 
     window.localStorage.setItem(LAYOUT_STORAGE_KEY, "{not json")
     resetLayoutStore()
@@ -91,5 +119,8 @@ describe("layout preferences", () => {
     expect(typeof api.setMode).toBe("function")
     expect(typeof api.setGutter).toBe("function")
     expect("reset" in api).toBe(false)
+    expect(api.fontSize).toBe(18)
+    expect(api.canGrowFont).toBe(true)
+    expect(api.canShrinkFont).toBe(true)
   })
 })

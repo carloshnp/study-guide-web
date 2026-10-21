@@ -123,6 +123,8 @@
      --content-max; the shell derives the applied gutter so a phone setting never
      squeezes the text (see the max-width override below). */
   --content-gutter-pref: 40px;
+  /* Reading size: the settings menu moves it between 16 and 24px. */
+  --reader-size: 18px;
   --content-gutter: var(--content-gutter-pref);
   --content-max: 1280px;
 
@@ -524,4 +526,35 @@
   :root {
     --content-gutter: 20px;
   }
+}
+
+/* --------------------------------------------------------------------------- *
+ * Reading size: the article scales with --reader-size, headings and tables keep
+ * their ratio to the body text, and the UI chrome around it does not move. Only
+ * the prose scope is affected, so a 24px article does not blow up the sidebar.
+ * --------------------------------------------------------------------------- */
+[data-slot="reader-prose"] {
+  font-size: var(--reader-size);
+}
+
+[data-slot="reader-prose"] h2 {
+  font-size: calc(var(--reader-size) * 1.278);
+}
+
+[data-slot="reader-prose"] h3 {
+  font-size: calc(var(--reader-size) * 1.056);
+}
+
+[data-slot="reader-prose"] h4 {
+  font-size: calc(var(--reader-size) * 0.945);
+}
+
+[data-slot="reader-prose"] table {
+  font-size: calc(var(--reader-size) * 0.833);
+}
+
+/* The measure is in ch, so a larger size would otherwise widen the column past
+   the panel: cap it at the column instead of letting it overflow. */
+[data-slot="reader-prose"] {
+  max-width: 100%;
 }

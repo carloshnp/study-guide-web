@@ -30,7 +30,7 @@ describe("ThemeToggle", () => {
     renderToggle()
 
     const button = screen.getByRole("button", { name: /tema/i })
-    expect(button).toHaveAccessibleName(/automático/i)
+    expect(button).toHaveAccessibleName(/\bauto\b/i)
 
     await user.click(button)
     expect(button).toHaveAccessibleName(/claro/i)
@@ -43,7 +43,7 @@ describe("ThemeToggle", () => {
     expect(document.documentElement).toHaveClass("dark")
 
     await user.click(button)
-    expect(button).toHaveAccessibleName(/automático/i)
+    expect(button).toHaveAccessibleName(/\bauto\b/i)
     expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("auto")
   })
 

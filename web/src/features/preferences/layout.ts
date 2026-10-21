@@ -8,6 +8,10 @@
  * owns the value, writes the CSS custom properties the layout already reads, and
  * notifies subscribers, so no component has to pass props down the tree.
  *
+ * The reading size lives here too: it is the same kind of device-local preference,
+ * shares the storage key, and is applied as `--reader-size`, which only the prose
+ * scope reads, so the UI chrome does not grow with the article.
+ *
  * Mobile safety: the chosen margin is written to `--content-gutter-pref`, and the
  * stylesheet derives `--content-gutter` from it with a phone override. A laptop
  * setting of 80px therefore cannot squeeze a 390px screen.
@@ -24,6 +28,8 @@ export type LayoutPrefs = {
   mode: LayoutMode
   /** Side margin in px, applied through `--content-gutter-pref`. */
   gutter: number
+  /** Reading size in px, applied through `--reader-size`. 18 is the design default. */
+  fontSize: number
 }
 
 export const LAYOUT_STORAGE_KEY = "estudos-layout"
@@ -36,7 +42,18 @@ export const GUTTER = {
   default: 40,
 } as const
 
-export const DEFAULT_LAYOUT: LayoutPrefs = { mode: "centered", gutter: GUTTER.default }
+export const FONT_SIZE = {
+  min: 16,
+  max: 24,
+  step: 1,
+  default: 18,
+} as const
+
+export const DEFAULT_LAYOUT: LayoutPrefs = {
+  mode: "centered",
+  gutter: GUTTER.default,
+  fontSize: FONT_SIZE.default,
+}
 
 export type LayoutStorage = Pick<Storage, "getItem" | "setItem">
 
@@ -46,12 +63,20 @@ function clampGutter(value: number): number {
   return Math.min(GUTTER.max, Math.max(GUTTER.min, stepped))
 }
 
+function clampFontSize(value: number): number {
+  if (!Number.isFinite(value)) return FONT_SIZE.default
+  const stepped = Math.round(value / FONT_SIZE.step) * FONT_SIZE.step
+  return Math.min(FONT_SIZE.max, Math.max(FONT_SIZE.min, stepped))
+}
+
 export function sanitizeLayout(value: unknown): LayoutPrefs {
   if (typeof value !== "object" || value === null) return DEFAULT_LAYOUT
   const record = value as Record<string, unknown>
   const mode: LayoutMode = record.mode === "full" ? "full" : "centered"
   const gutter = typeof record.gutter === "number" ? clampGutter(record.gutter) : GUTTER.default
-  return { mode, gutter }
+  const fontSize =
+    typeof record.fontSize === "number" ? clampFontSize(record.fontSize) : FONT_SIZE.default
+  return { mode, gutter, fontSize }
 }
 
 function read(storage: LayoutStorage | undefined): LayoutPrefs {
@@ -73,6 +98,7 @@ export function applyLayout(prefs: LayoutPrefs, root: HTMLElement | null = null)
   const element = root ?? (typeof document === "undefined" ? null : document.documentElement)
   if (element === null) return
   element.style.setProperty("--content-gutter-pref", `${prefs.gutter}px`)
+  element.style.setProperty("--reader-size", `${prefs.fontSize}px`)
   element.style.setProperty("--content-max", prefs.mode === "full" ? "none" : `${CONTENT_MAX_PX}px`)
   element.dataset.layout = prefs.mode
 }
@@ -98,7 +124,13 @@ export function subscribeLayout(listener: () => void): () => void {
 }
 
 function commit(next: LayoutPrefs): void {
-  if (next.mode === current.mode && next.gutter === current.gutter) return
+  if (
+    next.mode === current.mode &&
+    next.gutter === current.gutter &&
+    next.fontSize === current.fontSize
+  ) {
+    return
+  }
   current = next
   applyLayout(current)
   if (typeof window !== "undefined") {
@@ -123,6 +155,10 @@ export function setLayoutGutter(gutter: number): void {
   setLayout({ gutter })
 }
 
+export function setLayoutFontSize(fontSize: number): void {
+  setLayout({ fontSize })
+}
+
 /** Test seam: drops in-memory state and re-reads storage. */
 export function resetLayoutStore(): void {
   current = read(typeof window === "undefined" ? undefined : window.localStorage)
@@ -134,6 +170,9 @@ export type UseLayoutResult = LayoutPrefs & {
   isFullWidth: boolean
   setMode: (mode: LayoutMode) => void
   setGutter: (gutter: number) => void
+  setFontSize: (fontSize: number) => void
+  canGrowFont: boolean
+  canShrinkFont: boolean
 }
 
 export function useLayout(): UseLayoutResult {
@@ -143,5 +182,8 @@ export function useLayout(): UseLayoutResult {
     isFullWidth: prefs.mode === "full",
     setMode: setLayoutMode,
     setGutter: setLayoutGutter,
+    setFontSize: setLayoutFontSize,
+    canGrowFont: prefs.fontSize < FONT_SIZE.max,
+    canShrinkFont: prefs.fontSize > FONT_SIZE.min,
   }
 }

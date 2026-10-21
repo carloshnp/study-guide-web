@@ -1,8 +1,8 @@
 /**
  * One settings entry in the top bar, replacing the bare theme-cycle icon.
  *
- * The popover holds the three things a reader actually adjusts while reading:
- * the theme, whether the panel spans the whole width, and how much side margin
+ * The popover holds what a reader actually adjusts while reading: the theme, the
+ * reading size, whether the panel spans the whole width, and how much side margin
  * the panel keeps. Each control writes straight to its store (theme provider for
  * the theme, the layout store for width and margin), so nothing needs a save
  * button and a reload keeps the choice.
@@ -14,14 +14,14 @@
 
 "use client"
 
-import { SettingsIcon } from "lucide-react"
+import { MinusIcon, PlusIcon, SettingsIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverDescription, PopoverPopup, PopoverTitle, PopoverTrigger } from "@/components/ui/popover"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { GUTTER, useLayout } from "@/features/preferences/layout"
+import { FONT_SIZE, GUTTER, useLayout } from "@/features/preferences/layout"
 import { THEME_LABEL, type ThemeChoice } from "@/lib/theme"
 import { useTheme } from "@/lib/theme-provider"
 
@@ -87,6 +87,48 @@ export function SettingsMenu() {
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
+          </section>
+
+          <section className="flex flex-col gap-2">
+            <p className="text-kicker uppercase text-muted-foreground" id="config-fonte">
+              Tamanho da fonte
+            </p>
+            <div
+              className="flex items-center justify-between gap-3"
+              role="group"
+              aria-labelledby="config-fonte"
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Diminuir fonte"
+                disabled={!layout.canShrinkFont}
+                onClick={() => layout.setFontSize(layout.fontSize - FONT_SIZE.step)}
+              >
+                <MinusIcon aria-hidden="true" />
+              </Button>
+              <span
+                className="text-body font-semibold tabular-nums text-foreground"
+                data-slot="font-size-value"
+                aria-live="polite"
+              >
+                {`${layout.fontSize} px`}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Aumentar fonte"
+                disabled={!layout.canGrowFont}
+                onClick={() => layout.setFontSize(layout.fontSize + FONT_SIZE.step)}
+              >
+                <PlusIcon aria-hidden="true" />
+              </Button>
+            </div>
+            <p className="text-caption text-faint">
+              Muda só o texto dos capítulos, de {FONT_SIZE.min} a {FONT_SIZE.max} px.
+            </p>
           </section>
 
           <section className="flex items-start justify-between gap-3">
