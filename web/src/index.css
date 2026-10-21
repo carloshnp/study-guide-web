@@ -122,7 +122,7 @@
   /* Content column: the settings menu writes --content-gutter-pref and
      --content-max; the shell derives the applied gutter so a phone setting never
      squeezes the text (see the max-width override below). */
-  --content-gutter-pref: 24px;
+  --content-gutter-pref: 40px;
   --content-gutter: var(--content-gutter-pref);
   --content-max: 1280px;
 

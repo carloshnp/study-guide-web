@@ -14,7 +14,6 @@ import {
   GUTTER,
   LAYOUT_STORAGE_KEY,
   getLayoutPrefs,
-  resetLayout,
   resetLayoutStore,
   sanitizeLayout,
   setLayoutGutter,
@@ -25,7 +24,6 @@ import {
 describe("layout preferences", () => {
   beforeEach(() => {
     window.localStorage.clear()
-    resetLayout()
     resetLayoutStore()
   })
 
@@ -51,18 +49,21 @@ describe("layout preferences", () => {
 
   it("persists the choice for the next visit", () => {
     setLayoutMode("full")
-    setLayoutGutter(64)
+    setLayoutGutter(95)
 
     expect(JSON.parse(window.localStorage.getItem(LAYOUT_STORAGE_KEY) ?? "{}")).toEqual({
       mode: "full",
-      gutter: 64,
+      gutter: 95,
     })
 
     resetLayoutStore()
-    expect(getLayoutPrefs()).toEqual({ mode: "full", gutter: 64 })
+    expect(getLayoutPrefs()).toEqual({ mode: "full", gutter: 95 })
   })
 
-  it("clamps and steps the margin instead of trusting the input", () => {
+  it("clamps and steps the margin inside the 40-150 window", () => {
+    expect(GUTTER.min).toBe(40)
+    expect(GUTTER.max).toBe(150)
+
     setLayoutGutter(-40)
     expect(getLayoutPrefs().gutter).toBe(GUTTER.min)
 
@@ -70,6 +71,7 @@ describe("layout preferences", () => {
     expect(getLayoutPrefs().gutter).toBe(GUTTER.max)
 
     setLayoutGutter(23)
+    expect(getLayoutPrefs().gutter).toBe(GUTTER.min)
     expect(getLayoutPrefs().gutter % GUTTER.step).toBe(0)
   })
 
@@ -83,20 +85,11 @@ describe("layout preferences", () => {
     expect(getLayoutPrefs()).toEqual(DEFAULT_LAYOUT)
   })
 
-  it("resets both the mode and the margin", () => {
-    setLayoutMode("full")
-    setLayoutGutter(80)
-    resetLayout()
-
-    expect(getLayoutPrefs()).toEqual(DEFAULT_LAYOUT)
-    expect(document.documentElement.dataset.layout).toBe("centered")
-  })
-
   it("exposes the hook shape the settings menu consumes", () => {
     const api = renderHook(() => useLayout()).result.current
     expect(api.isFullWidth).toBe(false)
     expect(typeof api.setMode).toBe("function")
     expect(typeof api.setGutter).toBe("function")
-    expect(typeof api.reset).toBe("function")
+    expect("reset" in api).toBe(false)
   })
 })

@@ -14,7 +14,7 @@
 
 "use client"
 
-import { RotateCcwIcon, SettingsIcon } from "lucide-react"
+import { SettingsIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverDescription, PopoverPopup, PopoverTitle, PopoverTrigger } from "@/components/ui/popover"
@@ -108,43 +108,38 @@ export function SettingsMenu() {
             />
           </section>
 
-          <section className="flex flex-col gap-2">
-            <div className="flex items-baseline justify-between gap-3">
-              <label className="text-body font-medium" htmlFor="config-margem">
-                Margem lateral
-              </label>
-              <span className="text-meta tabular-nums text-muted-foreground" data-slot="gutter-value">
-                {`${layout.gutter} px`}
-              </span>
-            </div>
-            <Slider
-              id="config-margem"
-              aria-label="Margem lateral em pixels"
-              getAriaLabel={() => "Margem lateral"}
-              max={GUTTER.max}
-              min={GUTTER.min}
-              step={GUTTER.step}
-              value={[layout.gutter]}
-              onValueChange={(value) => {
-                const next = Array.isArray(value) ? value[0] : value
-                if (typeof next === "number") layout.setGutter(next)
-              }}
-            />
-            <p className="text-caption text-faint">
-              No telefone a margem fica fixa em 20 px.
-            </p>
-          </section>
+          {layout.isFullWidth ? (
+            <section className="flex flex-col gap-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <label className="text-body font-medium" htmlFor="config-margem">
+                  Margem lateral
+                </label>
+                <span
+                  className="text-meta tabular-nums text-muted-foreground"
+                  data-slot="gutter-value"
+                >
+                  {`${layout.gutter} px`}
+                </span>
+              </div>
+              <Slider
+                id="config-margem"
+                aria-label="Margem lateral em pixels"
+                getAriaLabel={() => "Margem lateral"}
+                max={GUTTER.max}
+                min={GUTTER.min}
+                step={GUTTER.step}
+                value={[layout.gutter]}
+                onValueChange={(value) => {
+                  const next = Array.isArray(value) ? value[0] : value
+                  if (typeof next === "number") layout.setGutter(next)
+                }}
+              />
+              <p className="text-caption text-faint">
+                No telefone a margem fica fixa em 20 px.
+              </p>
+            </section>
+          ) : null}
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-fit"
-            onClick={() => layout.reset()}
-          >
-            <RotateCcwIcon aria-hidden="true" />
-            Restaurar padrão
-          </Button>
         </div>
       </PopoverPopup>
     </Popover>

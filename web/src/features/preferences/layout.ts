@@ -30,10 +30,10 @@ export const LAYOUT_STORAGE_KEY = "estudos-layout"
 export const CONTENT_MAX_PX = 1120
 
 export const GUTTER = {
-  min: 0,
-  max: 96,
-  step: 4,
-  default: 24,
+  min: 40,
+  max: 150,
+  step: 5,
+  default: 40,
 } as const
 
 export const DEFAULT_LAYOUT: LayoutPrefs = { mode: "centered", gutter: GUTTER.default }
@@ -123,10 +123,6 @@ export function setLayoutGutter(gutter: number): void {
   setLayout({ gutter })
 }
 
-export function resetLayout(): void {
-  commit({ ...DEFAULT_LAYOUT })
-}
-
 /** Test seam: drops in-memory state and re-reads storage. */
 export function resetLayoutStore(): void {
   current = read(typeof window === "undefined" ? undefined : window.localStorage)
@@ -138,7 +134,6 @@ export type UseLayoutResult = LayoutPrefs & {
   isFullWidth: boolean
   setMode: (mode: LayoutMode) => void
   setGutter: (gutter: number) => void
-  reset: () => void
 }
 
 export function useLayout(): UseLayoutResult {
@@ -148,6 +143,5 @@ export function useLayout(): UseLayoutResult {
     isFullWidth: prefs.mode === "full",
     setMode: setLayoutMode,
     setGutter: setLayoutGutter,
-    reset: resetLayout,
   }
 }
