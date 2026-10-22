@@ -15,7 +15,13 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 
-from app.api import notes, progress
+from app.api import (
+    flashcards_notes,
+    flashcards_review,
+    flashcards_stats,
+    notes,
+    progress,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 WEB_DIST = ROOT / "web" / "dist"
@@ -88,6 +94,9 @@ def create_app(
 
     application.include_router(progress.router)
     application.include_router(notes.router)
+    application.include_router(flashcards_notes.router)
+    application.include_router(flashcards_review.router)
+    application.include_router(flashcards_stats.router)
 
     application.mount(
         "/content",

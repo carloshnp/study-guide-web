@@ -42,6 +42,63 @@ CREATE TABLE IF NOT EXISTS notes (
 );
 
 CREATE INDEX IF NOT EXISTS progress_by_guide_status ON progress (guide_id, status);
+
+CREATE TABLE IF NOT EXISTS fc_notes (
+    id INTEGER PRIMARY KEY,
+    kind TEXT NOT NULL CHECK (kind IN ('basic', 'basic-reverse', 'cloze')),
+    front TEXT NOT NULL,
+    back TEXT NOT NULL,
+    guide_id TEXT,
+    chapter_slug TEXT,
+    section_id TEXT,
+    source_snippet TEXT,
+    tags TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS fc_cards (
+    id INTEGER PRIMARY KEY,
+    note_id INTEGER NOT NULL REFERENCES fc_notes(id) ON DELETE CASCADE,
+    template TEXT NOT NULL,
+    state TEXT NOT NULL DEFAULT 'new' CHECK (state IN ('new', 'learning', 'review', 'suspended', 'deprecated')),
+    deprecated_at TEXT,
+    difficulty REAL NOT NULL DEFAULT 5.0,
+    stability REAL NOT NULL DEFAULT 0.0,
+    retrievability REAL,
+    due TEXT,
+    reps INTEGER NOT NULL DEFAULT 0,
+    lapses INTEGER NOT NULL DEFAULT 0,
+    leech INTEGER NOT NULL DEFAULT 0,
+    last_review TEXT,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS fc_cards_due ON fc_cards (due) WHERE state IN ('learning', 'review');
+CREATE INDEX IF NOT EXISTS fc_cards_note ON fc_cards (note_id);
+
+CREATE TABLE IF NOT EXISTS fc_revlog (
+    id INTEGER PRIMARY KEY,
+    card_id INTEGER NOT NULL REFERENCES fc_cards(id) ON DELETE CASCADE,
+    reviewed_at TEXT NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 4),
+    state_before TEXT NOT NULL,
+    interval_before INTEGER NOT NULL,
+    interval_after INTEGER NOT NULL,
+    elapsed_ms INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS fc_habits (
+    day TEXT PRIMARY KEY,
+    new_reviewed INTEGER NOT NULL DEFAULT 0,
+    reviews_done INTEGER NOT NULL DEFAULT 0,
+    streak_frozen INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS fc_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 """
 
 
