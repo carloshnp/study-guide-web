@@ -59,6 +59,8 @@ Design consequences locked by the decision oracle (2026-10-22):
 | Scheduler | FSRS states per card: difficulty D, stability S, retrievability R; desired retention default 0.90, configurable 0.85–0.97 with a load warning above 0.95; fuzz on intervals; leech at 8 lapses (flag + suspend + review screen). |
 | Review flow | Two-stage: prompt first, then reveal; four buttons (Again/Hard/Good/Easy) showing the next interval; keyboard 1–4, Space reveals, Enter = Good; corrective feedback with the correct answer after a rating. |
 | Queue | Default queue interleaves all due cards; "study one guide/chapter" filter produces a temporary session without rescheduling (cramming mode). |
+| Decks | Decks are **derived views**, not stored tables: a guide deck (all cards anchored in a guide), a chapter deck, and a section deck. Standalone cards (no anchor) form an "outras" deck. |
+| Training mode | "Treinar agora": study any deck at any time, in shuffled order, with the same 4-button feedback, but ratings do **not** touch the SRS schedule by default; an explicit toggle "Registrar no cronograma" opts the session into scheduling. |
 | Limits | Daily new-card limit (default 10) and review cap; a "today's floor" setting (e.g. 5 cards) to protect the habit. |
 | Stats | Heatmap (active days), load forecast per day, true retention (recall at maturity), counts of new/learning/review. |
 | Habit | Streak with freeze (a missed day is forgiven by a freeze token); reminders are a browser notification, never email; no punishment for breaking. |
@@ -146,6 +148,9 @@ GET  /api/flashcards/stats?from=&to=     (daily counts, true retention, forecast
 GET  /api/flashcards/habits?from=&to=     (active days, streak, freezes)
 GET  /api/flashcards/settings
 POST /api/flashcards/settings             {daily_new_limit, review_cap, floor, desired_retention_default, per_guide: {guide_id: 0.85…0.97}}
+GET  /api/flashcards/decks               (derived deck list: id, type, title, card_count)
+GET  /api/flashcards/decks/<id>          (deck meta + full card list for browsing)
+POST /api/flashcards/decks/<id>/session   {mode: "training"|"review", reschedule: false, limit: 20}
 ```
 
 Review rating payloads are validated (1–4). The reveal endpoint never returns the
@@ -160,6 +165,13 @@ answer before a `review` is posted (test-enforced).
 - `fc-review-ui`: card prompt → "Mostrar resposta" → answer + 4 buttons with next
   intervals; progress bar; end-of-session summary; keyboard shortcuts; the correct
   answer and a "link to guide section" appear after rating.
+- `fc-decks`: deck browser (`/flashcards/decks`) listing guide/chapter/section decks
+  with card counts; a deck detail page to browse the whole deck and start training.
+  The guide page gets its own "Flashcards" section linking to its guide deck and
+  per-chapter decks.
+- `fc-training`: reuses the review component in training mode - same flip and
+  4-button feedback, shuffled order, no scheduling by default, with the
+  "Registrar no cronograma" toggle.
 - `fc-stats`: heatmap grid, per-day forecast bars, true-retention line, counters.
 - `fc-habit`: streak chip (with freeze state), daily goal slider, reminder toggle.
 - Navigation: a "Flashcards" primary link in the sidebar (between Busca and the
@@ -213,6 +225,12 @@ answer before a `review` is posted (test-enforced).
    next-interval labels on buttons match what the scheduler will apply.
 10. All four React surfaces are covered by vitest; backend suite stays green; no
     build warnings introduced.
+11. A training session on any deck runs at any moment, in shuffled order, and by
+    default changes no scheduling state; with the toggle on, ratings flow into the
+    scheduler like a normal session.
+12. Decks are derived correctly: the guide deck contains every card anchored in
+    that guide, and each chapter/section deck contains exactly its own cards;
+    browsing a deck shows the full card list (front preview + source anchor).
 
 ## Assumptions
 
