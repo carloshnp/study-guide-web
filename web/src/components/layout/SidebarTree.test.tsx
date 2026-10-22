@@ -183,6 +183,21 @@ describe("SidebarTree", () => {
     expect(screen.getByRole("button", { name: /tentar de novo/i })).toBeInTheDocument()
   })
 
+  it("puts Flashcards between Busca and the guide tree", async () => {
+    renderTree()
+
+    const nav = screen.getByRole("navigation", { name: "Estantes" })
+    const flashcards = await within(nav).findByRole("link", { name: "Flashcards" })
+    expect(flashcards).toHaveAttribute("href", "/flashcards")
+    expect(flashcards).toHaveClass("min-h-11")
+
+    const primary = within(nav)
+      .getAllByRole("link")
+      .slice(0, 4)
+      .map((link) => link.textContent)
+    expect(primary).toEqual(["Início", "Estantes", "Busca", "Flashcards"])
+  })
+
   it("accepts the shell's primary-link list instead of its own defaults", async () => {
     renderTree("/", { nodes: [{ id: "inicio", title: "Início", to: "/" }] })
 

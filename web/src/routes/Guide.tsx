@@ -15,6 +15,7 @@ import { ArrowLeftIcon, ChevronRightIcon } from "lucide-react"
 import { lazy, Suspense, useMemo } from "react"
 import { Link, useParams } from "react-router"
 
+import { GuideDecks } from "@/features/flashcards/decks/GuideDecks"
 import { normalizeLeadingHeading } from "@/features/reader/leading-heading"
 import { GuideMeter } from "@/features/progress/GuideMeter"
 import { useProgress } from "@/features/progress/useProgress"
@@ -204,6 +205,8 @@ export function Guide() {
           </ol>
         </section>
       ) : null}
+
+      {data ? <GuideDecks guideId={guideId} /> : null}
     </div>
   )
 }

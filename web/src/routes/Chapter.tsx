@@ -15,11 +15,13 @@
  * no prose.
  */
 
-import { ArrowLeftIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import { lazy, Suspense, useEffect, useMemo } from "react"
+import { ArrowLeftIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { lazy, Suspense, useEffect, useMemo, useState } from "react"
 import { Link, useParams } from "react-router"
 
 import { writeLastRead } from "@/features/catalog/last-read"
+import { Editor, type EditorSeed } from "@/features/flashcards/editor/Editor"
+import { SelectionCardMenu } from "@/features/flashcards/source-create/SelectionCardMenu"
 import { ChapterToc } from "@/features/reader/ChapterToc"
 import { prepareChapterBody } from "@/features/reader/leading-heading"
 import { SectionCheck } from "@/features/progress/SectionCheck"
@@ -96,6 +98,9 @@ export function Chapter() {
   const { guideId = "", chapterSlug = "" } = useParams()
   const chapter = useChapterContent(guideId, chapterSlug)
   const guide = useGuideContent(guideId)
+  const [editorOpen, setEditorOpen] = useState(false)
+  const [seed, setSeed] = useState<EditorSeed | undefined>(undefined)
+  const [savedCard, setSavedCard] = useState<string | null>(null)
 
   const data = chapter.data
   const title = data?.title ?? chapterSlug
@@ -148,6 +153,24 @@ export function Chapter() {
         ) : null}
       </header>
 
+      {savedCard ? (
+        <p
+          className="flex max-w-[var(--measure)] flex-wrap items-center gap-2 rounded-card border border-success/40 bg-success/8 px-3 py-2 text-meta text-success"
+          data-slot="card-created"
+          role="status"
+        >
+          <CheckIcon aria-hidden="true" className="size-4 shrink-0" />
+          {savedCard}
+          <button
+            className="ms-auto min-h-11 rounded-md px-2 text-meta font-semibold text-foreground underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            onClick={() => setSavedCard(null)}
+            type="button"
+          >
+            Fechar
+          </button>
+        </p>
+      ) : null}
+
       <div className="flex flex-col gap-12 xl:flex-row xl:items-start xl:gap-16" data-slot="chapter-body">
         <article className="min-w-0 max-w-[var(--measure)] flex-1">
           {chapter.status === "loading" ? (
@@ -177,17 +200,34 @@ export function Chapter() {
           ) : null}
 
           {data ? (
-            <Suspense
-              fallback={<p className="text-meta text-muted-foreground">Carregando o texto…</p>}
+            <SelectionCardMenu
+              chapterSlug={chapterSlug}
+              guideId={guideId}
+              onRequestCreate={(input) => {
+                setSeed({
+                  chapterSlug: input.chapterSlug,
+                  front: input.front,
+                  guideId: input.guideId,
+                  kind: "basic",
+                  sectionId: input.sectionId,
+                  sourceSnippet: input.sourceSnippet,
+                })
+                setEditorOpen(true)
+              }}
+              sections={sections}
             >
-              <MarkdownRenderer
-                chapterSlug={chapterSlug}
-                guideId={guideId}
-                images={data.images}
-                markdown={body}
-                sections={sections}
-              />
-            </Suspense>
+              <Suspense
+                fallback={<p className="text-meta text-muted-foreground">Carregando o texto…</p>}
+              >
+                <MarkdownRenderer
+                  chapterSlug={chapterSlug}
+                  guideId={guideId}
+                  images={data.images}
+                  markdown={body}
+                  sections={sections}
+                />
+              </Suspense>
+            </SelectionCardMenu>
           ) : null}
 
           <nav
@@ -201,6 +241,13 @@ export function Chapter() {
 
         <ChapterToc sections={sections} />
       </div>
+
+      <Editor
+        onOpenChange={setEditorOpen}
+        onSaved={() => setSavedCard("Card criado. Ele entra na fila quando vencer.")}
+        open={editorOpen}
+        seed={seed}
+      />
     </div>
   )
 }

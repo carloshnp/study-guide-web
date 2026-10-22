@@ -1,4 +1,4 @@
-import { BookOpenIcon, HouseIcon, SearchIcon, type LucideIcon } from "lucide-react"
+import { BookOpenIcon, HouseIcon, LayersIcon, SearchIcon, type LucideIcon } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Link, Outlet, useLocation } from "react-router"
 
@@ -23,12 +23,14 @@ const PLACEHOLDER_NODES: SidebarNode[] = [
   { id: "inicio", title: "Início", to: "/" },
   { id: "estantes", title: "Estantes", to: "/estantes" },
   { id: "busca", title: "Busca", to: "/busca" },
+  { id: "fixcards", title: "Flashcards", to: "/flashcards" },
 ]
 
 const RAIL_LINKS: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/", label: "Início", icon: HouseIcon },
   { to: "/estantes", label: "Estantes", icon: BookOpenIcon },
   { to: "/busca", label: "Busca", icon: SearchIcon },
+  { to: "/flashcards", label: "Flashcards", icon: LayersIcon },
 ]
 
 /**

@@ -63,13 +63,16 @@ function jsonResponse(payload: unknown, status = 200) {
   }
 }
 
-function stubContent() {
+function stubContent(decks: unknown[] | null = null) {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {
       const path = String(input)
       if (path === "/content/guides/aluminio/guide.json") {
         return jsonResponse(GUIDE)
+      }
+      if (path === "/api/flashcards/decks") {
+        return jsonResponse(decks ?? [])
       }
       if (path.startsWith("/api/progress")) {
         return jsonResponse({
@@ -157,6 +160,48 @@ describe("Guide route", () => {
       expect(meter).toHaveAttribute("aria-valuenow", "1")
     })
     expect(meter).toHaveAttribute("aria-valuemax", "3")
+  })
+
+  it("adds the Flashcards section with the guide deck and its chapter decks", async () => {
+    stubContent([
+      {
+        cardCount: 5,
+        guideId: "aluminio",
+        id: "guide:aluminio",
+        title: "Alumínio",
+        type: "guide",
+      },
+      {
+        cardCount: 3,
+        chapterSlug: "01-o-aluminio",
+        guideId: "aluminio",
+        id: "chapter:aluminio:01-o-aluminio",
+        title: "Capítulo 1 — O alumínio",
+        type: "chapter",
+      },
+      {
+        cardCount: 9,
+        guideId: "titanio",
+        id: "guide:titanio",
+        title: "Titânio",
+        type: "guide",
+      },
+    ])
+
+    renderGuide()
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Flashcards" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /Guia inteiro/ })).toHaveAttribute(
+      "href",
+      "/flashcards/decks/guide%3Aaluminio",
+    )
+    expect(screen.getByRole("link", { name: /Capítulo 1/ })).toHaveAttribute(
+      "href",
+      "/flashcards/decks/chapter%3Aaluminio%3A01-o-aluminio",
+    )
+    expect(screen.queryByRole("link", { name: /Titânio/ })).toBeNull()
   })
 
   it("reports a guide that does not exist and offers the shelf", async () => {

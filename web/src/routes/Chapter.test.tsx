@@ -1,4 +1,5 @@
-import { render, screen, waitFor, within } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { createMemoryRouter, RouterProvider } from "react-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -82,10 +83,25 @@ function jsonResponse(payload: unknown, status = 200) {
 function stubContent() {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async (input: RequestInfo | URL) => {
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const path = String(input)
       if (path === "/content/guides/aluminio/guide.json") {
         return jsonResponse(GUIDE)
+      }
+      if (path === "/api/flashcards/notes") {
+        const payload =
+          typeof init?.body === "string"
+            ? (JSON.parse(init.body) as Record<string, unknown>)
+            : {}
+        return jsonResponse({
+          chapterSlug: "01-o-aluminio",
+          guideId: "aluminio",
+          id: 42,
+          sectionId: null,
+          sourceSnippet: null,
+          tags: "",
+          ...payload,
+        })
       }
       if (path === "/content/guides/aluminio/chapters/01-o-aluminio.json") {
         return jsonResponse(CHAPTER)
@@ -198,6 +214,58 @@ describe("Chapter route", () => {
       ])
     } finally {
       window.matchMedia = original
+    }
+  })
+
+  it("opens the pre-filled editor from a selected passage", async () => {
+    const user = userEvent.setup()
+    const { container } = renderChapter()
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-slot="reader-prose"]')).not.toBeNull()
+    })
+
+    const paragraph = container.querySelector('[data-slot="reader-prose"] p')
+    const selected = "O alumínio é o metal não ferroso mais usado depois do ferro."
+    const range = {
+      getBoundingClientRect: () => ({
+        bottom: 220,
+        height: 20,
+        left: 60,
+        right: 320,
+        top: 200,
+        width: 260,
+      }),
+    }
+    vi.spyOn(window, "getSelection").mockReturnValue({
+      anchorNode: paragraph?.firstChild,
+      focusNode: paragraph?.firstChild,
+      getRangeAt: () => range,
+      isCollapsed: false,
+      rangeCount: 1,
+      removeAllRanges: vi.fn(),
+      toString: () => selected,
+    } as unknown as Selection)
+
+    try {
+      fireEvent.mouseUp(document)
+      await user.click(await screen.findByRole("button", { name: /criar card/i }))
+
+      const editor = await screen.findByRole("dialog")
+      expect(within(editor).getByRole("textbox", { name: "Frente" })).toHaveValue(selected)
+      expect(within(editor).getByText("Trecho de origem")).toBeInTheDocument()
+      expect(within(editor).getByText(/aluminio › 01-o-aluminio/)).toBeInTheDocument()
+      expect(within(editor).getAllByText(selected).length).toBeGreaterThan(0)
+
+      // The selection fills the front; the answer is the user's own words.
+      await user.type(
+        within(editor).getByRole("textbox", { name: "Resposta" }),
+        "Metal não ferroso mais usado depois do ferro.",
+      )
+      await user.click(within(editor).getByRole("button", { name: /salvar card/i }))
+      expect(await screen.findByText(/Card criado/)).toBeInTheDocument()
+    } finally {
+      vi.restoreAllMocks()
     }
   })
 

@@ -42,6 +42,7 @@ const DEFAULT_PRIMARY_LINKS: SidebarNode[] = [
   { id: "inicio", title: "Início", to: "/" },
   { id: "estantes", title: "Estantes", to: "/estantes" },
   { id: "busca", title: "Busca", to: "/busca" },
+  { id: "fixcards", title: "Flashcards", to: "/flashcards" },
 ]
 
 /** 44px rows on every pointer, so the touch target rule never depends on a media query. */
