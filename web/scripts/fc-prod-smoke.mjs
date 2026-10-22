@@ -42,7 +42,7 @@ if ((await detail.count()) > 0) {
 // 3. Guide deck detail: browse the whole deck, then train by keyboard
 await page.goto(`${BASE}/flashcards/decks`, { waitUntil: "networkidle" })
 await page.waitForTimeout(800)
-const open = page.locator("li", { hasText: /65 cards/ }).first().locator("a", { hasText: /Abrir/ })
+const open = page.locator("li", { hasText: /228 cards/ }).first().locator("a", { hasText: /Abrir/ })
 if ((await open.count()) > 0) {
   await open.click()
   await page.waitForTimeout(800)
