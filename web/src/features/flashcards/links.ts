@@ -20,6 +20,10 @@ export function statsHref(): string {
   return "/flashcards/stats"
 }
 
+export function draftsHref(): string {
+  return "/flashcards/drafts"
+}
+
 export function reviewHref(options: {
   deck?: string
   mode?: SessionMode

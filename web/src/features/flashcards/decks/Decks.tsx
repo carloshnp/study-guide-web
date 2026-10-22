@@ -17,7 +17,7 @@ import { PageHeader } from "@/components/layout/PageHeader"
 
 import { DECK_TYPE_LABELS, flashcardsApi, type Deck, type DeckType } from "../api"
 import { Editor } from "../editor/Editor"
-import { deckHref, reviewHref, statsHref } from "../links"
+import { deckHref, draftsHref, reviewHref, statsHref } from "@/features/flashcards/links"
 import { useResource } from "../useResource"
 
 const TYPE_ORDER: DeckType[] = ["guide", "chapter", "section", "other"]
@@ -91,6 +91,9 @@ export function Decks() {
           </Button>
           <Button render={<Link to={statsHref()} />} variant="outline">
             Estatísticas
+          </Button>
+          <Button render={<Link to={draftsHref()} />} variant="outline">
+            Rascunhos
           </Button>
         </div>
       </PageHeader>

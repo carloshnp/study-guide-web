@@ -540,9 +540,49 @@ export function parseHabits(payload: unknown, path = `${FLASHCARDS_PATH}/habits`
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Endpoints                                                                   */
-/* -------------------------------------------------------------------------- */
+export type DraftSummary = {
+  file: string
+  count: number
+  guideId: string | null
+  tags: string[]
+}
+
+export type DraftImportResult = {
+  file: string
+  created: number
+  skipped: number
+}
+
+export function parseDraftList(payload: unknown): DraftSummary[] {
+  const record = payload as Record<string, unknown>
+  if (!Array.isArray(record.drafts)) return []
+  return record.drafts.flatMap((entry) => {
+    if (typeof entry !== "object" || entry === null) return []
+    const draft = entry as Record<string, unknown>
+    if (typeof draft.file !== "string") return []
+    return [
+      {
+        count: typeof draft.count === "number" ? draft.count : 0,
+        file: draft.file,
+        guideId: typeof draft.guideId === "string" ? draft.guideId : null,
+        tags: Array.isArray(draft.tags)
+          ? draft.tags.filter((tag): tag is string => typeof tag === "string")
+          : [],
+      } satisfies DraftSummary,
+    ]
+  })
+}
+
+export function parseDraftImport(payload: unknown, path: string): DraftImportResult {
+  const record = payload as Record<string, unknown>
+  return {
+    created: typeof record.created === "number" ? record.created : 0,
+    file: typeof record.file === "string" ? record.file : path,
+    skipped: typeof record.skipped === "number" ? record.skipped : 0,
+  }
+}
+
+
 
 function query(params: Record<string, string | number | boolean | undefined>): string {
   const search = new URLSearchParams()
@@ -658,6 +698,18 @@ export const flashcardsApi = {
       }),
     )
     return parseQueue(payload, path)
+  },
+
+  /** GET /drafts — YAML draft decks (pilot content) awaiting import. */
+  async listDrafts(): Promise<DraftSummary[]> {
+    const path = `${FLASHCARDS_PATH}/drafts`
+    return parseDraftList(await request<unknown>(path, getInit()))
+  },
+
+  /** POST /drafts/:file/import — idempotent; returns created/skipped counts. */
+  async importDrafts(file: string): Promise<DraftImportResult> {
+    const path = `${FLASHCARDS_PATH}/drafts/${encodeURIComponent(file)}/import`
+    return parseDraftImport(await request<unknown>(path, sendInit("POST", {})), path)
   },
 
   /** GET /settings */

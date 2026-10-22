@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, type RouteObject } from "react-router"
 import { Shell } from "@/components/layout/Shell"
 import { DeckDetail } from "@/features/flashcards/decks/DeckDetail"
 import { Decks } from "@/features/flashcards/decks/Decks"
+import { Drafts } from "@/features/flashcards/drafts/Drafts"
 import { Review } from "@/features/flashcards/review/Review"
 import { Stats } from "@/features/flashcards/stats/Stats"
 import { Chapter } from "@/routes/Chapter"
@@ -36,6 +37,7 @@ export const routes: RouteObject[] = [
       { path: "flashcards/decks", element: <Decks /> },
       { path: "flashcards/decks/:deckId", element: <DeckDetail /> },
       { path: "flashcards/review", element: <Review /> },
+      { path: "flashcards/drafts", element: <Drafts /> },
       { path: "flashcards/stats", element: <Stats /> },
       { path: "*", element: <NotFound /> },
     ],
