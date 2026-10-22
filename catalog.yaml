@@ -28,16 +28,19 @@ guides:
     published: true
     updated: 2026-10-21
 
+  # 16, not 39: the guide was rewritten in the magnesium shape. The 15 theory
+  # chapters became 11 (3+4, 7+8, 9+10 and 12+13 merged), the 21 per-question
+  # chapters became 3 bank volumes, and quick reference and glossary stayed.
   - id: titanio
     title: Titânio
     subject: metalurgia
     group: nao-ferrosos
     type: teoria
     split: 2
-    expected_chapters: 39
+    expected_chapters: 16
     order: 2
     published: true
-    updated: 2026-10-21
+    updated: 2026-10-22
 
   # 9, not 16: `split_document` promotes the trailing H1 blocks (banco de
   # questões, referência rápida, glossário) to chapters of their own, so the
