@@ -60,6 +60,20 @@ export type ChapterSummary = {
   sections: ChapterSection[]
 }
 
+/**
+ * Returns only the top-level sections of a chapter: the minimum heading level
+ * present. Deeper levels (sub-subsections like "Passo 1", "Resposta",
+ * "O tratamento de solubilização em…") are interior parts, not navigation
+ * targets — the sidebar and the in-page TOC list the top level only.
+ */
+export function topLevelSections<T extends { level: number }>(
+  sections: readonly T[],
+): T[] {
+  if (sections.length === 0) return [...sections]
+  const min = Math.min(...sections.map((section) => section.level))
+  return sections.filter((section) => section.level === min)
+}
+
 /** `guides/<id>/chapters/<slug>.json` */
 export type ChapterJson = ChapterSummary & {
   guideId: string

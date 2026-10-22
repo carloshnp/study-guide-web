@@ -12,7 +12,7 @@ const SECTIONS: ChapterSection[] = [
 ]
 
 describe("ChapterToc", () => {
-  it("lists every section as an in-page link with its level", () => {
+  it("lists only the top-level sections as in-page links (deeper sub-sections are not navigation targets)", () => {
     const original = window.matchMedia
     window.matchMedia = ((query: string) => ({
       ...original(query),
@@ -32,12 +32,9 @@ describe("ChapterToc", () => {
 
       expect(links.map((link) => link.getAttribute("href"))).toEqual([
         "#11-obtencao",
-        "#111-custo",
-        "#termos",
       ])
       expect(links[0]).toHaveTextContent("1.1 Obtenção")
-      expect(links[1]).toHaveAttribute("data-level", "3")
-      expect(links[2]).toHaveAttribute("data-level", "4")
+      expect(links[0]).toHaveAttribute("data-level", "2")
 
       expect(nav).toContainElement(links[0])
     } finally {

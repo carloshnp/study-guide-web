@@ -13,6 +13,7 @@ import {
   type GuideChapter,
   type GuideGroup,
 } from "@/lib/catalog"
+import { topLevelSections } from "@/lib/content"
 import { cn } from "@/lib/utils"
 
 export type SidebarNode = {
@@ -149,7 +150,8 @@ function ChapterItem({ chapter, ctx, depth, guideId }: ChapterItemProps) {
   const nodeId = `chapter:${guideId}:${chapter.slug}`
   const listId = `sidebar-chapter-${guideId}-${chapter.slug}`
   const isOpen = ctx.expanded.has(nodeId)
-  const hasSections = chapter.sections.length > 0
+  const items = topLevelSections(chapter.sections)
+  const hasSections = items.length > 0
 
   return (
     <li>
@@ -180,7 +182,7 @@ function ChapterItem({ chapter, ctx, depth, guideId }: ChapterItemProps) {
 
       {hasSections && isOpen ? (
         <ul id={listId} className="mt-1 flex flex-col gap-1">
-          {chapter.sections.map((section) => (
+          {items.map((section) => (
             <SectionItem
               key={section.id}
               chapterSlug={chapter.slug}

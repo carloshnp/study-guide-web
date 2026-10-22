@@ -181,6 +181,30 @@ export function Chapter() {
     }
   }, [data, snippet])
 
+  // Sidebar section links navigate with a `#id` hash (SPA); react-router does
+  // not scroll on its own, so drive the scroll here once the target heading is
+  // in the DOM (the markdown renderer is lazy, hence the polling).
+  useEffect(() => {
+    if (!data) return
+    const raw = decodeURIComponent(location.hash.slice(1))
+    if (!raw) {
+      window.scrollTo({ top: 0 })
+      return
+    }
+    let timer = 0
+    let tries = 0
+    const attempt = () => {
+      const el = document.getElementById(raw)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" })
+        return
+      }
+      if (tries < 20) timer = window.setTimeout(attempt, 250)
+    }
+    timer = window.setTimeout(attempt, 100)
+    return () => window.clearTimeout(timer)
+  }, [data, location.hash])
+
   // Records what this device is reading, so home can offer one "Continuar" row.
   useEffect(() => {
     if (!data) return

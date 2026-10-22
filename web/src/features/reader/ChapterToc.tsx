@@ -8,6 +8,7 @@
  */
 
 import { cn } from "@/lib/utils"
+import { topLevelSections } from "@/lib/content"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import type { ChapterSection } from "@/lib/content"
 
@@ -24,8 +25,9 @@ export type ChapterTocProps = {
 
 export function ChapterToc({ sections, className }: ChapterTocProps) {
   const wide = useMediaQuery("xl")
+  const items = topLevelSections(sections)
 
-  if (!wide || sections.length === 0) return null
+  if (!wide || items.length === 0) return null
 
   return (
     <nav
@@ -38,7 +40,7 @@ export function ChapterToc({ sections, className }: ChapterTocProps) {
     >
       <p className="text-kicker uppercase text-muted-foreground">Neste capítulo</p>
       <ol className="flex flex-col gap-0.5">
-        {sections.map((section) => (
+        {items.map((section) => (
           <li key={section.id}>
             <a
               className={`flex min-h-8 items-start rounded-md py-1 text-meta text-muted-foreground hover:text-brand ${
