@@ -44,11 +44,25 @@ export function anchorHref(anchor: {
   guideId?: string | null
   chapterSlug?: string | null
   sectionId?: string | null
+  sourceSnippet?: string | null
 }): string | null {
   if (!anchor.guideId) return null
   if (!anchor.chapterSlug) return `/g/${anchor.guideId}`
   const base = chapterHref(anchor.guideId, anchor.chapterSlug)
-  return anchor.sectionId ? `${base}#${anchor.sectionId}` : base
+  const hash = anchor.sectionId ? `#${anchor.sectionId}` : ""
+  const snippet = anchor.sourceSnippet?.trim()
+  const query = snippet ? `?snippet=${encodeURIComponent(fragmentOf(snippet))}` : ""
+  return `${base}${hash}${query}`
+}
+
+/**
+ * The leading fragment of a source snippet, normalized for matching against the
+ * rendered chapter text. The chapter route uses it to scroll to the exact
+ * passage the card was created from (full snippet from the draft YAML is
+ * verbose; the first ~80 meaningful characters identify it).
+ */
+export function fragmentOf(snippet: string): string {
+  return snippet.replace(/\s+/g, " ").trim().slice(0, 80)
 }
 
 /**

@@ -41,11 +41,8 @@ export function Review() {
   const mode: SessionMode = deckId ? requestedMode : "review"
   const scope = search.get("scope") ?? "all"
 
-  // Review always schedules; only training carries the explicit toggle.
-  const [trainingReschedule, setTrainingReschedule] = useState(
-    search.get("reschedule") === "1",
-  )
-  const reschedule = mode === "review" ? true : trainingReschedule
+  // Review always records; training never does. No in-session toggle.
+  const reschedule = mode === "review"
   const [batch, setBatch] = useState(0)
 
   const source = deckId ? `deck:${deckId}` : `queue:${scope}`
@@ -139,13 +136,12 @@ export function Review() {
       {session ? (
         <ReviewSession
           cards={session.cards}
-          guideHrefFor={(card) => anchorHref(card.anchor) ?? hrefForScope(card.scope ?? "")}
+          guideHrefFor={(card) => anchorHref(card.anchor ?? {}) ?? hrefForScope(card.scope ?? "")}
           hasMore={session.hasMore}
           mode={mode}
           onContinue={nextBatch}
           onExit={() => navigate(decksHref())}
           onRate={rate}
-          onRescheduleChange={setTrainingReschedule}
           onResolveAnswer={resolveAnswer}
           reschedule={reschedule}
         />

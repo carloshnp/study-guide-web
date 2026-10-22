@@ -19,9 +19,7 @@ import { Link } from "react-router"
 import { Button } from "@/components/ui/button"
 import { Kbd } from "@/components/ui/kbd"
 import { Progress } from "@/components/ui/progress"
-import { Switch } from "@/components/ui/switch"
 import { errorMessage } from "@/lib/api"
-import { cn } from "@/lib/utils"
 
 import { FlashcardMarkdown } from "../FlashcardMarkdown"
 import {
@@ -34,18 +32,17 @@ import {
   type SessionMode,
 } from "../api"
 import { answerForCard, questionForCard } from "../cloze"
-import { formatInterval, previewIntervals } from "../intervals"
+import { previewIntervals } from "../intervals"
 import { decksHref } from "../links"
 
-type Phase = "prompt" | "answer" | "feedback" | "done"
+type Phase = "prompt" | "answer" | "done"
 
 export type ReviewSessionProps = {
   cards: QueueCard[]
   hasMore: boolean
   mode: SessionMode
-  /** Whether ratings change the schedule (training toggle). */
+  /** Whether ratings change the schedule; review mode always records. */
   reschedule: boolean
-  onRescheduleChange?: (value: boolean) => void
   onRate: (
     card: QueueCard,
     rating: ReviewRating,
@@ -78,7 +75,6 @@ export function ReviewSession({
   hasMore,
   mode,
   reschedule,
-  onRescheduleChange,
   onRate,
   onResolveAnswer,
   onContinue,
@@ -88,7 +84,6 @@ export function ReviewSession({
 }: ReviewSessionProps) {
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>("prompt")
-  const [result, setResult] = useState<ReviewResult | null>(null)
   const [counts, setCounts] = useState<Record<ReviewRating, number>>(EMPTY_COUNTS)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -100,7 +95,6 @@ export function ReviewSession({
   useEffect(() => {
     setIndex(0)
     setPhase("prompt")
-    setResult(null)
     setCounts(EMPTY_COUNTS)
     setError(null)
     setResolved({})
@@ -112,7 +106,6 @@ export function ReviewSession({
   const inlineAnswer = card ? answerForCard(card) : ""
   const revealAnswer =
     inlineAnswer.trim() !== "" ? inlineAnswer : card ? (resolved[card.id] ?? "") : ""
-  const feedbackAnswer = result?.answer && result.answer.trim() !== "" ? result.answer : revealAnswer
 
   const reveal = useCallback(async () => {
     if (!card || phase !== "prompt") return
@@ -133,38 +126,36 @@ export function ReviewSession({
     setPhase("answer")
   }, [card, onResolveAnswer, phase, revealAnswer])
 
-  const rate = useCallback(
-    async (rating: ReviewRating) => {
-      if (!card || busy || phase !== "answer") return
-      setBusy(true)
-      setError(null)
-      try {
-        const response = await onRate(card, rating, Date.now() - startedAt.current, {
-          mode,
-          reschedule,
-        })
-        setResult(response)
-        setCounts((current) => ({ ...current, [rating]: current[rating] + 1 }))
-        setPhase("feedback")
-      } catch (failure) {
-        setError(errorMessage(failure))
-      } finally {
-        setBusy(false)
-      }
-    },
-    [busy, card, mode, onRate, phase, reschedule],
-  )
-
   const advance = useCallback(() => {
     if (index + 1 < cards.length) {
       setIndex((current) => current + 1)
-      setResult(null)
       setPhase("prompt")
       startedAt.current = Date.now()
       return
     }
     setPhase("done")
   }, [cards.length, index])
+
+  const rate = useCallback(
+    async (rating: ReviewRating) => {
+      if (!card || busy || phase !== "answer") return
+      setBusy(true)
+      setError(null)
+      try {
+        await onRate(card, rating, Date.now() - startedAt.current, {
+          mode,
+          reschedule,
+        })
+        setCounts((current) => ({ ...current, [rating]: current[rating] + 1 }))
+        advance()
+      } catch (failure) {
+        setError(errorMessage(failure))
+      } finally {
+        setBusy(false)
+      }
+    },
+    [advance, busy, card, mode, onRate, phase, reschedule],
+  )
 
   useEffect(() => {
     const handler = (event: globalThis.KeyboardEvent) => {
@@ -187,18 +178,12 @@ export function ReviewSession({
           void rate(Number(event.key) as ReviewRating)
           return
         }
-        if (event.key === "Enter") {
+        if (event.key === "Enter" || event.key === " ") {
           event.preventDefault()
-          void rate(3)
+          advance()
           return
         }
-        if (event.key === " ") event.preventDefault()
         return
-      }
-
-      if (phase === "feedback" && (event.key === " " || event.key === "Enter")) {
-        event.preventDefault()
-        advance()
       }
     }
 
@@ -294,23 +279,6 @@ export function ReviewSession({
         <Progress aria-label="Progresso da sessão" max={cards.length} value={progress} />
       </div>
 
-      {mode === "training" ? (
-        <div className="flex flex-col gap-1 rounded-card border border-border bg-code/60 p-3">
-          <label className="flex min-h-11 items-center gap-2 text-meta text-foreground" htmlFor="review-reschedule">
-            <Switch
-              checked={reschedule}
-              id="review-reschedule"
-              onCheckedChange={(checked) => onRescheduleChange?.(checked)}
-            />
-            Registrar no cronograma
-          </label>
-          <p className="text-caption text-faint">
-            {reschedule
-              ? "As avaliações contam para o cronograma. Mudar esta opção reinicia a fila."
-              : "Sem cronograma: as avaliações só dão retorno, nada é persistido. Mudar esta opção reinicia a fila."}
-          </p>
-        </div>
-      ) : null}
 
       <section
         aria-label="Card"
@@ -341,7 +309,8 @@ export function ReviewSession({
             )}
 
             {phase === "answer" ? (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {REVIEW_RATINGS.map((rating) => (
                   <Button
                     aria-label={
@@ -367,6 +336,29 @@ export function ReviewSession({
                   </Button>
                 ))}
               </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {guideHref ? (
+                  <Link
+                    className="inline-flex min-h-11 w-fit items-center gap-1.5 text-meta font-semibold text-brand underline-offset-4 hover:underline"
+                    to={guideHref}
+                  >
+                    <ExternalLinkIcon aria-hidden="true" className="size-4" />
+                    Ver no guia
+                  </Link>
+                ) : null}
+                <Button
+                  className="ms-auto"
+                  onClick={advance}
+                  type="button"
+                  variant="outline"
+                >
+                  {index + 1 < cards.length ? "Próximo card" : "Ver resumo"}
+                  <ArrowRightIcon aria-hidden="true" />
+                  <Kbd aria-hidden="true">Espaço</Kbd>
+                </Button>
+              </div>
+              </>
             ) : null}
           </div>
         )}
@@ -380,64 +372,6 @@ export function ReviewSession({
           </p>
         ) : null}
       </section>
-
-      {phase === "feedback" && result ? (
-        <div
-          className="flex flex-col gap-3 rounded-card border border-border bg-card p-5 sm:p-6"
-          data-slot="review-feedback"
-          role="status"
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={cn(
-                "rounded-chip border px-2 py-0.5 text-kicker uppercase",
-                result.correct
-                  ? "border-success/40 text-success"
-                  : "border-warning/40 text-warning",
-              )}
-            >
-              {result.correct ? "Correto" : "Errado"}
-            </span>
-            <span className="text-meta text-muted-foreground">
-              {result.recorded === false || (mode === "training" && !reschedule)
-                ? "Treino sem cronograma"
-                : result.nextIntervalDays <= 0
-                  ? "Volta ainda hoje"
-                  : `Próxima revisão em ${formatInterval(result.nextIntervalDays)}`}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-kicker uppercase text-faint">Resposta correta</span>
-            {feedbackAnswer.trim() === "" ? (
-              <p className="text-meta text-muted-foreground">
-                Sem resposta registrada para este card.
-              </p>
-            ) : (
-              <FlashcardMarkdown markdown={feedbackAnswer} />
-            )}
-            {result.extra && result.extra.trim() !== "" ? (
-              <FlashcardMarkdown className="text-meta" markdown={result.extra} />
-            ) : null}
-          </div>
-
-          {guideHref ? (
-            <Link
-              className="inline-flex min-h-11 w-fit items-center gap-1.5 text-meta font-semibold text-brand underline-offset-4 hover:underline"
-              to={guideHref}
-            >
-              <ExternalLinkIcon aria-hidden="true" className="size-4" />
-              Ver no guia
-            </Link>
-          ) : null}
-
-          <Button className="w-fit" onClick={advance} type="button">
-            {index + 1 < cards.length ? "Próximo card" : "Ver resumo"}
-            <ArrowRightIcon aria-hidden="true" />
-            <Kbd aria-hidden="true">Espaço</Kbd>
-          </Button>
-        </div>
-      ) : null}
     </div>
   )
 }

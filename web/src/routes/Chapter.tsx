@@ -17,7 +17,7 @@
 
 import { ArrowLeftIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { lazy, Suspense, useEffect, useMemo, useState } from "react"
-import { Link, useParams } from "react-router"
+import { Link, useParams, useSearchParams } from "react-router"
 
 import { writeLastRead } from "@/features/catalog/last-read"
 import { Editor, type EditorSeed } from "@/features/flashcards/editor/Editor"
@@ -115,6 +115,44 @@ export function Chapter() {
     () => neighboursOf(guide.data, chapterSlug),
     [chapterSlug, guide.data],
   )
+
+  // Deep link to the exact passage a flashcard was created from: the link
+  // carries a snippet fragment (?snippet=...); scroll to the paragraph whose
+  // text contains it and give it a temporary highlight.
+  const [search] = useSearchParams()
+  const snippet = search.get("snippet")
+
+  useEffect(() => {
+    if (!data || !snippet) return
+    const fragment = snippet.replace(/\s+/g, " ").trim().toLocaleLowerCase("pt-BR")
+    if (!fragment) return
+
+    const timer = window.setTimeout(() => {
+      const article = document.querySelector("[data-slot='chapter-body'] article")
+      if (!article) return
+      const candidates = article.querySelectorAll("p, li, td, blockquote, h1, h2, h3, h4")
+      let target: Element | null = null
+      for (const node of candidates) {
+        const text = node.textContent?.replace(/\s+/g, " ").trim().toLocaleLowerCase("pt-BR") ?? ""
+        if (text.includes(fragment)) {
+          target = node
+          break
+        }
+      }
+      if (!target) return
+      target.scrollIntoView({ behavior: "smooth", block: "center" })
+      const element = target as HTMLElement
+      element.style.transition = "background-color 300ms ease, box-shadow 300ms ease"
+      element.style.backgroundColor = "var(--accent-soft, color-mix(in srgb, var(--accent) 18%, transparent))"
+      element.style.boxShadow = "0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent)"
+      window.setTimeout(() => {
+        element.style.backgroundColor = ""
+        element.style.boxShadow = ""
+      }, 4000)
+    }, 120)
+
+    return () => window.clearTimeout(timer)
+  }, [data, snippet])
 
   // Records what this device is reading, so home can offer one "Continuar" row.
   useEffect(() => {

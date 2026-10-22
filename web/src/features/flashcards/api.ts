@@ -156,6 +156,8 @@ export type DeckCard = {
   template: string
   state: CardState
   due?: string | null
+  /** Source anchor of the card (guide/chapter/section + snippet). */
+  anchor: CardAnchor
 }
 
 export type DeckDetail = {
@@ -444,7 +446,14 @@ export function parseDeckDetail(payload: unknown, path: string): DeckDetail {
   }
   const cards = asArray(payload.cards ?? [], path, "cards").map((card, index) => {
     if (!isRecord(card)) throw invalid(path, `cards[${index}] não é um objeto.`)
+    const meta = isRecord(card.scopeMeta) ? card.scopeMeta : {}
     return {
+      anchor: {
+        chapterSlug: optionalString(meta.chapterSlug),
+        guideId: optionalString(meta.guideId),
+        sectionId: optionalString(meta.sectionId),
+        sourceSnippet: optionalString(meta.sourceSnippet),
+      },
       due: optionalString(card.due),
       front: typeof card.front === "string" ? card.front : "",
       id: asNumber(card.id, path, `cards[${index}].id`),

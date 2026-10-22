@@ -88,7 +88,7 @@ export function DeckDetail() {
                 render={<Link to={reviewHref({ deck: deck.id, mode: "review" })} />}
                 variant="outline"
               >
-                Revisar
+                Estudar
               </Button>
               {anchor ? (
                 <Button render={<Link to={anchor} />} variant="ghost">
@@ -121,10 +121,10 @@ export function DeckDetail() {
                     <span className="text-caption text-faint">{card.template}</span>
                   </div>
                   <FlashcardMarkdown className="text-meta" markdown={card.front} />
-                  {anchor ? (
+                  {anchorHref(card.anchor) ? (
                     <Link
                       className="inline-flex min-h-11 w-fit items-center gap-1.5 text-caption font-semibold text-brand underline-offset-4 hover:underline"
-                      to={anchor}
+                      to={anchorHref(card.anchor) ?? ""}
                     >
                       <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
                       Ver no guia

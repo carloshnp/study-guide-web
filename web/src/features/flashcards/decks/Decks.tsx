@@ -20,7 +20,7 @@ import { Editor } from "../editor/Editor"
 import { deckHref, draftsHref, reviewHref, statsHref } from "@/features/flashcards/links"
 import { useResource } from "../useResource"
 
-const TYPE_ORDER: DeckType[] = ["guide", "chapter", "section", "other"]
+const TYPE_ORDER: DeckType[] = ["guide", "chapter", "other"]
 
 const TYPE_HINTS: Record<DeckType, string> = {
   chapter: "Um capítulo inteiro — bom para revisar antes da aula.",
@@ -59,7 +59,10 @@ export function DeckRow({ deck }: { deck: Deck }) {
           <SparklesIcon aria-hidden="true" />
           Treinar
         </Button>
-        <Button render={<Link to={deckHref(deck.id)} />} size="sm" variant="outline">
+        <Button render={<Link to={reviewHref({ deck: deck.id, mode: "review" })} />} size="sm" variant="outline">
+          Estudar
+        </Button>
+        <Button render={<Link to={deckHref(deck.id)} />} size="sm" variant="ghost">
           Abrir
         </Button>
       </div>

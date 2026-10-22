@@ -5,10 +5,29 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { stubApi } from "../__fixtures__/api"
 import { DeckDetail } from "./DeckDetail"
 
+const ANCHOR = {
+  chapterSlug: "01-estrutura",
+  guideId: "magnesio",
+  sectionId: "12-fases",
+  sourceSnippet: "A ferrita é cúbica de corpo centrado.",
+}
+
 const DECK = {
   cards: [
-    { front: "Qual fase é cúbica de corpo centrado?", id: 1, state: "new", template: "basic" },
-    { front: "A camada é **{{c1::ferrita}}**.", id: 2, state: "review", template: "cloze:c1" },
+    {
+      anchor: ANCHOR,
+      front: "Qual fase é cúbica de corpo centrado?",
+      id: 1,
+      state: "new",
+      template: "basic",
+    },
+    {
+      anchor: ANCHOR,
+      front: "A camada é **{{c1::ferrita}}**.",
+      id: 2,
+      state: "review",
+      template: "cloze:c1",
+    },
   ],
   chapterSlug: "01-estrutura",
   guideId: "magnesio",
@@ -51,7 +70,7 @@ describe("Deck detail", () => {
       "href",
       "/flashcards/review?deck=chapter%3Amagnesio%3A01-estrutura&mode=training",
     )
-    expect(screen.getByRole("link", { name: "Revisar" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Estudar" })).toHaveAttribute(
       "href",
       "/flashcards/review?deck=chapter%3Amagnesio%3A01-estrutura&mode=review",
     )

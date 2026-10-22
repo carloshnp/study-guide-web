@@ -77,12 +77,20 @@ export function GuideDecks({ guideId }: { guideId: string }) {
                 {guideDeck?.cardCount ?? total} cards ancorados neste guia
               </span>
             </Link>
-            <Link
-              className="ms-auto inline-flex min-h-11 items-center text-meta font-semibold text-brand underline-offset-4 hover:underline"
-              to={reviewHref({ deck: guideDeck?.id ?? `guide:${guideId}`, mode: "training" })}
-            >
-              Treinar
-            </Link>
+            <div className="ms-auto flex items-center gap-3">
+              <Link
+                className="inline-flex min-h-11 items-center text-meta font-semibold text-brand underline-offset-4 hover:underline"
+                to={reviewHref({ deck: guideDeck?.id ?? `guide:${guideId}`, mode: "training" })}
+              >
+                Treinar
+              </Link>
+              <Link
+                className="inline-flex min-h-11 items-center text-meta font-semibold text-brand underline-offset-4 hover:underline"
+                to={reviewHref({ deck: guideDeck?.id ?? `guide:${guideId}`, mode: "review" })}
+              >
+                Estudar
+              </Link>
+            </div>
           </li>
 
           {chapterDecks.map((deck) => (
@@ -96,12 +104,20 @@ export function GuideDecks({ guideId }: { guideId: string }) {
                   {deck.cardCount} {deck.cardCount === 1 ? "card" : "cards"}
                 </span>
               </Link>
-              <Link
-                className="ms-auto inline-flex min-h-11 items-center text-meta font-semibold text-brand underline-offset-4 hover:underline"
-                to={reviewHref({ deck: deck.id, mode: "training" })}
-              >
-                Treinar
-              </Link>
+              <div className="ms-auto flex items-center gap-3">
+                <Link
+                  className="inline-flex min-h-11 items-center text-meta font-semibold text-brand underline-offset-4 hover:underline"
+                  to={reviewHref({ deck: deck.id, mode: "training" })}
+                >
+                  Treinar
+                </Link>
+                <Link
+                  className="inline-flex min-h-11 items-center text-meta font-semibold text-brand underline-offset-4 hover:underline"
+                  to={reviewHref({ deck: deck.id, mode: "review" })}
+                >
+                  Estudar
+                </Link>
+              </div>
             </li>
           ))}
         </ul>
