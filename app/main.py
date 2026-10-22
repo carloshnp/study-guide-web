@@ -16,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 
 from app.api import (
+    flashcards_drafts,
     flashcards_notes,
     flashcards_review,
     flashcards_stats,
@@ -94,6 +95,7 @@ def create_app(
 
     application.include_router(progress.router)
     application.include_router(notes.router)
+    application.include_router(flashcards_drafts.router)
     application.include_router(flashcards_notes.router)
     application.include_router(flashcards_review.router)
     application.include_router(flashcards_stats.router)
