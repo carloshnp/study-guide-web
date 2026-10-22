@@ -62,6 +62,11 @@ Design consequences locked by the decision oracle (2026-10-22):
 | Limits | Daily new-card limit (default 10) and review cap; a "today's floor" setting (e.g. 5 cards) to protect the habit. |
 | Stats | Heatmap (active days), load forecast per day, true retention (recall at maturity), counts of new/learning/review. |
 | Habit | Streak with freeze (a missed day is forgiven by a freeze token); reminders are a browser notification, never email; no punishment for breaking. |
+| Session size | One session = 20 cards, with a "Continuar" button to keep going; the remaining due cards stay in the queue. |
+| Again during learning | The card re-enters today's learning queue **and** the correct answer is shown again on screen before advancing (reinforcement). |
+| Cloze regeneration | Editing a cloze note regenerates its cards; cards for removed lacunas are kept with their full revlog but marked `deprecated` and excluded from queues/stats. |
+| Creation entry points | Both: a floating button in the chapter reader and the selection context menu open the pre-filled editor. |
+| Desired retention | Per guide: `desired_retention` is configurable per guide id with a global default of 0.90. |
 | API | One FastAPI router `/api/flashcards/*`; single-user, same SQLite as progress; no auth beyond localhost/tailnet. |
 | Tests | pytest for db/scheduler/api (deterministic clock, property tests for interval monotonicity); vitest for React; no new infra. |
 
@@ -93,7 +98,8 @@ CREATE TABLE cards (
   id INTEGER PRIMARY KEY,
   note_id INTEGER NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
   template TEXT NOT NULL,         -- 'basic' | 'reverse' | 'cloze:c1' | …
-  state TEXT NOT NULL DEFAULT 'new',  -- new | learning | review | suspended
+  state TEXT NOT NULL DEFAULT 'new',  -- new | learning | review | suspended | deprecated
+  deprecated_at TEXT,
   difficulty REAL NOT NULL DEFAULT 5.0,
   stability REAL NOT NULL DEFAULT 0.0,
   retrievability REAL,
@@ -138,7 +144,8 @@ DELETE /api/flashcards/notes/<id>         (cascade cards)
 POST /api/flashcards/notes/<id>/cards     (regenerate cards from the note)
 GET  /api/flashcards/stats?from=&to=     (daily counts, true retention, forecast)
 GET  /api/flashcards/habits?from=&to=     (active days, streak, freezes)
-POST /api/flashcards/settings             {daily_new_limit, review_cap, desired_retention, floor}
+GET  /api/flashcards/settings
+POST /api/flashcards/settings             {daily_new_limit, review_cap, floor, desired_retention_default, per_guide: {guide_id: 0.85…0.97}}
 ```
 
 Review rating payloads are validated (1–4). The reveal endpoint never returns the
@@ -148,6 +155,8 @@ answer before a `review` is posted (test-enforced).
 
 - `fc-editor`: modal/route with front/back textareas (Markdown preview, KaTeX),
   kind selector, tag input; "create from selection" pre-fills front + source anchor.
+  Two entry points: a floating button in the chapter reader and the selection
+  context menu (both open the same pre-filled editor).
 - `fc-review-ui`: card prompt → "Mostrar resposta" → answer + 4 buttons with next
   intervals; progress bar; end-of-session summary; keyboard shortcuts; the correct
   answer and a "link to guide section" appear after rating.
@@ -191,12 +200,19 @@ answer before a `review` is posted (test-enforced).
    leech screen with a "reformulate" shortcut that opens the editor.
 4. Streak logic: reviewing on consecutive days increments; a missed day consumes a
    freeze when available and never drops the streak below the frozen floor.
-5. Stats show the seven-day heatmap, next 14-day load forecast, and true retention
+5. A session presents exactly 20 due cards and then a "Continuar" button; rating
+   Again during learning re-queues the card for today and shows the correct answer
+   again before the next card.
+6. Removing a lacuna from a cloze note marks its card `deprecated`, keeps its
+   revlog, and removes it from queues and stats.
+7. Stats show the seven-day heatmap, next 14-day load forecast, and true retention
    computed from mature cards (interval ≥ 21 days).
-6. The review session works fully by keyboard (Space, 1–4, Enter, Esc back) and the
+8. Desired retention is read per guide (guide settings override the 0.90 default),
+   and the load warning appears when a guide value exceeds 0.95.
+9. The review session works fully by keyboard (Space, 1–4, Enter, Esc back) and the
    next-interval labels on buttons match what the scheduler will apply.
-7. All four React surfaces are covered by vitest; backend suite stays green; no
-   build warnings introduced.
+10. All four React surfaces are covered by vitest; backend suite stays green; no
+    build warnings introduced.
 
 ## Assumptions
 
@@ -209,18 +225,23 @@ answer before a `review` is posted (test-enforced).
 5. No background jobs on the notebook: reminders use the browser Notification API
    only when the site is open (no push infra).
 6. Browser target remains the same as the site (modern Chromium/Firefox/Safari).
+7. **Pilot content**: cards are authored for the Magnésio guide only — its theory
+   chapters and the Glossário chapter; the Banco de Questões chapter is excluded.
+   The Referência Rápida chapter is assumed **included** (same nature as the
+   glossary); flag if you want it excluded too.
+8. Pilot cards are created as **drafts** (never auto-activated) via the same
+   editor flow, with source anchors pointing at magnésio chapters/sections; the
+   user approves/patches them before they enter the review queue.
+
+## Resolved questions (user answers, 2026-10-22)
+
+1. Session: 20 cards + "Continuar".
+2. Again during learning: card returns to the queue **and** shows the answer again.
+3. Cloze regeneration: keep history, mark removed cards `deprecated`.
+4. Creation entry points: both (floating button + selection menu).
+5. Desired retention: per guide, with a global default.
 
 ## Open questions
 
-1. Review session size: fixed session (e.g. 20 cards) vs "all due today"? Default
-   proposal: a session target of 20, after which the user may continue. Confirm.
-2. Should a rating of Again during learning show the answer again immediately, or
-   does the card simply re-enter the queue (Anki default)? Proposal: re-enter, no
-   immediate re-show.
-3. Cloze note editing: when a cloze note's text changes, cards are regenerated —
-   what happens to the review history of removed lacunas (proposal: cards deleted
-   with their revlog, notes kept)?
-4. Where should the "create card from selection" button live: a floating button in
-   the chapter reader, the right-click/selection menu, or both (proposal: both)?
-5. Desired-retention control: one global value vs per-guide presets (proposal:
-   global with a per-guide override later).
+None blocking. The Referência Rápida inclusion is an assumption flagged above
+(assumption 7) — confirm or override when approving.
