@@ -249,7 +249,7 @@ describe("Review session", () => {
     // The exact-passage link lives on the revealed card, with the snippet.
     expect(screen.getByRole("link", { name: /Ver no guia/ })).toHaveAttribute(
       "href",
-      "/g/magnesio/c/01-estrutura#12-fases?snippet=A%20ferrita%20%C3%A9%20c%C3%BAbica%20de%20corpo%20centrado%20e%20ocorre%20em%20baixas%20temperaturas.",
+      "/g/magnesio/c/01-estrutura?snippet=A%20ferrita%20%C3%A9%20c%C3%BAbica%20de%20corpo%20centrado%20e%20ocorre%20em%20baixas%20temperaturas.#12-fases",
     )
 
     await user.keyboard("3")

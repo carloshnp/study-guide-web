@@ -52,7 +52,9 @@ export function anchorHref(anchor: {
   const hash = anchor.sectionId ? `#${anchor.sectionId}` : ""
   const snippet = anchor.sourceSnippet?.trim()
   const query = snippet ? `?snippet=${encodeURIComponent(fragmentOf(snippet))}` : ""
-  return `${base}${hash}${query}`
+  // Query must precede the hash, or it gets swallowed into the fragment and
+  // useSearchParams never sees it.
+  return `${base}${query}${hash}`
 }
 
 /**
