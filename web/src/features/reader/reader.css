@@ -48,6 +48,18 @@
   font-size: 1.05em;
 }
 
+/*
+ * KaTeX auto-numbers display equations written as egin{align} / egin{equation}
+ * via `.eqn-num::before { content: "(" counter(katexEqnNo) ")"; }`. The site
+ * does not want (1), (2), … on any equation — kill the counter and its content.
+ */
+.katex .eqn-num::before,
+.katex .mml-eqn-num::before {
+  content: none !important;
+  counter-increment: none;
+}
+
+
 .reader-prose .katex-display > .katex {
   font-size: 1.15em;
 }
