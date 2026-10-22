@@ -127,31 +127,58 @@ export function Chapter() {
     const fragment = snippet.replace(/\s+/g, " ").trim().toLocaleLowerCase("pt-BR")
     if (!fragment) return
 
-    const timer = window.setTimeout(() => {
+    // The markdown renderer is lazy (chunk + Suspense), so the passage may not
+    // be in the DOM when this effect first runs. Poll for up to ~5s until a
+    // paragraph containing the fragment exists, then scroll and highlight it.
+    let timer = 0
+    let tries = 0
+    let highlightCleanup = 0
+
+    const attempt = () => {
+      tries += 1
       const article = document.querySelector("[data-slot='chapter-body'] article")
-      if (!article) return
-      const candidates = article.querySelectorAll("p, li, td, blockquote, h1, h2, h3, h4")
+      const candidates = article
+        ? article.querySelectorAll("p, li, td, blockquote, h1, h2, h3, h4")
+        : []
       let target: Element | null = null
-      for (const node of candidates) {
-        const text = node.textContent?.replace(/\s+/g, " ").trim().toLocaleLowerCase("pt-BR") ?? ""
-        if (text.includes(fragment)) {
-          target = node
-          break
+      if (candidates.length > 0) {
+        // Try the full fragment first, then progressively shorter prefixes: the
+        // rendered text can differ near math/entities, so a shorter prefix still
+        // lands on the right paragraph.
+        for (const prefixLength of [fragment.length, 60, 40, 24]) {
+          const prefix = fragment.slice(0, prefixLength)
+          if (prefix.length === 0) break
+          for (const node of candidates) {
+            const text =
+              node.textContent?.replace(/\s+/g, " ").trim().toLocaleLowerCase("pt-BR") ?? ""
+            if (text.includes(prefix)) {
+              target = node
+              break
+            }
+          }
+          if (target) break
         }
       }
-      if (!target) return
+      if (!target) {
+        if (tries < 20) timer = window.setTimeout(attempt, 250)
+        return
+      }
       target.scrollIntoView({ behavior: "smooth", block: "center" })
       const element = target as HTMLElement
       element.style.transition = "background-color 300ms ease, box-shadow 300ms ease"
       element.style.backgroundColor = "var(--accent-soft, color-mix(in srgb, var(--accent) 18%, transparent))"
       element.style.boxShadow = "0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent)"
-      window.setTimeout(() => {
+      highlightCleanup = window.setTimeout(() => {
         element.style.backgroundColor = ""
         element.style.boxShadow = ""
       }, 4000)
-    }, 120)
+    }
 
-    return () => window.clearTimeout(timer)
+    timer = window.setTimeout(attempt, 100)
+    return () => {
+      window.clearTimeout(timer)
+      window.clearTimeout(highlightCleanup)
+    }
   }, [data, snippet])
 
   // Records what this device is reading, so home can offer one "Continuar" row.

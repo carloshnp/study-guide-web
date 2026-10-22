@@ -140,6 +140,8 @@ describe("real content smoke", () => {
       }
     }
 
-    expect(rendered).toBeGreaterThanOrEqual(100)
+    // Floor reflects the current published corpus for these five guides
+    // (titanio restructured from 39 to 16 chapters).
+    expect(rendered).toBeGreaterThanOrEqual(70)
   })
 })
