@@ -386,6 +386,7 @@ def build_all(
                 "id": entry.id,
                 "title": entry.title,
                 "subject": entry.subject,
+                "group": entry.group,
                 "type": entry.type,
                 "chapterCount": build.chapters,
                 "updatedAt": _updated_at(entry, source.meta),
@@ -395,11 +396,28 @@ def build_all(
 
     _prune_removed_guides(content_root, {entry.id for entry in entries})
 
+    groups = sorted(
+        catalog.groups,
+        key=lambda group: (
+            catalog.subject(group.subject).order,
+            group.order,
+            group.id,
+        ),
+    )
     index = {
         "generatedAt": stamp,
         "subjects": [
             {"id": subject.id, "title": subject.title, "order": subject.order}
             for subject in subjects
+        ],
+        "groups": [
+            {
+                "id": group.id,
+                "title": group.title,
+                "subject": group.subject,
+                "order": group.order,
+            }
+            for group in groups
         ],
         "guides": rows,
     }

@@ -45,10 +45,13 @@ absolute source path. Shape:
 version: 1
 subjects:
   - {id: metalurgia, title: Metalurgia, order: 1}
+groups:                     # subfolders inside a subject; optional
+  - {id: nao-ferrosos, title: Não-Ferrosos, subject: metalurgia, order: 1}
 guides:
   - id: aluminio
     title: Alumínio
     subject: metalurgia
+    group: nao-ferrosos     # optional; omit to sit directly under the subject
     type: teoria            # teoria | banco | referencia | glossario | apendice
     split: 2                # heading level that starts a chapter
     expected_chapters: 29

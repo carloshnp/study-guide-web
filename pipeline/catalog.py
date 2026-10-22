@@ -27,9 +27,11 @@ GUIDE_REQUIRED: tuple[str, ...] = (
     "split",
     "expected_chapters",
 )
-GUIDE_OPTIONAL: tuple[str, ...] = ("order", "published", "updated", "cover")
+GUIDE_OPTIONAL: tuple[str, ...] = ("order", "published", "updated", "cover", "group")
 SUBJECT_REQUIRED: tuple[str, ...] = ("id", "title")
 SUBJECT_OPTIONAL: tuple[str, ...] = ("order",)
+GROUP_REQUIRED: tuple[str, ...] = ("id", "title", "subject")
+GROUP_OPTIONAL: tuple[str, ...] = ("order",)
 
 MIN_SPLIT = 1
 MAX_SPLIT = 6
@@ -51,6 +53,16 @@ class Subject:
 
 
 @dataclass(frozen=True)
+class Group:
+    """A folder of guides inside one subject, e.g. Não-Ferrosos under Metalurgia."""
+
+    id: str
+    title: str
+    subject: str
+    order: int
+
+
+@dataclass(frozen=True)
 class GuideEntry:
     """One published guide."""
 
@@ -63,6 +75,7 @@ class GuideEntry:
     order: int
     published: bool
     updated: str | None = None
+    group: str | None = None
 
 
 @dataclass(frozen=True)
@@ -73,6 +86,7 @@ class Catalog:
     path: Path
     subjects: tuple[Subject, ...]
     guides: tuple[GuideEntry, ...]
+    groups: tuple[Group, ...] = ()
 
     def subject(self, subject_id: str) -> Subject:
         for subject in self.subjects:
@@ -88,6 +102,21 @@ class Catalog:
 
     def published_guides(self) -> tuple[GuideEntry, ...]:
         return tuple(guide for guide in self.guides if guide.published)
+
+    def group(self, group_id: str) -> Group:
+        for group in self.groups:
+            if group.id == group_id:
+                return group
+        raise CatalogError(f"{self.path}: unknown group id {group_id!r}")
+
+    def groups_of(self, subject_id: str) -> tuple[Group, ...]:
+        """Groups of one subject, by `order` then id."""
+        return tuple(
+            sorted(
+                (group for group in self.groups if group.subject == subject_id),
+                key=lambda group: (group.order, group.id),
+            )
+        )
 
 
 def _require_mapping(path: Path, where: str, value: Any) -> Mapping[str, Any]:
@@ -175,8 +204,46 @@ def _load_subjects(path: Path, raw: list[Any]) -> tuple[Subject, ...]:
     return tuple(subjects)
 
 
-def _load_guides(path: Path, raw: list[Any], subjects: tuple[Subject, ...]) -> tuple[GuideEntry, ...]:
+def _load_groups(
+    path: Path, raw: list[Any], subjects: tuple[Subject, ...]
+) -> tuple[Group, ...]:
     subject_ids = {subject.id for subject in subjects}
+    groups: list[Group] = []
+    seen: set[str] = set()
+    allowed = GROUP_REQUIRED + GROUP_OPTIONAL
+    for index, item in enumerate(raw):
+        entry = _require_mapping(path, f"groups[{index}]", item)
+        where = f"groups[{index}]"
+        _check_unknown_fields(path, where, entry, allowed)
+        for field in GROUP_REQUIRED:
+            if field not in entry:
+                raise CatalogError(f"{path}: {where}: missing required field '{field}'")
+        group_id = _check_slug(
+            path, where, "id", _require_str(path, where, "id", entry["id"])
+        )
+        if group_id in seen:
+            raise CatalogError(f"{path}: {where}: duplicate group id {group_id!r}")
+        seen.add(group_id)
+        title = _require_str(path, where, "title", entry["title"])
+        subject = _require_str(path, where, "subject", entry["subject"])
+        if subject not in subject_ids:
+            raise CatalogError(
+                f"{path}: {where}: field 'subject' refers to unknown subject "
+                f"{subject!r} (known: {', '.join(sorted(subject_ids))})"
+            )
+        order = _require_int(path, where, "order", entry.get("order", index + 1), minimum=1)
+        groups.append(Group(id=group_id, title=title, subject=subject, order=order))
+    return tuple(groups)
+
+
+def _load_guides(
+    path: Path,
+    raw: list[Any],
+    subjects: tuple[Subject, ...],
+    groups: tuple[Group, ...] = (),
+) -> tuple[GuideEntry, ...]:
+    subject_ids = {subject.id for subject in subjects}
+    groups_by_id = {group.id: group for group in groups}
     guides: list[GuideEntry] = []
     seen: set[str] = set()
     allowed = GUIDE_REQUIRED + GUIDE_OPTIONAL
@@ -216,6 +283,19 @@ def _load_guides(path: Path, raw: list[Any], subjects: tuple[Subject, ...]) -> t
             path, where, "expected_chapters", entry["expected_chapters"], minimum=1
         )
         order = _require_int(path, where, "order", entry.get("order", index + 1), minimum=1)
+        group = entry.get("group")
+        if group is not None:
+            group = _require_str(path, where, "group", group)
+            if group not in groups_by_id:
+                raise CatalogError(
+                    f"{path}: {where}: field 'group' refers to unknown group {group!r} "
+                    f"(known: {', '.join(sorted(groups_by_id)) or 'none'})"
+                )
+            if groups_by_id[group].subject != subject:
+                raise CatalogError(
+                    f"{path}: {where}: field 'group' is {group!r}, which belongs to subject "
+                    f"{groups_by_id[group].subject!r}, but the guide is in {subject!r}"
+                )
         published = _require_bool(
             path, where, "published", entry.get("published", True)
         )
@@ -239,6 +319,7 @@ def _load_guides(path: Path, raw: list[Any], subjects: tuple[Subject, ...]) -> t
                 order=order,
                 published=published,
                 updated=updated,
+                group=group,
             )
         )
     if not guides:
@@ -260,8 +341,14 @@ def load(path: str | Path) -> Catalog:
     if version != 1:
         raise CatalogError(f"{catalog_path}: field 'version' must be 1, got {version}")
     subjects = _load_subjects(catalog_path, _require_list(catalog_path, "subjects", data.get("subjects")))
-    guides = _load_guides(catalog_path, _require_list(catalog_path, "guides", data.get("guides")), subjects)
-    return Catalog(version=version, path=catalog_path, subjects=subjects, guides=guides)
+    raw_groups = data.get("groups", [])
+    groups = _load_groups(catalog_path, _require_list(catalog_path, "groups", raw_groups), subjects)
+    guides = _load_guides(
+        catalog_path, _require_list(catalog_path, "guides", data.get("guides")), subjects, groups
+    )
+    return Catalog(
+        version=version, path=catalog_path, subjects=subjects, guides=guides, groups=groups
+    )
 
 
 def load_sources(path: str | Path) -> dict[str, tuple[Path, ...]]:

@@ -11,13 +11,14 @@
  * becomes an h2 below the page h1 instead of a second h1.
  */
 
-import { ArrowLeftIcon } from "lucide-react"
+import { ArrowLeftIcon, ChevronRightIcon } from "lucide-react"
 import { lazy, Suspense, useMemo } from "react"
 import { Link, useParams } from "react-router"
 
 import { normalizeLeadingHeading } from "@/features/reader/leading-heading"
 import { GuideMeter } from "@/features/progress/GuideMeter"
 import { useProgress } from "@/features/progress/useProgress"
+import { guideTrail, useCatalogIndex } from "@/lib/catalog"
 import { chapterUnitIds, guideUnitIds, kindLabel, useGuideContent } from "@/lib/content"
 
 /** Same split as the chapter route: the markdown stack is its own chunk. */
@@ -25,6 +26,41 @@ const MarkdownRenderer = lazy(async () => {
   const module = await import("@/features/reader/MarkdownRenderer")
   return { default: module.MarkdownRenderer }
 })
+
+/**
+ * Breadcrumb from the catalog: `Estantes › Metalurgia › Não-Ferrosos`. The subject
+ * and the folder have no page of their own, so they are text; only Estantes links
+ * back, and it renders even for a guide the catalog does not know, so the error
+ * state keeps a way out. The crumbs appear once the index resolves.
+ */
+function GuideTrail({ guideId }: { guideId: string }) {
+  const { index } = useCatalogIndex()
+  const trail = index ? guideTrail(index, guideId) : null
+
+  return (
+    <nav aria-label="Trilha" className="flex min-h-11 flex-wrap items-center gap-1.5 text-meta">
+      <Link
+        className="inline-flex min-h-11 w-fit items-center gap-1.5 font-semibold text-brand underline-offset-4 hover:underline"
+        to="/estantes"
+      >
+        <ArrowLeftIcon aria-hidden="true" className="size-4" />
+        Estantes
+      </Link>
+      {trail ? (
+        <>
+          <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 text-faint" />
+          <span className="text-muted-foreground">{trail.subject.title}</span>
+          {trail.group ? (
+            <>
+              <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 text-faint" />
+              <span className="text-muted-foreground">{trail.group.title}</span>
+            </>
+          ) : null}
+        </>
+      ) : null}
+    </nav>
+  )
+}
 
 export function Guide() {
   const { guideId = "" } = useParams()
@@ -42,13 +78,7 @@ export function Guide() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex max-w-[var(--measure)] flex-col gap-3">
-        <Link
-          className="inline-flex min-h-11 w-fit items-center gap-1.5 text-meta font-semibold text-brand underline-offset-4 hover:underline"
-          to="/estantes"
-        >
-          <ArrowLeftIcon aria-hidden="true" className="size-4" />
-          Estantes
-        </Link>
+        <GuideTrail guideId={guideId} />
 
         <p className="text-kicker uppercase text-brand">{data ? kindLabel(data.type) : "Guia"}</p>
 

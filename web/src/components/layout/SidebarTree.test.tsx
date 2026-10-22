@@ -33,7 +33,7 @@ afterEach(() => {
 })
 
 describe("SidebarTree", () => {
-  it("groups the published guides by subject", async () => {
+  it("groups the published guides by subject and by folder", async () => {
     renderTree()
 
     const metalurgia = await screen.findByRole("button", { name: /metalurgia/i })
@@ -43,9 +43,25 @@ describe("SidebarTree", () => {
 
     await expandSubject(/metalurgia/i)
 
+    // The subject opens on its folder, not on the guides inside it.
+    const folder = screen.getByRole("button", { name: /não-ferrosos/i })
+    expect(folder).toHaveAttribute("aria-expanded", "false")
+    expect(screen.queryByRole("link", { name: "Alumínio" })).toBeNull()
+    expect(screen.queryByRole("link", { name: "Estruturas de Dados e Algoritmos" })).toBeNull()
+
+    await expandSubject(/não-ferrosos/i)
+
     expect(screen.getByRole("link", { name: "Alumínio" })).toBeVisible()
     expect(screen.getByRole("link", { name: "Titânio" })).toBeVisible()
     expect(screen.queryByRole("link", { name: "Estruturas de Dados e Algoritmos" })).toBeNull()
+  })
+
+  it("opens the folder that holds the active guide", async () => {
+    renderTree("/g/aluminio")
+
+    const folder = await screen.findByRole("button", { name: /não-ferrosos/i })
+    expect(folder).toHaveAttribute("aria-expanded", "true")
+    expect(screen.getByRole("link", { name: "Alumínio" })).toHaveAttribute("aria-current", "page")
   })
 
   it("expands a guide into chapters and a chapter into its sections", async () => {
@@ -53,6 +69,7 @@ describe("SidebarTree", () => {
     renderTree()
 
     await expandSubject(/metalurgia/i)
+    await expandSubject(/não-ferrosos/i)
     const guideToggle = screen.getByRole("button", { name: /expandir capítulos de alumínio/i })
     expect(guideToggle).toHaveAttribute("aria-expanded", "false")
 
@@ -77,6 +94,7 @@ describe("SidebarTree", () => {
     renderTree()
 
     await expandSubject(/metalurgia/i)
+    await expandSubject(/não-ferrosos/i)
     await user.click(screen.getByRole("button", { name: /expandir capítulos de alumínio/i }))
 
     expect(
@@ -145,6 +163,7 @@ describe("SidebarTree", () => {
     expect(primary).toHaveClass("min-h-11")
 
     await expandSubject(/metalurgia/i)
+    await expandSubject(/não-ferrosos/i)
     const guide = screen.getByRole("link", { name: "Alumínio" })
     expect(guide).toHaveClass("min-h-11")
 

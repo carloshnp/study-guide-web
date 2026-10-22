@@ -10,10 +10,17 @@ subjects:
   - {id: resistencia-dos-materiais, title: Resistência dos Materiais, order: 3}
   - {id: calculo-numerico, title: Cálculo Numérico, order: 4}
 
+# Subfolders inside a subject. A guide opts in with `group:`; without it the guide
+# sits directly under the subject. Ids are unique across the catalog and a group
+# must belong to the same subject as the guides it holds.
+groups:
+  - {id: nao-ferrosos, title: Não-Ferrosos, subject: metalurgia, order: 1}
+
 guides:
   - id: aluminio
     title: Alumínio
     subject: metalurgia
+    group: nao-ferrosos
     type: teoria
     split: 2
     expected_chapters: 29
@@ -24,6 +31,7 @@ guides:
   - id: titanio
     title: Titânio
     subject: metalurgia
+    group: nao-ferrosos
     type: teoria
     split: 2
     expected_chapters: 39
@@ -38,6 +46,7 @@ guides:
   - id: magnesio
     title: Magnésio
     subject: metalurgia
+    group: nao-ferrosos
     type: teoria
     split: 2
     expected_chapters: 9

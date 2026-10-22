@@ -1,6 +1,7 @@
 import { Link } from "react-router"
 
 import { coverInitials } from "@/features/catalog/cover-initials"
+import { FolderHeading } from "@/features/catalog/FolderHeading"
 import { GuideTypeChip } from "@/features/catalog/GuideTypeChip"
 import { guideHref, type CatalogGuide, type SubjectGroup } from "@/lib/catalog"
 
@@ -47,7 +48,9 @@ function CoverMedia({ guide }: { guide: CatalogGuide }) {
   )
 }
 
-function CoverCard({ guide }: { guide: CatalogGuide }) {
+function CoverCard({ guide, level = 3 }: { guide: CatalogGuide; level?: 3 | 4 }) {
+  const Title = level === 4 ? "h4" : "h3"
+
   return (
     <li>
       <Link
@@ -56,7 +59,9 @@ function CoverCard({ guide }: { guide: CatalogGuide }) {
       >
         <CoverMedia guide={guide} />
         <span className="flex flex-1 flex-col gap-2 p-4">
-          <h3 className="font-heading text-h4 font-semibold text-foreground">{guide.title}</h3>
+          <Title className="font-heading text-h4 font-semibold text-foreground">
+            {guide.title}
+          </Title>
           <span className="flex flex-wrap items-center gap-2">
             <GuideTypeChip kind={guide.type} />
             <span className="text-caption text-faint tabular-nums">
@@ -70,9 +75,11 @@ function CoverCard({ guide }: { guide: CatalogGuide }) {
 }
 
 /**
- * Covers grid, grouped by subject: `cover` or typographic placeholder, title, type
- * chip and chapter count. Filtering happens upstream, so an empty `groups` is the
- * caller's no-match state to explain.
+ * Covers grid, grouped by subject and then by folder: `cover` or typographic
+ * placeholder, title, type chip and chapter count. A folder keeps its own labelled
+ * grid under the subject, so `Não-Ferrosos` reads as a shelf inside Metalurgia.
+ * Filtering happens upstream, so an empty `groups` is the caller's no-match state
+ * to explain.
  */
 export function CoversGrid({ groups }: { groups: SubjectGroup[] }) {
   return (
@@ -89,11 +96,33 @@ export function CoversGrid({ groups }: { groups: SubjectGroup[] }) {
           >
             {group.subject.title}
           </h2>
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {group.guides.map((guide) => (
-              <CoverCard key={guide.id} guide={guide} />
-            ))}
-          </ul>
+
+          {group.folders.map((folder) => (
+            <section
+              key={folder.group.id}
+              aria-labelledby={`estante-pasta-${folder.group.id}`}
+              className="mt-1 flex flex-col gap-3 border-s border-border ps-3"
+            >
+              <FolderHeading
+                count={folder.guides.length}
+                group={folder.group}
+                id={`estante-pasta-${folder.group.id}`}
+              />
+              <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {folder.guides.map((guide) => (
+                  <CoverCard key={guide.id} guide={guide} level={4} />
+                ))}
+              </ul>
+            </section>
+          ))}
+
+          {group.direct.length > 0 ? (
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {group.direct.map((guide) => (
+                <CoverCard key={guide.id} guide={guide} />
+              ))}
+            </ul>
+          ) : null}
         </section>
       ))}
     </div>

@@ -24,15 +24,16 @@ once no matter how many chapters embed it.
 
 ## `index.json`
 
-Keys: `generatedAt`, `subjects`, `guides`.
+Keys: `generatedAt`, `subjects`, `groups`, `guides`.
 
 ```json
 {
   "generatedAt": "2026-10-21T05:41:59Z",
   "subjects": [{"id": "metalurgia", "title": "Metalurgia", "order": 1}],
+  "groups": [{"id": "nao-ferrosos", "title": "Não-Ferrosos", "subject": "metalurgia", "order": 1}],
   "guides": [{
-    "id": "aluminio", "title": "Alumínio", "subject": "metalurgia", "type": "teoria",
-    "chapterCount": 29, "updatedAt": "2026-10-21T00:00:00Z",
+    "id": "aluminio", "title": "Alumínio", "subject": "metalurgia", "group": "nao-ferrosos",
+    "type": "teoria", "chapterCount": 29, "updatedAt": "2026-10-21T00:00:00Z",
     "cover": "/media/covers/aluminio.webp"
   }]
 }
@@ -41,6 +42,14 @@ Keys: `generatedAt`, `subjects`, `guides`.
 `cover` is `null` when the guide has no figure (DSA): the UI shows its
 typographic placeholder instead. Covers are 1280x720 webp, a 16:9 centre crop
 of the guide's first figure.
+
+`groups` are subfolders inside one subject (Metalurgia › Não-Ferrosos); a group
+belongs to exactly one subject, and `catalog.yaml` rejects a guide whose `group`
+names a folder of another subject. `group` is `null` for a guide that sits
+directly under its subject. The UI renders the folder as a labelled block in the
+home list and in the covers grid, as an extra level in the sidebar tree, and as a
+breadcrumb on the guide page. Guide URLs stay `/g/<id>`: a folder is a catalog
+concept, not a route, so links and reading progress are unaffected by it.
 
 ## `guides/<id>/guide.json`
 

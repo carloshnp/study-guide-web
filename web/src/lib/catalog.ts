@@ -58,10 +58,20 @@ export type Subject = {
   order: number
 }
 
+/** A folder of guides inside one subject, e.g. Não-Ferrosos under Metalurgia. */
+export type GuideGroup = {
+  id: string
+  title: string
+  subject: string
+  order: number
+}
+
 export type CatalogGuide = {
   id: string
   title: string
   subject: string
+  /** Folder id inside the subject, or null when the guide sits directly in it. */
+  group: string | null
   type: GuideKind
   chapterCount: number
   updatedAt: string | null
@@ -72,6 +82,7 @@ export type CatalogGuide = {
 export type CatalogIndex = {
   generatedAt: string | null
   subjects: Subject[]
+  groups: GuideGroup[]
   guides: CatalogGuide[]
 }
 
@@ -109,10 +120,22 @@ export type Guide = {
   chapters: GuideChapter[]
 }
 
-/** One subject with its published guides, both in catalog order. */
+/** One folder with its guides, both in catalog order. */
+export type FolderGroup = {
+  group: GuideGroup
+  guides: CatalogGuide[]
+}
+
+/**
+ * One subject with its published guides, both in catalog order: `guides` holds
+ * every guide of the subject (folder members included), `folders` groups those
+ * inside a folder and `direct` the ones that sit directly under the subject.
+ */
 export type SubjectGroup = {
   subject: Subject
   guides: CatalogGuide[]
+  folders: FolderGroup[]
+  direct: CatalogGuide[]
 }
 
 /* -------------------------------------------------------------------------- */
@@ -204,11 +227,23 @@ export function parseCatalogIndex(payload: unknown, path = CONTENT_INDEX_PATH): 
     }
   })
 
+  const rawGroups = record.groups === undefined ? [] : asArray(record.groups, path, "groups")
+  const groups = rawGroups.map((entry, index) => {
+    const group = asRecord(entry, path, `groups[${index}]`)
+    return {
+      id: asString(group.id, path, `groups[${index}].id`),
+      order: asNumber(group.order, path, `groups[${index}].order`),
+      subject: asString(group.subject, path, `groups[${index}].subject`),
+      title: asString(group.title, path, `groups[${index}].title`),
+    } satisfies GuideGroup
+  })
+
   const guides = asArray(record.guides, path, "guides").map((entry, index) => {
     const guide = asRecord(entry, path, `guides[${index}]`)
     return {
       chapterCount: asNumber(guide.chapterCount, path, `guides[${index}].chapterCount`),
       cover: optionalString(guide.cover),
+      group: optionalString(guide.group),
       id: asString(guide.id, path, `guides[${index}].id`),
       subject: asString(guide.subject, path, `guides[${index}].subject`),
       title: asString(guide.title, path, `guides[${index}].title`),
@@ -219,6 +254,7 @@ export function parseCatalogIndex(payload: unknown, path = CONTENT_INDEX_PATH): 
 
   return {
     generatedAt: optionalString(record.generatedAt),
+    groups,
     guides,
     subjects,
   }
@@ -381,9 +417,11 @@ export function loadCatalog(force = false): Promise<CatalogBundle> {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Subjects with their guides, subjects in `order`, guides in index order.
- * A guide that names an unknown subject is dropped; a subject without published
- * guides gets no group.
+ * Subjects with their guides and folders, subjects in `order`, guides in index
+ * order. A guide that names an unknown subject is dropped; a subject without
+ * published guides gets no group; a folder without guides is not listed. A guide
+ * whose `group` is unknown or belongs to another subject falls back to `direct`,
+ * so a stale catalog entry still shows up instead of disappearing.
  */
 export function groupGuidesBySubject(index: CatalogIndex): SubjectGroup[] {
   const known = new Set(index.subjects.map((subject) => subject.id))
@@ -398,8 +436,43 @@ export function groupGuidesBySubject(index: CatalogIndex): SubjectGroup[] {
 
   return [...index.subjects]
     .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, "pt-BR"))
-    .map((subject) => ({ guides: bySubject.get(subject.id) ?? [], subject }))
+    .map((subject) => {
+      const guides = bySubject.get(subject.id) ?? []
+      const folders = index.groups
+        .filter((group) => group.subject === subject.id)
+        .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, "pt-BR"))
+        .map((group) => ({
+          group,
+          guides: guides.filter((guide) => guide.group === group.id),
+        }))
+        .filter((folder) => folder.guides.length > 0)
+      const folded = new Set(folders.flatMap((folder) => folder.guides.map((guide) => guide.id)))
+      return {
+        direct: guides.filter((guide) => !folded.has(guide.id)),
+        folders,
+        guides,
+        subject,
+      }
+    })
     .filter((group) => group.guides.length > 0)
+}
+
+/**
+ * Where a guide sits: its subject and, when it has one, its folder. Null when the
+ * catalog does not know the guide (a stale link). A folder of another subject is
+ * not reported, matching `groupGuidesBySubject`'s fallback to `direct`.
+ */
+export function guideTrail(
+  index: CatalogIndex,
+  guideId: string,
+): { subject: Subject; group: GuideGroup | null } | null {
+  const guide = index.guides.find((entry) => entry.id === guideId)
+  if (!guide) return null
+  const subject = index.subjects.find((entry) => entry.id === guide.subject)
+  if (!subject) return null
+  const group =
+    index.groups.find((entry) => entry.id === guide.group && entry.subject === subject.id) ?? null
+  return { group, subject }
 }
 
 /** Lowercase without diacritics: `Magnésio` → `magnesio`. */
@@ -490,10 +563,20 @@ export function matchesSubject(subject: Subject, query: string): boolean {
   return fuzzyMatch(subject.title, query) || fuzzyMatch(subject.id, query)
 }
 
+function matchesGuide(guide: CatalogGuide, query: string): boolean {
+  return fuzzyMatch(guide.title, query) || fuzzyMatch(guide.id, query)
+}
+
+export function matchesGroup(group: GuideGroup, query: string): boolean {
+  return fuzzyMatch(group.title, query) || fuzzyMatch(group.id, query)
+}
+
 /**
- * Groups a query keeps: a matching subject keeps all of its guides, otherwise a
- * guide whose title matches keeps itself (typing `dsa` finds the guide inside
- * `Programação`).
+ * Groups a query keeps, folder structure included: a matching subject keeps all
+ * of its guides and folders; a matching folder keeps its guides; otherwise the
+ * guides whose title matches keep themselves (typing `dsa` finds the guide inside
+ * `Programação`, `nao-ferrosos` finds the folder). A folder left empty by the
+ * filter is dropped, and `guides` is recomputed from what survived.
  */
 export function filterGuidesBySubject(index: CatalogIndex, query: string): SubjectGroup[] {
   const groups = groupGuidesBySubject(index)
@@ -502,10 +585,27 @@ export function filterGuidesBySubject(index: CatalogIndex, query: string): Subje
 
   return groups.flatMap((group) => {
     if (matchesSubject(group.subject, needle)) return [group]
-    const guides = group.guides.filter(
-      (guide) => fuzzyMatch(guide.title, needle) || fuzzyMatch(guide.id, needle),
-    )
-    return guides.length > 0 ? [{ guides, subject: group.subject }] : []
+
+    const folders = group.folders.flatMap((folder) => {
+      if (matchesGroup(folder.group, needle)) return [folder]
+      const guides = folder.guides.filter((guide) => matchesGuide(guide, needle))
+      return guides.length > 0 ? [{ group: folder.group, guides }] : []
+    })
+    const direct = group.direct.filter((guide) => matchesGuide(guide, needle))
+    if (folders.length === 0 && direct.length === 0) return []
+
+    const visible = new Set([
+      ...direct.map((guide) => guide.id),
+      ...folders.flatMap((folder) => folder.guides.map((guide) => guide.id)),
+    ])
+    return [
+      {
+        direct,
+        folders,
+        guides: group.guides.filter((guide) => visible.has(guide.id)),
+        subject: group.subject,
+      },
+    ]
   })
 }
 

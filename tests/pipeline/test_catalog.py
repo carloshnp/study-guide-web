@@ -4,7 +4,15 @@ from pathlib import Path
 
 import pytest
 
-from pipeline.catalog import Catalog, CatalogError, GuideEntry, Subject, load, load_sources
+from pipeline.catalog import (
+    Catalog,
+    CatalogError,
+    Group,
+    GuideEntry,
+    Subject,
+    load,
+    load_sources,
+)
 
 VALID = """\
 version: 1
@@ -27,6 +35,31 @@ guides:
     split: 1
     expected_chapters: 12
     published: false
+"""
+
+
+GROUPED = """\
+version: 1
+subjects:
+  - {id: metalurgia, title: Metalurgia, order: 1}
+  - {id: programacao, title: Programação, order: 2}
+groups:
+  - {id: nao-ferrosos, title: Não-Ferrosos, subject: metalurgia}
+  - {id: ferrosos, title: Ferrosos, subject: metalurgia, order: 2}
+guides:
+  - id: aluminio
+    title: Alumínio
+    subject: metalurgia
+    group: nao-ferrosos
+    type: teoria
+    split: 2
+    expected_chapters: 29
+  - id: dsa
+    title: DSA Guide
+    subject: programacao
+    type: banco
+    split: 1
+    expected_chapters: 12
 """
 
 
@@ -224,3 +257,61 @@ def test_load_sources_missing_file_names_the_path(tmp_path: Path) -> None:
         load_sources(path)
 
     assert str(path) in str(excinfo.value)
+
+
+def test_groups_carry_their_subject_and_order(tmp_path: Path) -> None:
+    catalog = load(write(tmp_path, GROUPED))
+
+    # `order` falls back to position, so declarative order is preserved by default.
+    assert catalog.groups == (
+        Group(id="nao-ferrosos", title="Não-Ferrosos", subject="metalurgia", order=1),
+        Group(id="ferrosos", title="Ferrosos", subject="metalurgia", order=2),
+    )
+    assert catalog.group("nao-ferrosos").title == "Não-Ferrosos"
+
+
+def test_a_guide_may_name_a_group_of_its_own_subject(tmp_path: Path) -> None:
+    catalog = load(write(tmp_path, GROUPED))
+
+    assert catalog.guide("aluminio").group == "nao-ferrosos"
+    # Omitted `group` means the guide sits directly under the subject.
+    assert catalog.guide("dsa").group is None
+    assert [group.id for group in catalog.groups_of("metalurgia")] == ["nao-ferrosos", "ferrosos"]
+    assert catalog.groups_of("programacao") == ()
+
+
+def test_unknown_group_on_a_guide_fails_naming_the_field(tmp_path: Path) -> None:
+    path = write(tmp_path, GROUPED.replace("    group: nao-ferrosos", "    group: leves"))
+
+    with pytest.raises(CatalogError) as excinfo:
+        load(path)
+
+    message = str(excinfo.value)
+    assert "group" in message
+    assert "leves" in message
+    assert str(path) in message
+
+
+def test_group_must_belong_to_the_guides_subject(tmp_path: Path) -> None:
+    path = write(tmp_path, GROUPED.replace("    subject: programacao\n", "    subject: programacao\n    group: nao-ferrosos\n", 1))
+
+    with pytest.raises(CatalogError) as excinfo:
+        load(path)
+
+    message = str(excinfo.value)
+    assert "nao-ferrosos" in message
+    assert "programacao" in message
+
+
+def test_duplicate_group_id_fails(tmp_path: Path) -> None:
+    duplicate = GROUPED.replace(
+        "  - {id: ferrosos, title: Ferrosos, subject: metalurgia, order: 2}\n",
+        "  - {id: nao-ferrosos, title: Outro, subject: metalurgia}\n",
+    )
+    path = write(tmp_path, duplicate)
+
+    with pytest.raises(CatalogError) as excinfo:
+        load(path)
+
+    assert "duplicate" in str(excinfo.value).lower()
+    assert "nao-ferrosos" in str(excinfo.value)

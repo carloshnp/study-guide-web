@@ -8,6 +8,7 @@ import {
   foldText,
   fuzzyMatch,
   groupGuidesBySubject,
+  guideTrail,
   GUIDE_KIND_LABELS,
   loadCatalog,
   loadCatalogIndex,
@@ -21,6 +22,9 @@ import {
 
 const index: CatalogIndex = {
   generatedAt: "2026-10-21T00:00:00Z",
+  groups: [
+    { id: "nao-ferrosos", order: 1, subject: "metalurgia", title: "Não-Ferrosos" },
+  ],
   subjects: [
     { id: "metalurgia", order: 1, title: "Metalurgia" },
     { id: "programacao", order: 2, title: "Programação" },
@@ -29,6 +33,7 @@ const index: CatalogIndex = {
     {
       chapterCount: 2,
       cover: "/media/covers/aluminio.webp",
+      group: "nao-ferrosos",
       id: "aluminio",
       subject: "metalurgia",
       title: "Alumínio",
@@ -38,6 +43,7 @@ const index: CatalogIndex = {
     {
       chapterCount: 1,
       cover: "/media/covers/titanio.webp",
+      group: "nao-ferrosos",
       id: "titanio",
       subject: "metalurgia",
       title: "Titânio",
@@ -47,6 +53,7 @@ const index: CatalogIndex = {
     {
       chapterCount: 1,
       cover: null,
+      group: null,
       id: "dsa",
       subject: "programacao",
       title: "Estruturas de Dados e Algoritmos",
@@ -197,6 +204,52 @@ describe("subject grouping", () => {
     expect(groups.flatMap((group) => group.guides.map((guide) => guide.id))).not.toContain("orfao")
   })
 
+  it("nests the guides of a folder and keeps the rest direct", () => {
+    const groups = groupGuidesBySubject({
+      ...index,
+      guides: [
+        ...index.guides,
+        {
+          chapterCount: 9,
+          cover: null,
+          group: null,
+          id: "magnesio",
+          subject: "metalurgia",
+          title: "Magnésio",
+          type: "teoria",
+          updatedAt: null,
+        },
+      ],
+    })
+
+    expect(groups[0]?.folders.map((folder) => folder.group.id)).toEqual(["nao-ferrosos"])
+    expect(groups[0]?.folders[0]?.guides.map((guide) => guide.id)).toEqual(["aluminio", "titanio"])
+    expect(groups[0]?.direct.map((guide) => guide.id)).toEqual(["magnesio"])
+    // `guides` stays the full list of the subject, folder members included.
+    expect(groups[0]?.guides.map((guide) => guide.id)).toEqual(["aluminio", "titanio", "magnesio"])
+  })
+
+  it("hides a folder that has no guides and keeps a guide whose folder is unknown", () => {
+    const groups = groupGuidesBySubject({
+      ...index,
+      groups: [...index.groups, { id: "vazia", order: 2, subject: "metalurgia", title: "Vazia" }],
+      guides: index.guides.map((guide) =>
+        guide.id === "aluminio" ? { ...guide, group: "fantasma" } : guide,
+      ),
+    })
+
+    expect(groups[0]?.folders.map((folder) => folder.group.id)).toEqual(["nao-ferrosos"])
+    expect(groups[0]?.folders[0]?.guides.map((guide) => guide.id)).toEqual(["titanio"])
+    expect(groups[0]?.direct.map((guide) => guide.id)).toEqual(["aluminio"])
+  })
+
+  it("reports the subject and the folder of a guide as its trail", () => {
+    expect(guideTrail(index, "aluminio")?.subject.title).toBe("Metalurgia")
+    expect(guideTrail(index, "aluminio")?.group?.title).toBe("Não-Ferrosos")
+    expect(guideTrail(index, "dsa")?.group).toBeNull()
+    expect(guideTrail(index, "inexistente")).toBeNull()
+  })
+
   it("returns no group for a subject without published guides", () => {
     const groups = groupGuidesBySubject({
       ...index,
@@ -243,6 +296,22 @@ describe("accent-insensitive subject filter", () => {
   it("widens a matching group to its guides and narrows on a guide title", () => {
     expect(filterGuidesBySubject(index, "metalurgia")[0]?.guides).toHaveLength(2)
     expect(filterGuidesBySubject(index, "dsa")[0]?.guides.map((guide) => guide.id)).toEqual(["dsa"])
+  })
+
+  it("keeps the whole folder when the folder name matches", () => {
+    const [group] = filterGuidesBySubject(index, "nao ferrosos")
+
+    expect(group?.folders).toHaveLength(1)
+    expect(group?.folders[0]?.guides.map((guide) => guide.id)).toEqual(["aluminio", "titanio"])
+    expect(group?.direct).toEqual([])
+  })
+
+  it("narrows inside a folder without dropping the folder itself", () => {
+    const [group] = filterGuidesBySubject(index, "titanio")
+
+    expect(group?.folders.map((folder) => folder.group.id)).toEqual(["nao-ferrosos"])
+    expect(group?.folders[0]?.guides.map((guide) => guide.id)).toEqual(["titanio"])
+    expect(group?.guides.map((guide) => guide.id)).toEqual(["titanio"])
   })
 })
 

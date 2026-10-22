@@ -10,12 +10,14 @@ from pipeline.build import BuildError, build_all, build_guide
 from pipeline.catalog import load
 from tests.pipeline.helpers import build_example_tree
 
-INDEX_KEYS = {"generatedAt", "subjects", "guides"}
+INDEX_KEYS = {"generatedAt", "subjects", "guides", "groups"}
 SUBJECT_KEYS = {"id", "title", "order"}
+GROUP_KEYS = {"id", "title", "subject", "order"}
 INDEX_GUIDE_KEYS = {
     "id",
     "title",
     "subject",
+    "group",
     "type",
     "chapterCount",
     "updatedAt",
@@ -68,12 +70,17 @@ def test_index_json_shape(built: tuple[Path, Path]) -> None:
     assert index["generatedAt"].endswith("Z")
     assert set(index["subjects"][0]) == SUBJECT_KEYS
     assert index["subjects"][0] == {"id": "metalurgia", "title": "Metalurgia", "order": 1}
+    assert set(index["groups"][0]) == GROUP_KEYS
+    assert index["groups"] == [
+        {"id": "nao-ferrosos", "title": "Não-Ferrosos", "subject": "metalurgia", "order": 1}
+    ]
     guide = index["guides"][0]
     assert set(guide) == INDEX_GUIDE_KEYS
     assert guide == {
         "id": "aluminio",
         "title": "Alumínio",
         "subject": "metalurgia",
+        "group": "nao-ferrosos",
         "type": "teoria",
         "chapterCount": 2,
         "updatedAt": "2026-10-21T00:00:00Z",

@@ -7,9 +7,11 @@ import {
   chapterHref,
   groupGuidesBySubject,
   guideHref,
+  guideTrail,
   useCatalogGuides,
   type Guide,
   type GuideChapter,
+  type GuideGroup,
 } from "@/lib/catalog"
 import { cn } from "@/lib/utils"
 
@@ -46,7 +48,7 @@ const DEFAULT_PRIMARY_LINKS: SidebarNode[] = [
 const ROW_CLASS =
   "flex min-h-11 w-full items-center gap-2 rounded-md pe-2 text-meta transition-colors duration-150 ease-enter"
 
-const INDENT_CLASS = ["ps-0", "ps-3", "ps-6", "ps-9"] as const
+const INDENT_CLASS = ["ps-0", "ps-2", "ps-4", "ps-6", "ps-8"] as const
 
 type TreeContext = {
   expanded: ReadonlySet<string>
@@ -241,14 +243,66 @@ function GuideItem({ ctx, depth, guide }: GuideItemProps) {
   )
 }
 
+type FolderItemProps = {
+  ctx: TreeContext
+  depth: number
+  group: GuideGroup
+  guides: Guide[]
+}
+
+/** A folder of guides inside a subject (`Não-Ferrosos`), collapsible like a subject. */
+function FolderItem({ ctx, depth, group, guides }: FolderItemProps) {
+  const nodeId = `group:${group.id}`
+  const listId = `sidebar-group-${group.id}`
+  const isOpen = ctx.expanded.has(nodeId)
+  const toggle = () => ctx.toggle(nodeId)
+
+  return (
+    <li>
+      <div className={cn("flex items-stretch gap-1", indentOf(depth))}>
+        <button
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? listId : undefined}
+          onClick={toggle}
+          onKeyDown={(event) => onDisclosureKey(event, isOpen, toggle)}
+          className={cn(
+            ROW_CLASS,
+            "justify-start text-start text-sidebar-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+          )}
+        >
+          <ChevronRightIcon
+            aria-hidden="true"
+            className={cn(
+              "size-4 shrink-0 text-faint transition-transform duration-150 ease-enter",
+              isOpen && "rotate-90",
+            )}
+          />
+          <span className="truncate">{group.title}</span>
+        </button>
+      </div>
+
+      {isOpen ? (
+        <ul id={listId} className="mt-1 flex flex-col gap-1">
+          {guides.map((guide) => (
+            <GuideItem key={guide.id} ctx={ctx} depth={depth + 1} guide={guide} />
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  )
+}
+
 type SubjectItemProps = {
   ctx: TreeContext
+  direct: Guide[]
+  folders: { group: GuideGroup; guides: Guide[] }[]
   guides: Guide[]
   subjectId: string
   title: string
 }
 
-function SubjectItem({ ctx, guides, subjectId, title }: SubjectItemProps) {
+function SubjectItem({ ctx, direct, folders, guides, subjectId, title }: SubjectItemProps) {
   const nodeId = `subject:${subjectId}`
   const listId = `sidebar-subject-${subjectId}`
   const isOpen = ctx.expanded.has(nodeId)
@@ -282,7 +336,16 @@ function SubjectItem({ ctx, guides, subjectId, title }: SubjectItemProps) {
 
       {isOpen ? (
         <ul id={listId} className="mt-1 flex flex-col gap-1">
-          {guides.map((guide) => (
+          {folders.map((folder) => (
+            <FolderItem
+              key={folder.group.id}
+              ctx={ctx}
+              depth={1}
+              group={folder.group}
+              guides={folder.guides}
+            />
+          ))}
+          {direct.map((guide) => (
             <GuideItem key={guide.id} ctx={ctx} depth={1} guide={guide} />
           ))}
         </ul>
@@ -314,16 +377,26 @@ export function SidebarTree({
   const { status, guides, index, error, reload } = useCatalogGuides()
   const primaryLinks = nodes ?? DEFAULT_PRIMARY_LINKS
 
-  /** Subject groups in catalog order, each with the manifests that loaded. */
+  /**
+   * Subject groups in catalog order, each with the manifests that loaded, split into
+   * folders and guides that sit directly under the subject.
+   */
   const groups = useMemo(() => {
     if (!index) return []
     const details = new Map(guides.map((guide) => [guide.id, guide]))
+    const resolve = (entries: { id: string }[]): Guide[] =>
+      entries.flatMap((entry) => {
+        const detail = details.get(entry.id)
+        return detail ? [detail] : []
+      })
+
     return groupGuidesBySubject(index)
       .map((group) => ({
-        guides: group.guides.flatMap((entry) => {
-          const detail = details.get(entry.id)
-          return detail ? [detail] : []
-        }),
+        direct: resolve(group.direct),
+        folders: group.folders
+          .map((folder) => ({ group: folder.group, guides: resolve(folder.guides) }))
+          .filter((folder) => folder.guides.length > 0),
+        guides: resolve(group.guides),
         subject: group.subject,
       }))
       .filter((group) => group.guides.length > 0)
@@ -334,8 +407,11 @@ export function SidebarTree({
   const activeKey = useMemo(() => {
     if (!guideId) return ""
     const ids: string[] = []
-    const catalogGuide = index?.guides.find((guide) => guide.id === guideId)
-    if (catalogGuide) ids.push(`subject:${catalogGuide.subject}`)
+    const trail = index ? guideTrail(index, guideId) : null
+    if (trail) {
+      ids.push(`subject:${trail.subject.id}`)
+      if (trail.group) ids.push(`group:${trail.group.id}`)
+    }
     ids.push(`guide:${guideId}`)
     const guide = guides.find((entry) => entry.id === guideId)
     if (chapterSlug && guide?.chapters.some((chapter) => chapter.slug === chapterSlug)) {
@@ -430,6 +506,8 @@ export function SidebarTree({
             <SubjectItem
               key={group.subject.id}
               ctx={ctx}
+              direct={group.direct}
+              folders={group.folders}
               guides={group.guides}
               subjectId={group.subject.id}
               title={group.subject.title}

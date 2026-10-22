@@ -12,11 +12,20 @@
       "order": 2
     }
   ],
+  "groups": [
+    {
+      "id": "nao-ferrosos",
+      "title": "Não-Ferrosos",
+      "subject": "metalurgia",
+      "order": 1
+    }
+  ],
   "guides": [
     {
       "id": "aluminio",
       "title": "Alumínio",
       "subject": "metalurgia",
+      "group": "nao-ferrosos",
       "type": "teoria",
       "chapterCount": 2,
       "updatedAt": "2026-10-21T00:00:00Z",
@@ -26,6 +35,7 @@
       "id": "titanio",
       "title": "Titânio",
       "subject": "metalurgia",
+      "group": "nao-ferrosos",
       "type": "teoria",
       "chapterCount": 1,
       "updatedAt": "2026-10-21T00:00:00Z",
@@ -35,6 +45,7 @@
       "id": "dsa",
       "title": "Estruturas de Dados e Algoritmos",
       "subject": "programacao",
+      "group": null,
       "type": "banco",
       "chapterCount": 2,
       "updatedAt": null,
