@@ -5,6 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Guias de estudo: metalurgia, programação e fundamentos." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/pwa/apple-touch-icon.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Estudos" />
     <title>Estudos</title>
     <script>
       /*
@@ -24,6 +30,8 @@
           root.classList.toggle("dark", dark);
           root.style.colorScheme = dark ? "dark" : "light";
           root.setAttribute("data-theme", choice);
+          var themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) themeColor.setAttribute("content", dark ? "#0f1116" : "#ffffff");
         } catch (error) {
           /* A blocked localStorage should not stop the page from rendering. */
         }

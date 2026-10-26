@@ -14,6 +14,12 @@ export type ThemeChoice = "auto" | "light" | "dark"
 
 export type ResolvedTheme = "light" | "dark"
 
+/** Browser/status-bar colour per resolved theme; matches `--background` in index.css. */
+export const THEME_COLOR: Record<ResolvedTheme, string> = {
+  light: "#ffffff",
+  dark: "#0f1116",
+}
+
 /** Cycle order for the top-bar control: auto → light → dark → auto. */
 const THEME_ORDER: readonly ThemeChoice[] = ["auto", "light", "dark"]
 
@@ -68,5 +74,8 @@ export function applyTheme(
   root.classList.toggle("dark", resolved === "dark")
   root.style.colorScheme = resolved
   root.dataset.theme = choice
+  root.ownerDocument
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", THEME_COLOR[resolved])
   return resolved
 }
