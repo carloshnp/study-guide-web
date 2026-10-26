@@ -565,6 +565,22 @@
   --text-5xl: calc(3rem * var(--font-scale));
 }
 
+/* At the top of the size range (32px = 1.78x) a single long word, such as
+   "superenvelhecimento" or a DOI, is wider than a phone column and would push the
+   whole page sideways. Let text break inside a word only when nothing else fits.
+   Prose tables keep their own horizontal scroll instead of squeezing columns. */
+main#conteudo,
+h1,
+h2,
+h3,
+h4 {
+  overflow-wrap: anywhere;
+}
+
+[data-slot="reader-prose"] table {
+  overflow-wrap: normal;
+}
+
 /* The measure is in ch, so a larger size would otherwise widen the column past
    the panel: cap it at the column instead of letting it overflow. */
 [data-slot="reader-prose"] {

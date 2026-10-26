@@ -71,16 +71,17 @@ describe("layout preferences", () => {
     })
   })
 
-  it("keeps the reading size between 16 and 24 px", () => {
-    expect(FONT_SIZE.min).toBe(16)
-    expect(FONT_SIZE.max).toBe(24)
+  it("keeps the reading size between 10 and 32 px", () => {
+    expect(FONT_SIZE.min).toBe(10)
+    expect(FONT_SIZE.max).toBe(32)
 
-    setLayoutFontSize(30)
-    expect(getLayoutPrefs().fontSize).toBe(24)
-    expect(Number(document.documentElement.style.getPropertyValue("--font-scale"))).toBeCloseTo(24 / 18)
+    setLayoutFontSize(40)
+    expect(getLayoutPrefs().fontSize).toBe(32)
+    expect(Number(document.documentElement.style.getPropertyValue("--font-scale"))).toBeCloseTo(32 / 18)
 
     setLayoutFontSize(4)
-    expect(getLayoutPrefs().fontSize).toBe(16)
+    expect(getLayoutPrefs().fontSize).toBe(10)
+    expect(Number(document.documentElement.style.getPropertyValue("--font-scale"))).toBeCloseTo(10 / 18)
 
     setLayoutFontSize(20)
     expect(getLayoutPrefs().fontSize).toBe(20)
@@ -113,7 +114,7 @@ describe("layout preferences", () => {
     expect(sanitizeLayout(null)).toEqual(DEFAULT_LAYOUT)
     expect(sanitizeLayout("full")).toEqual(DEFAULT_LAYOUT)
     expect(sanitizeLayout({ mode: "diagonal", gutter: "wide" })).toEqual(DEFAULT_LAYOUT)
-    expect(sanitizeLayout({ mode: "full", gutter: 40, fontSize: 99 }).fontSize).toBe(24)
+    expect(sanitizeLayout({ mode: "full", gutter: 40, fontSize: 99 }).fontSize).toBe(32)
 
     window.localStorage.setItem(LAYOUT_STORAGE_KEY, "{not json")
     resetLayoutStore()

@@ -52,8 +52,8 @@ export const GUTTER = {
 } as const
 
 export const FONT_SIZE = {
-  min: 16,
-  max: 24,
+  min: 10,
+  max: 32,
   step: 1,
   default: 18,
 } as const
