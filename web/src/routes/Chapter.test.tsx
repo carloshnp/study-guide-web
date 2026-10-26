@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { ChapterJson, GuideJson } from "@/lib/content"
 import { resetContentCache } from "@/lib/content"
+import { resetLayoutStore, setLayoutReaderView } from "@/features/preferences/layout"
 import { resetProgressStore } from "@/features/progress/useProgress"
 import { Chapter } from "./Chapter"
 
@@ -80,6 +81,8 @@ function jsonResponse(payload: unknown, status = 200) {
   }
 }
 
+let chapterPayload: ChapterJson = CHAPTER
+
 function stubContent() {
   vi.stubGlobal(
     "fetch",
@@ -104,7 +107,7 @@ function stubContent() {
         })
       }
       if (path === "/content/guides/aluminio/chapters/01-o-aluminio.json") {
-        return jsonResponse(CHAPTER)
+        return jsonResponse(chapterPayload)
       }
       if (path.startsWith("/api/progress")) {
         return jsonResponse({ count: 0, guideId: "aluminio", units: {} })
@@ -126,12 +129,17 @@ function renderChapter(path = "/g/aluminio/c/01-o-aluminio") {
 }
 
 beforeEach(() => {
+  window.localStorage.clear()
+  resetLayoutStore()
+  chapterPayload = CHAPTER
   resetContentCache()
   resetProgressStore()
   stubContent()
 })
 
 afterEach(() => {
+  window.localStorage.clear()
+  resetLayoutStore()
   vi.unstubAllGlobals()
   resetContentCache()
   resetProgressStore()
@@ -275,5 +283,65 @@ describe("Chapter route", () => {
     expect(await screen.findByRole("status")).toHaveTextContent(/não encontrado/i)
     expect(screen.queryByText("99-inexistente")).not.toBeNull()
     expect(container.querySelector('[data-slot="reader-prose"]')).toBeNull()
+  })
+
+  describe("pinned image view", () => {
+    const WITH_IMAGES: ChapterJson = {
+      ...CHAPTER,
+      sectionImages: {
+        "11-obtencao": [
+          {
+            alt: "Infográfico da obtenção do alumínio",
+            height: 720,
+            original: "/media/abc/original.jpg",
+            src: "/media/abc/1280.webp",
+            srcset: null,
+            width: 1280,
+          },
+        ],
+      },
+    }
+
+    it("keeps the continuous text, without the picture, while the setting is off", async () => {
+      chapterPayload = WITH_IMAGES
+      const { container } = renderChapter()
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-slot="reader-prose"]')).not.toBeNull()
+      })
+      expect(container.querySelector('[data-slot="pinned-reader"]')).toBeNull()
+      expect(screen.queryByRole("img", { name: /infográfico da obtenção/i })).toBeNull()
+    })
+
+    it("pins the picture beside the text once the setting is on", async () => {
+      setLayoutReaderView("pinned")
+      chapterPayload = WITH_IMAGES
+      const { container } = renderChapter()
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-slot="reader-prose"]')).not.toBeNull()
+      })
+      expect(container.querySelector('[data-slot="pinned-reader"]')).not.toBeNull()
+      expect(screen.getByRole("heading", { level: 1, name: GUIDE.chapters[0].title })).toBeInTheDocument()
+      expect(screen.getByRole("link", { name: /voltar ao guia/i })).toHaveAttribute(
+        "href",
+        "/g/aluminio",
+      )
+      expect(await screen.findByRole("img", { name: /infográfico da obtenção/i })).toBeInTheDocument()
+      // The same article as the classic view: heading, text and neighbour links.
+      expect(screen.getByText(/a obtenção parte da bauxita/i)).toBeInTheDocument()
+      expect(screen.getByRole("link", { name: /classificação das ligas/i })).toBeInTheDocument()
+    })
+
+    it("falls back to the continuous text for a chapter without pinned pictures", async () => {
+      setLayoutReaderView("pinned")
+      const { container } = renderChapter()
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-slot="reader-prose"]')).not.toBeNull()
+      })
+      expect(container.querySelector('[data-slot="pinned-reader"]')).toBeNull()
+      expect(screen.getByRole("heading", { level: 1, name: GUIDE.chapters[0].title })).toBeInTheDocument()
+    })
   })
 })

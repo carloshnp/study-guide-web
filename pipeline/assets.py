@@ -25,6 +25,9 @@ from PIL import Image as PILImage
 
 WIDTHS: tuple[int, ...] = (640, 1280)
 DEFAULT_WIDTH = WIDTHS[-1]
+# Pinned section images sit next to the text on a wide screen, where a 1280
+# variant of a text-heavy infographic looks soft; they get one more step.
+SECTION_WIDTHS: tuple[int, ...] = (640, 1280, 1920)
 WEBP_QUALITY = 82
 COVER_SIZE: tuple[int, int] = (1280, 720)
 SERVED_PREFIX = "/media"
@@ -121,21 +124,27 @@ def _cache_is_complete(directory: Path, original: Path, widths: tuple[int, ...])
     return True
 
 
-def media_variants(source: Path, media_root: Path) -> tuple[str, list[int], tuple[int, int]]:
+def media_variants(
+    source: Path, media_root: Path, widths: tuple[int, ...] = WIDTHS
+) -> tuple[str, list[int], tuple[int, int]]:
     """Ensure ``media_root/<sha>/`` holds the webp variants and the original.
 
     Returns the sha256 cache key, the widths written and the pixel size of the
-    widest variant. A complete cache entry is left untouched.
+    ``DEFAULT_WIDTH`` variant. A complete cache entry is left untouched.
+    ``widths`` must contain ``DEFAULT_WIDTH``; a caller asking for a width larger
+    than the source gets a LANCZOS upscale, so ask only for what the file has.
     """
     if not source.is_file():
         raise AssetError(f"{source}: image file not found")
+    if DEFAULT_WIDTH not in widths:
+        raise AssetError(f"widths {widths} must include {DEFAULT_WIDTH}")
     sha = sha256_file(source)
     directory = media_root / sha
     original = directory / f"original{source.suffix.lower()}"
-    if not _cache_is_complete(directory, original, WIDTHS):
+    if not _cache_is_complete(directory, original, widths):
         directory.mkdir(parents=True, exist_ok=True)
         image = load_image(source)
-        for width in WIDTHS:
+        for width in widths:
             variant = _resize(image, width)
             variant.save(
                 directory / f"{width}.webp",
@@ -145,9 +154,28 @@ def media_variants(source: Path, media_root: Path) -> tuple[str, list[int], tupl
             )
         if not original.is_file() or original.stat().st_size == 0:
             shutil.copyfile(source, original)
-    with PILImage.open(directory / f"{DEFAULT_WIDTH}.webp") as widest:
-        size = widest.size
-    return sha, list(WIDTHS), size
+    with PILImage.open(directory / f"{DEFAULT_WIDTH}.webp") as default:
+        size = default.size
+    return sha, list(widths), size
+
+
+def image_ref(
+    source: Path,
+    media_root: Path,
+    alt: str,
+    *,
+    widths: tuple[int, ...] = WIDTHS,
+) -> ImageRef:
+    """Cache `source` and describe it the way the chapter manifest does."""
+    sha, written, size = media_variants(source, media_root, widths)
+    return ImageRef(
+        src=f"{SERVED_PREFIX}/{sha}/{DEFAULT_WIDTH}.webp",
+        srcset=", ".join(f"{SERVED_PREFIX}/{sha}/{width}.webp {width}w" for width in written),
+        width=size[0],
+        height=size[1],
+        alt=alt,
+        original=f"{SERVED_PREFIX}/{sha}/original{source.suffix.lower()}",
+    )
 
 
 def _resolve(link: str, source_file: Path, assets: Mapping[str, Path] | None) -> Path:

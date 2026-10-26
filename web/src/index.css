@@ -570,3 +570,35 @@
 [data-slot="reader-prose"] {
   max-width: 100%;
 }
+
+/* "Imagem fixa" reading view (features/reader/pinned). The chapter fills the
+   screen under the top bar and the text pane scrolls on its own, so the page
+   never scrolls and the picture stays put. Unlayered on purpose, like the
+   gutter rule above: it has to beat the shell's utility padding on <main>. */
+[data-slot="pinned-reader"] {
+  height: calc(100dvh - var(--bar-h-phone) - 12px);
+}
+
+@media (min-width: 768px) {
+  [data-slot="pinned-reader"] {
+    height: calc(100dvh - var(--bar-h) - 12px);
+  }
+}
+
+main#conteudo:has([data-slot="pinned-reader"]) {
+  padding-top: 12px;
+  padding-bottom: 0;
+}
+
+main#conteudo:has([data-slot="pinned-reader"]) [data-slot="content-column"] {
+  max-width: none;
+}
+
+html:has([data-slot="pinned-reader"]) body {
+  overflow: hidden;
+}
+
+/* Anchors inside the text pane land just below its top edge, not below the bar. */
+[data-slot="pinned-text"] [id] {
+  scroll-margin-top: 16px;
+}

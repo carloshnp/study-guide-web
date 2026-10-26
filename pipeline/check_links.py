@@ -1,8 +1,8 @@
 """Fail the build when an emitted image reference does not resolve.
 
 Every ``/media/...`` reference in the generated JSON is checked against the
-media cache: the chapter markdown, each entry of the image manifest (``src``,
-``srcset`` and ``original``), the guide cover markdown and the covers named by
+media cache: the chapter markdown, each entry of the image manifest and of
+``sectionImages`` (``src``, ``srcset`` and ``original``), the guide cover markdown and the covers named by
 ``index.json``. A missing file is a build bug, so the check exits non-zero
 instead of warning.
 """
@@ -80,7 +80,10 @@ def _links_of(path: Path) -> Iterator[str]:
         return
     if isinstance(payload.get("markdown"), str):
         yield from _image_links(payload["markdown"])
-    for image in payload.get("images", []):
+    manifest: list[Any] = list(payload.get("images", []))
+    for group in (payload.get("sectionImages") or {}).values():
+        manifest.extend(group)
+    for image in manifest:
         src = image.get("src")
         if isinstance(src, str) and src.startswith(MEDIA_PREFIX):
             yield src

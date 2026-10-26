@@ -23,7 +23,7 @@ import re
 import shutil
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -33,6 +33,13 @@ from pipeline.cover_links import CoverLinkStats, rewrite_cover_anchors
 from pipeline.cover_trim import trim_cover
 from pipeline.catalog import Catalog, CatalogError, GuideEntry, load
 from pipeline.search import build_documents
+from pipeline.section_images import (
+    SectionImageIndex,
+    SectionImagesError,
+    check_known_chapters,
+    load_section_images,
+    resolve_chapter,
+)
 from pipeline.split import Chapter, SplitDocument, split_document
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -92,6 +99,7 @@ class GuideSource:
     assets: dict[str, Path]
     markdown: str
     document: SplitDocument
+    section_images: SectionImageIndex = field(default_factory=dict)
 
 
 def _now() -> str:
@@ -182,6 +190,13 @@ def load_guide(entry: GuideEntry, catalog: Catalog, data_root: Path) -> GuideSou
         link, path = asset.get("link"), asset.get("path")
         if isinstance(link, str) and isinstance(path, str):
             assets[link] = directory / path
+    try:
+        section_images = load_section_images(directory)
+        check_known_chapters(
+            section_images, directory, (chapter.slug for chapter in document.chapters)
+        )
+    except SectionImagesError as exc:
+        raise BuildError(str(exc)) from exc
     return GuideSource(
         entry=entry,
         directory=directory,
@@ -189,6 +204,7 @@ def load_guide(entry: GuideEntry, catalog: Catalog, data_root: Path) -> GuideSou
         assets=assets,
         markdown=markdown,
         document=document,
+        section_images=section_images,
     )
 
 
@@ -214,7 +230,11 @@ def _updated_at(entry: GuideEntry, meta: dict[str, Any]) -> str:
 
 
 def chapter_payload(
-    entry: GuideEntry, chapter: Chapter, markdown: str, images: list[Any]
+    entry: GuideEntry,
+    chapter: Chapter,
+    markdown: str,
+    images: list[Any],
+    section_images: dict[str, list[dict[str, object]]] | None = None,
 ) -> dict[str, Any]:
     return {
         "id": chapter.id,
@@ -227,6 +247,9 @@ def chapter_payload(
         "markdown": markdown,
         "sections": [section.as_json() for section in chapter.flat_sections()],
         "images": [image.as_json() for image in images],
+        # Pictures pinned to a section by the "imagem fixa" reading view, keyed
+        # by section id; empty for a chapter without any (docs/contracts.md).
+        "sectionImages": section_images or {},
     }
 
 
@@ -273,9 +296,19 @@ def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
             media_root,
             assets=source.assets,
         )
-        payloads.append(chapter_payload(entry, chapter, markdown, images))
+        try:
+            pinned = resolve_chapter(
+                source.section_images.get(chapter.slug),
+                chapter_slug=chapter.slug,
+                section_ids=[section.id for section in chapter.flat_sections()],
+                guide_dir=source.directory,
+                media_root=media_root,
+            )
+        except SectionImagesError as exc:
+            raise BuildError(str(exc)) from exc
+        payloads.append(chapter_payload(entry, chapter, markdown, images, pinned))
         chapter_images.append(images)
-        image_count += len(images)
+        image_count += len(images) + sum(len(group) for group in pinned.values())
         section_count += len(chapter.flat_sections())
     image_count += len(cover_images)
 

@@ -20,6 +20,7 @@ import {
   setLayoutFontSize,
   setLayoutGutter,
   setLayoutMode,
+  setLayoutReaderView,
   useLayout,
 } from "@/features/preferences/layout"
 
@@ -58,10 +59,16 @@ describe("layout preferences", () => {
       mode: "full",
       gutter: 95,
       fontSize: 18,
+      readerView: "classic",
     })
 
     resetLayoutStore()
-    expect(getLayoutPrefs()).toEqual({ mode: "full", gutter: 95, fontSize: 18 })
+    expect(getLayoutPrefs()).toEqual({
+      mode: "full",
+      gutter: 95,
+      fontSize: 18,
+      readerView: "classic",
+    })
   })
 
   it("keeps the reading size between 16 and 24 px", () => {
@@ -113,11 +120,45 @@ describe("layout preferences", () => {
     expect(getLayoutPrefs()).toEqual(DEFAULT_LAYOUT)
   })
 
+  it("reads in the classic view until the reader picks the pinned image", () => {
+    expect(getLayoutPrefs().readerView).toBe("classic")
+
+    setLayoutReaderView("pinned")
+    expect(getLayoutPrefs().readerView).toBe("pinned")
+    expect(JSON.parse(window.localStorage.getItem(LAYOUT_STORAGE_KEY) ?? "{}").readerView).toBe(
+      "pinned",
+    )
+
+    resetLayoutStore()
+    expect(getLayoutPrefs().readerView).toBe("pinned")
+    expect(renderHook(() => useLayout()).result.current.isPinnedView).toBe(true)
+  })
+
+  it("keeps the other settings when the reading view changes", () => {
+    setLayoutMode("full")
+    setLayoutGutter(95)
+    setLayoutReaderView("pinned")
+
+    expect(getLayoutPrefs()).toEqual({
+      mode: "full",
+      gutter: 95,
+      fontSize: 18,
+      readerView: "pinned",
+    })
+  })
+
+  it("ignores an unknown stored reading view", () => {
+    expect(sanitizeLayout({ readerView: "split" }).readerView).toBe("classic")
+    expect(sanitizeLayout({ mode: "full" }).readerView).toBe("classic")
+  })
+
   it("exposes the hook shape the settings menu consumes", () => {
     const api = renderHook(() => useLayout()).result.current
     expect(api.isFullWidth).toBe(false)
     expect(typeof api.setMode).toBe("function")
     expect(typeof api.setGutter).toBe("function")
+    expect(typeof api.setReaderView).toBe("function")
+    expect(api.isPinnedView).toBe(false)
     expect("reset" in api).toBe(false)
     expect(api.fontSize).toBe(18)
     expect(api.canGrowFont).toBe(true)

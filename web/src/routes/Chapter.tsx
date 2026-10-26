@@ -23,7 +23,9 @@ import { writeLastRead } from "@/features/catalog/last-read"
 import { Editor, type EditorSeed } from "@/features/flashcards/editor/Editor"
 import { SelectionCardMenu } from "@/features/flashcards/source-create/SelectionCardMenu"
 import { ChapterToc } from "@/features/reader/ChapterToc"
+import { useLayout } from "@/features/preferences/layout"
 import { prepareChapterBody } from "@/features/reader/leading-heading"
+import { PinnedReader } from "@/features/reader/pinned/PinnedReader"
 import { SectionCheck } from "@/features/progress/SectionCheck"
 import {
   kindLabel,
@@ -115,6 +117,13 @@ export function Chapter() {
     () => neighboursOf(guide.data, chapterSlug),
     [chapterSlug, guide.data],
   )
+
+  // The "imagem fixa" view is a reading setting; it only applies to a chapter
+  // that actually carries pictures pinned to its sections. Any other chapter
+  // keeps the continuous text whatever the setting says.
+  const layout = useLayout()
+  const sectionImages = data?.sectionImages ?? {}
+  const pinned = layout.isPinnedView && Object.keys(sectionImages).length > 0
 
   // Deep link to the exact passage a flashcard was created from: the link
   // carries a snippet fragment (?snippet=...); scroll to the paragraph whose
@@ -216,6 +225,136 @@ export function Chapter() {
     })
   }, [chapterSlug, data, guide.data?.title, guideId])
 
+  const savedNotice = savedCard ? (
+    <p
+      className="flex max-w-[var(--measure)] flex-wrap items-center gap-2 rounded-card border border-success/40 bg-success/8 px-3 py-2 text-meta text-success"
+      data-slot="card-created"
+      role="status"
+    >
+      <CheckIcon aria-hidden="true" className="size-4 shrink-0" />
+      {savedCard}
+      <button
+        className="ms-auto min-h-11 rounded-md px-2 text-meta font-semibold text-foreground underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        onClick={() => setSavedCard(null)}
+        type="button"
+      >
+        Fechar
+      </button>
+    </p>
+  ) : null
+
+  const articleBody = (
+    <>
+      {chapter.status === "loading" ? (
+        <div aria-busy="true" data-slot="chapter-loading">
+          <span className="sr-only">Carregando capítulo…</span>
+          <div aria-hidden="true" className="flex flex-col gap-3">
+            <div className="h-4 w-3/4 rounded bg-code" />
+            <div className="h-4 w-full rounded bg-code" />
+            <div className="h-4 w-5/6 rounded bg-code" />
+            <div className="h-4 w-2/3 rounded bg-code" />
+          </div>
+        </div>
+      ) : null}
+
+      {chapter.status === "error" ? (
+        <div
+          className="rounded-card border border-border bg-card p-6"
+          data-slot="chapter-error"
+          role="status"
+        >
+          <p className="text-body font-semibold text-foreground">Capítulo não encontrado.</p>
+          <p className="mt-1 text-meta text-muted-foreground">
+            O conteúdo pode não ter sido publicado ainda. Confira o endereço ou volte ao guia.
+          </p>
+          <p className="mt-3 text-caption text-faint">{chapter.error}</p>
+        </div>
+      ) : null}
+
+      {data ? (
+        <SelectionCardMenu
+          chapterSlug={chapterSlug}
+          guideId={guideId}
+          onRequestCreate={(input) => {
+            setSeed({
+              chapterSlug: input.chapterSlug,
+              front: input.front,
+              guideId: input.guideId,
+              kind: "basic",
+              sectionId: input.sectionId,
+              sourceSnippet: input.sourceSnippet,
+            })
+            setEditorOpen(true)
+          }}
+          sections={sections}
+        >
+          <Suspense
+            fallback={<p className="text-meta text-muted-foreground">Carregando o texto…</p>}
+          >
+            <MarkdownRenderer
+              chapterSlug={chapterSlug}
+              guideId={guideId}
+              images={data.images}
+              markdown={body}
+              sections={sections}
+            />
+          </Suspense>
+        </SelectionCardMenu>
+      ) : null}
+
+      <nav
+        aria-label="Capítulos vizinhos"
+        className="mt-16 grid gap-6 border-t border-border pt-6 sm:grid-cols-2"
+      >
+        <NeighbourLink chapter={neighbours.previous} direction="previous" guideId={guideId} />
+        <NeighbourLink chapter={neighbours.next} direction="next" guideId={guideId} />
+      </nav>
+    </>
+  )
+
+  const cardEditor = (
+    <Editor
+      onOpenChange={setEditorOpen}
+      onSaved={() => setSavedCard("Card criado. Ele entra na fila quando vencer.")}
+      open={editorOpen}
+      seed={seed}
+    />
+  )
+
+  if (pinned) {
+    return (
+      <div data-slot="chapter-root">
+        <PinnedReader
+          key={chapterSlug}
+          header={
+            <header className="flex min-w-0 items-center gap-2" data-slot="chapter-header">
+              <Link
+                aria-label="Voltar ao guia"
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-brand hover:bg-accent"
+                title="Voltar ao guia"
+                to={`/g/${guideId}`}
+              >
+                <ArrowLeftIcon aria-hidden="true" className="size-5" />
+              </Link>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <p className="truncate text-kicker uppercase text-brand">
+                  {data ? `${kicker} · ${kindLabel(data.kind)}` : kicker}
+                </p>
+                <h1 className="line-clamp-2 font-heading text-h3 text-foreground">{title}</h1>
+              </div>
+            </header>
+          }
+          notice={savedNotice}
+          sectionImages={sectionImages}
+          sections={sections}
+        >
+          <article className="min-w-0">{articleBody}</article>
+        </PinnedReader>
+        {cardEditor}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-6" data-slot="chapter-root">
       <header className="flex max-w-[var(--measure)] flex-col gap-3" data-slot="chapter-header">
@@ -242,101 +381,15 @@ export function Chapter() {
         ) : null}
       </header>
 
-      {savedCard ? (
-        <p
-          className="flex max-w-[var(--measure)] flex-wrap items-center gap-2 rounded-card border border-success/40 bg-success/8 px-3 py-2 text-meta text-success"
-          data-slot="card-created"
-          role="status"
-        >
-          <CheckIcon aria-hidden="true" className="size-4 shrink-0" />
-          {savedCard}
-          <button
-            className="ms-auto min-h-11 rounded-md px-2 text-meta font-semibold text-foreground underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            onClick={() => setSavedCard(null)}
-            type="button"
-          >
-            Fechar
-          </button>
-        </p>
-      ) : null}
+      {savedNotice}
 
       <div className="flex flex-col gap-12 xl:flex-row xl:items-start xl:gap-16" data-slot="chapter-body">
-        <article className="min-w-0 max-w-[var(--measure)] flex-1">
-          {chapter.status === "loading" ? (
-            <div aria-busy="true" data-slot="chapter-loading">
-              <span className="sr-only">Carregando capítulo…</span>
-              <div aria-hidden="true" className="flex flex-col gap-3">
-                <div className="h-4 w-3/4 rounded bg-code" />
-                <div className="h-4 w-full rounded bg-code" />
-                <div className="h-4 w-5/6 rounded bg-code" />
-                <div className="h-4 w-2/3 rounded bg-code" />
-              </div>
-            </div>
-          ) : null}
-
-          {chapter.status === "error" ? (
-            <div
-              className="rounded-card border border-border bg-card p-6"
-              data-slot="chapter-error"
-              role="status"
-            >
-              <p className="text-body font-semibold text-foreground">Capítulo não encontrado.</p>
-              <p className="mt-1 text-meta text-muted-foreground">
-                O conteúdo pode não ter sido publicado ainda. Confira o endereço ou volte ao guia.
-              </p>
-              <p className="mt-3 text-caption text-faint">{chapter.error}</p>
-            </div>
-          ) : null}
-
-          {data ? (
-            <SelectionCardMenu
-              chapterSlug={chapterSlug}
-              guideId={guideId}
-              onRequestCreate={(input) => {
-                setSeed({
-                  chapterSlug: input.chapterSlug,
-                  front: input.front,
-                  guideId: input.guideId,
-                  kind: "basic",
-                  sectionId: input.sectionId,
-                  sourceSnippet: input.sourceSnippet,
-                })
-                setEditorOpen(true)
-              }}
-              sections={sections}
-            >
-              <Suspense
-                fallback={<p className="text-meta text-muted-foreground">Carregando o texto…</p>}
-              >
-                <MarkdownRenderer
-                  chapterSlug={chapterSlug}
-                  guideId={guideId}
-                  images={data.images}
-                  markdown={body}
-                  sections={sections}
-                />
-              </Suspense>
-            </SelectionCardMenu>
-          ) : null}
-
-          <nav
-            aria-label="Capítulos vizinhos"
-            className="mt-16 grid gap-6 border-t border-border pt-6 sm:grid-cols-2"
-          >
-            <NeighbourLink chapter={neighbours.previous} direction="previous" guideId={guideId} />
-            <NeighbourLink chapter={neighbours.next} direction="next" guideId={guideId} />
-          </nav>
-        </article>
+        <article className="min-w-0 max-w-[var(--measure)] flex-1">{articleBody}</article>
 
         <ChapterToc sections={sections} />
       </div>
 
-      <Editor
-        onOpenChange={setEditorOpen}
-        onSaved={() => setSavedCard("Card criado. Ele entra na fila quando vencer.")}
-        open={editorOpen}
-        seed={seed}
-      />
+      {cardEditor}
     </div>
   )
 }

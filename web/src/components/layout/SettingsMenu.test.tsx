@@ -10,7 +10,12 @@ import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it } from "vitest"
 
 import { SettingsMenu } from "@/components/layout/SettingsMenu"
-import { FONT_SIZE, GUTTER, resetLayoutStore } from "@/features/preferences/layout"
+import {
+  FONT_SIZE,
+  GUTTER,
+  getLayoutPrefs,
+  resetLayoutStore,
+} from "@/features/preferences/layout"
 import { ThemeProvider } from "@/lib/theme-provider"
 
 function renderMenu() {
@@ -146,5 +151,33 @@ describe("SettingsMenu", () => {
     expect(document.documentElement.style.getPropertyValue("--content-gutter-pref")).toBe(
       `${value}px`,
     )
+  })
+
+  it("offers the pinned image view as its own switch, off by default", async () => {
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    const toggle = await screen.findByRole("switch", { name: /imagem fixa por subcapítulo/i })
+    expect(toggle).not.toBeChecked()
+    expect(screen.getByText(/leitura só com o texto/i)).toBeInTheDocument()
+    expect(screen.getByText(/vale só para capítulos que têm uma imagem/i)).toBeInTheDocument()
+
+    await user.click(toggle)
+    expect(toggle).toBeChecked()
+    expect(getLayoutPrefs().readerView).toBe("pinned")
+    expect(screen.getByText(/a imagem do subcapítulo fica fixa/i)).toBeInTheDocument()
+
+    await user.click(toggle)
+    expect(getLayoutPrefs().readerView).toBe("classic")
+  })
+
+  it("keeps the width switch independent of the reading view", async () => {
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    await user.click(await screen.findByRole("switch", { name: /imagem fixa por subcapítulo/i }))
+    expect(screen.getByRole("switch", { name: /largura total/i })).not.toBeChecked()
   })
 })

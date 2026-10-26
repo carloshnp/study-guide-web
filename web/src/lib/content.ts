@@ -74,11 +74,19 @@ export function topLevelSections<T extends { level: number }>(
   return sections.filter((section) => section.level === min)
 }
 
+/**
+ * Pictures pinned to a section by the "imagem fixa" reading view, keyed by the
+ * section id. A section may list several; the reader steps through them.
+ */
+export type SectionImages = Record<string, ChapterImage[]>
+
 /** `guides/<id>/chapters/<slug>.json` */
 export type ChapterJson = ChapterSummary & {
   guideId: string
   markdown: string
   images: ChapterImage[]
+  /** Absent in content built before the pinned view existed. */
+  sectionImages?: SectionImages
 }
 
 export type GuideMeta = {
@@ -220,6 +228,17 @@ function readImages(value: unknown, path: string): ChapterImage[] {
   })
 }
 
+function readSectionImages(value: unknown, path: string): SectionImages {
+  if (value === undefined || value === null) return {}
+  if (!isRecord(value)) throw invalid(path, 'o campo "sectionImages" não é um objeto.')
+  const result: SectionImages = {}
+  for (const [sectionId, group] of Object.entries(value)) {
+    const images = readImages(group, path)
+    if (images.length > 0) result[sectionId] = images
+  }
+  return result
+}
+
 function readKind(source: Record<string, unknown>): GuideKind {
   const value = source.kind ?? source.type
   return typeof value === "string" && (GUIDE_KINDS as readonly string[]).includes(value)
@@ -248,6 +267,7 @@ export function parseChapter(payload: unknown, path: string): ChapterJson {
     guideId: readString(payload, "guideId", path),
     images: readImages(payload.images, path),
     markdown: readString(payload, "markdown", path),
+    sectionImages: readSectionImages(payload.sectionImages, path),
   }
 }
 

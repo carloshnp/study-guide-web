@@ -2,7 +2,8 @@
  * One settings entry in the top bar, replacing the bare theme-cycle icon.
  *
  * The popover holds what a reader actually adjusts while reading: the theme, the
- * reading size, whether the panel spans the whole width, and how much side margin
+ * reading size, the reading view (continuous text, or the section picture pinned
+ * beside it), whether the panel spans the whole width, and how much side margin
  * the panel keeps. Each control writes straight to its store (theme provider for
  * the theme, the layout store for width and margin), so nothing needs a save
  * button and a reload keeps the choice.
@@ -56,7 +57,7 @@ export function SettingsMenu() {
         <div className="border-b border-border px-4 py-3">
           <PopoverTitle className="text-base">Configurações</PopoverTitle>
           <PopoverDescription className="mt-1 text-meta">
-            Aparência e largura do painel
+            Aparência, leitura e largura do painel
           </PopoverDescription>
         </div>
 
@@ -129,6 +130,28 @@ export function SettingsMenu() {
             <p className="text-caption text-faint">
               Aumenta ou diminui todo o texto do site, de {FONT_SIZE.min} a {FONT_SIZE.max} px.
             </p>
+          </section>
+
+          <section className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-body font-medium" htmlFor="config-imagem-fixa">
+                Imagem fixa por subcapítulo
+              </label>
+              <p className="text-meta text-muted-foreground" id="config-imagem-fixa-ajuda">
+                {layout.isPinnedView
+                  ? "A imagem do subcapítulo fica fixa (acima do texto no celular, à esquerda no computador) e muda conforme você rola. O painel usa toda a largura."
+                  : "Leitura só com o texto, em coluna contínua."}
+              </p>
+              <p className="text-caption text-faint">
+                Vale só para capítulos que têm uma imagem por subcapítulo.
+              </p>
+            </div>
+            <Switch
+              id="config-imagem-fixa"
+              aria-describedby="config-imagem-fixa-ajuda"
+              checked={layout.isPinnedView}
+              onCheckedChange={(checked) => layout.setReaderView(checked ? "pinned" : "classic")}
+            />
           </section>
 
           <section className="flex items-start justify-between gap-3">

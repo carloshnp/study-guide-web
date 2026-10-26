@@ -23,6 +23,13 @@ import { useSyncExternalStore } from "react"
 
 export type LayoutMode = "centered" | "full"
 
+/**
+ * How a chapter is read. `classic` is the continuous text; `pinned` keeps the
+ * picture of the section being read beside (or above) the text and changes it as
+ * the reader scrolls. It only applies to chapters that carry section images.
+ */
+export type ReaderView = "classic" | "pinned"
+
 export type LayoutPrefs = {
   /** `centered` caps the content block and centres it; `full` spans the main area. */
   mode: LayoutMode
@@ -30,6 +37,8 @@ export type LayoutPrefs = {
   gutter: number
   /** Text size in px, applied as a `--font-scale` ratio. 18 is the design default. */
   fontSize: number
+  /** Reading view; device-local like the rest, so a phone and a laptop can differ. */
+  readerView: ReaderView
 }
 
 export const LAYOUT_STORAGE_KEY = "estudos-layout"
@@ -53,6 +62,7 @@ export const DEFAULT_LAYOUT: LayoutPrefs = {
   mode: "centered",
   gutter: GUTTER.default,
   fontSize: FONT_SIZE.default,
+  readerView: "classic",
 }
 
 export type LayoutStorage = Pick<Storage, "getItem" | "setItem">
@@ -76,7 +86,8 @@ export function sanitizeLayout(value: unknown): LayoutPrefs {
   const gutter = typeof record.gutter === "number" ? clampGutter(record.gutter) : GUTTER.default
   const fontSize =
     typeof record.fontSize === "number" ? clampFontSize(record.fontSize) : FONT_SIZE.default
-  return { mode, gutter, fontSize }
+  const readerView: ReaderView = record.readerView === "pinned" ? "pinned" : "classic"
+  return { mode, gutter, fontSize, readerView }
 }
 
 function read(storage: LayoutStorage | undefined): LayoutPrefs {
@@ -127,7 +138,8 @@ function commit(next: LayoutPrefs): void {
   if (
     next.mode === current.mode &&
     next.gutter === current.gutter &&
-    next.fontSize === current.fontSize
+    next.fontSize === current.fontSize &&
+    next.readerView === current.readerView
   ) {
     return
   }
@@ -159,6 +171,10 @@ export function setLayoutFontSize(fontSize: number): void {
   setLayout({ fontSize })
 }
 
+export function setLayoutReaderView(readerView: ReaderView): void {
+  setLayout({ readerView })
+}
+
 /** Test seam: drops in-memory state and re-reads storage. */
 export function resetLayoutStore(): void {
   current = read(typeof window === "undefined" ? undefined : window.localStorage)
@@ -171,6 +187,8 @@ export type UseLayoutResult = LayoutPrefs & {
   setMode: (mode: LayoutMode) => void
   setGutter: (gutter: number) => void
   setFontSize: (fontSize: number) => void
+  setReaderView: (readerView: ReaderView) => void
+  isPinnedView: boolean
   canGrowFont: boolean
   canShrinkFont: boolean
 }
@@ -183,6 +201,8 @@ export function useLayout(): UseLayoutResult {
     setMode: setLayoutMode,
     setGutter: setLayoutGutter,
     setFontSize: setLayoutFontSize,
+    setReaderView: setLayoutReaderView,
+    isPinnedView: prefs.readerView === "pinned",
     canGrowFont: prefs.fontSize < FONT_SIZE.max,
     canShrinkFont: prefs.fontSize > FONT_SIZE.min,
   }

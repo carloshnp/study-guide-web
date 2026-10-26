@@ -46,6 +46,7 @@ CHAPTER_KEYS = {
     "markdown",
     "sections",
     "images",
+    "sectionImages",
 }
 IMAGE_KEYS = {"src", "srcset", "width", "height", "alt", "original"}
 
@@ -158,6 +159,8 @@ def test_chapter_json_shape_and_media_manifest(built: tuple[Path, Path]) -> None
     assert "../shared/outside.png" not in chapter["markdown"]
     assert chapter["images"][0]["alt"] == "Figura local"
     assert chapter["images"][1]["alt"] == "Figura fora da pasta"
+    # No section-images.json next to the guide: the key is there and empty.
+    assert chapter["sectionImages"] == {}
 
 
 def test_build_is_idempotent_and_prunes_stale_chapters(tmp_path: Path) -> None:

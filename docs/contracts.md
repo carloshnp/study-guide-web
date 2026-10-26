@@ -67,7 +67,7 @@ Keys: `id`, `title`, `subject`, `type`, `meta`, `cover`, `chapters`.
 ## `guides/<id>/chapters/<slug>.json`
 
 Keys: `id`, `guideId`, `number`, `title`, `slug`, `kind`, `part`, `markdown`,
-`sections`, `images`.
+`sections`, `images`, `sectionImages`.
 
 * `markdown` is the chapter verbatim, its own heading included (`## 1. …` for
   split-2 guides, `# Chapter 1 …` for split-1 guides, `# Banco de questões …`
@@ -75,12 +75,41 @@ Keys: `id`, `guideId`, `number`, `title`, `slug`, `kind`, `part`, `markdown`,
 * `images[]`: `src`, `srcset`, `width`, `height` (of the 1280 variant), `alt`,
   `original`. `srcset` is `640w, 1280w`; `original` is the untouched file for
   the lightbox link.
+* `sectionImages` maps a section `id` to a list of images (same shape as
+  `images[]`, but `srcset` also carries a `1920w` variant), in the order the
+  reader steps through them; `{}` for a chapter without any. They are the
+  pictures the "imagem fixa" reading view pins beside the text, they are not
+  embedded in `markdown`, and the classic view never shows them. They come from
+  the guide's `section-images.json` (below).
 * `kind` is one of `teoria`, `banco`, `referencia`, `glossario`, `apendice`.
   Headings above the split level that appear after the guide started its
   chapters (`# Banco de questões resolvidas`, `# Referência rápida`,
   `# Glossário` in magnésio) become chapters of their own with that kind; their
   h2/h3/h4 headings become their sections. `part` names the part divider the
   chapter sits under (`Part I: L0 Toolkit` in llm-l0l1), else `null`.
+
+## `data/guides/<subject>/<id>/section-images.json` (optional input)
+
+Links sections to generated pictures; the build turns it into `sectionImages`.
+
+```json
+{
+  "schemaVersion": 1,
+  "chapters": {
+    "03-elementos-intersticiais-e-o-ti-comercialmente-puro": {
+      "31-por-que-centesimos-de-porcento-ja-mudam-a-dureza": [
+        {"file": "assets/secoes/ch03-s01.jpg", "alt": "…", "plan": "ch03-s01"}
+      ]
+    }
+  }
+}
+```
+
+Keyed by chapter slug, then by section id (the ids `guide.json` lists); `file`
+is relative to the guide folder and must stay inside it; `alt` is required;
+`plan` is free provenance. `pipeline.build` fails, naming the file, on an
+unknown chapter or section, a missing image, an empty list or a wrong
+`schemaVersion`. `tests/pipeline/test_section_images.py` pins this.
 
 ## `search.json`
 
@@ -100,5 +129,6 @@ are stable ASCII slugs, unique inside their chapter.
 * `python -m pipeline.build --all` refuses to write when the measured chapter
   count differs from `catalog.yaml` `expected_chapters`.
 * `python -m pipeline.check_links` exits 1 if any `/media/...` reference in the
-  JSON (chapter markdown, manifest `src`/`srcset`/`original`, cover markdown,
-  covers in `index.json`) does not resolve to a file in `content/media`.
+  JSON (chapter markdown, manifest `src`/`srcset`/`original` of `images` and of
+  `sectionImages`, cover markdown, covers in `index.json`) does not resolve to a
+  file in `content/media`.
