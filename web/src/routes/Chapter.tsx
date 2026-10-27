@@ -24,13 +24,15 @@ import { Editor, type EditorSeed } from "@/features/flashcards/editor/Editor"
 import { SelectionCardMenu } from "@/features/flashcards/source-create/SelectionCardMenu"
 import { ChapterToc } from "@/features/reader/ChapterToc"
 import { useLayout } from "@/features/preferences/layout"
-import { prepareChapterBody } from "@/features/reader/leading-heading"
+import { prepareChapterBody, shiftHeadings } from "@/features/reader/leading-heading"
 import { PinnedReader } from "@/features/reader/pinned/PinnedReader"
 import { SectionCheck } from "@/features/progress/SectionCheck"
+import { useSummaryMode } from "@/features/preferences/summary"
 import {
   kindLabel,
   useChapterContent,
   useGuideContent,
+  useResumoContent,
   type ChapterSummary,
   type GuideJson,
 } from "@/lib/content"
@@ -50,6 +52,27 @@ const MarkdownRenderer = lazy(async () => {
   const module = await import("@/features/reader/MarkdownRenderer")
   return { default: module.MarkdownRenderer }
 })
+
+/**
+ * The resumo file opens with its own `# Resumo: …` title, which the page h1
+ * already covers. Drop that line and lift the `###` sections one level so they
+ * sit where the chapter's own top-level headings sit. Section ids stay the
+ * build's, because the text is untouched: the TOC keeps pointing at the same
+ * anchors. Kept local to the reader so the shared heading module stays as it was.
+ */
+function resumoMarkdown(markdown: string): string {
+  const lines = markdown.split("\n")
+  let cursor = 0
+  while (cursor < lines.length && lines[cursor].trim() === "") cursor += 1
+  if (cursor >= lines.length) return markdown
+
+  const heading = /^(#{1,6})[ \t]+(.*)$/.exec(lines[cursor].trim())
+  if (!heading || heading[1].length !== 1) return markdown
+
+  const rest = lines.slice(cursor + 1)
+  while (rest.length > 0 && rest[0].trim() === "") rest.shift()
+  return shiftHeadings(rest.join("\n"), -1)
+}
 
 function neighboursOf(guide: GuideJson | null, chapterSlug: string): Neighbours {
   if (!guide) return { next: null, previous: null }
@@ -111,8 +134,24 @@ export function Chapter() {
     () => (data ? prepareChapterBody(data.markdown, data.title, data.sections) : null),
     [data],
   )
-  const body = prepared?.markdown ?? ""
   const sections = prepared?.sections ?? []
+
+  // "Guia resumido": when the reader asked for short versions and this chapter
+  // has one, its markdown replaces the full body. The load is only requested
+  // once the guide and the chapter are known, and until it succeeds the full
+  // chapter stays on screen, so the page never blanks.
+  const summary = useSummaryMode()
+  const resumoListed = Boolean(data && guide.data?.resumos.includes(data.id))
+  const resumo = useResumoContent(guideId, data?.id ?? "", summary.on && resumoListed)
+  const preparedResumo = useMemo(
+    () =>
+      summary.on && resumoListed && resumo.status === "ready" && resumo.data
+        ? resumoMarkdown(resumo.data.markdown)
+        : null,
+    [resumo.data, resumo.status, resumoListed, summary.on],
+  )
+  const body = preparedResumo ?? prepared?.markdown ?? ""
+  const images = preparedResumo && resumo.data ? resumo.data.images : (data?.images ?? [])
   const neighbours = useMemo(
     () => neighboursOf(guide.data, chapterSlug),
     [chapterSlug, guide.data],
@@ -294,7 +333,7 @@ export function Chapter() {
             <MarkdownRenderer
               chapterSlug={chapterSlug}
               guideId={guideId}
-              images={data.images}
+              images={images}
               markdown={body}
               sections={sections}
             />
@@ -371,6 +410,12 @@ export function Chapter() {
         </p>
 
         <h1 className="font-heading text-chapter text-foreground sm:text-page">{title}</h1>
+
+        {preparedResumo ? (
+          <p className="w-fit text-caption font-semibold text-brand" data-slot="summary-label">
+            Guia resumido
+          </p>
+        ) : null}
 
         {data?.part ? <p className="text-meta text-faint">{data.part}</p> : null}
 

@@ -16,6 +16,7 @@ import {
   getLayoutPrefs,
   resetLayoutStore,
 } from "@/features/preferences/layout"
+import { SUMMARY_STORAGE_KEY, resetSummaryStore } from "@/features/preferences/summary"
 import { ThemeProvider } from "@/lib/theme-provider"
 
 function renderMenu() {
@@ -30,6 +31,7 @@ describe("SettingsMenu", () => {
   beforeEach(() => {
     window.localStorage.clear()
     resetLayoutStore()
+    resetSummaryStore()
   })
 
   it("is reachable by its accessible name", () => {
@@ -129,6 +131,44 @@ describe("SettingsMenu", () => {
     await user.click(toggle)
     expect(document.documentElement.dataset.layout).toBe("centered")
     expect(screen.queryByText("Margem lateral")).not.toBeInTheDocument()
+  })
+
+  it("shows the summary switch off when the stored preference is absent", async () => {
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    const toggle = await screen.findByRole("switch", { name: /mostrar guia resumido/i })
+    expect(toggle).toHaveAttribute("aria-checked", "false")
+  })
+
+  it("reflects the stored summary preference when the panel opens", async () => {
+    window.localStorage.setItem(SUMMARY_STORAGE_KEY, "1")
+    resetSummaryStore()
+
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    const toggle = await screen.findByRole("switch", { name: /mostrar guia resumido/i })
+    expect(toggle).toHaveAttribute("aria-checked", "true")
+  })
+
+  it("persists the summary preference when the switch flips", async () => {
+    const user = userEvent.setup()
+    renderMenu()
+    await user.click(screen.getByRole("button", { name: /configurações de leitura/i }))
+
+    const toggle = await screen.findByRole("switch", { name: /mostrar guia resumido/i })
+    expect(window.localStorage.getItem(SUMMARY_STORAGE_KEY)).toBeNull()
+
+    await user.click(toggle)
+    expect(toggle).toHaveAttribute("aria-checked", "true")
+    expect(window.localStorage.getItem(SUMMARY_STORAGE_KEY)).toBe("1")
+
+    await user.click(toggle)
+    expect(toggle).toHaveAttribute("aria-checked", "false")
+    expect(window.localStorage.getItem(SUMMARY_STORAGE_KEY)).toBe("0")
   })
 
   it("moves the side margin through the slider input", async () => {

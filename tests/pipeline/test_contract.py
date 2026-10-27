@@ -23,7 +23,16 @@ INDEX_GUIDE_KEYS = {
     "updatedAt",
     "cover",
 }
-GUIDE_KEYS = {"id", "title", "subject", "type", "meta", "cover", "chapters"}
+GUIDE_KEYS = {
+    "id",
+    "title",
+    "subject",
+    "type",
+    "meta",
+    "cover",
+    "chapters",
+    "resumos",
+}
 GUIDE_META_KEYS = {"discipline", "professor", "sources"}
 CHAPTER_SUMMARY_KEYS = {
     "id",
@@ -103,6 +112,7 @@ def test_guide_json_shape_and_cover_markdown(built: tuple[Path, Path]) -> None:
     assert guide["meta"]["professor"] is None
     assert guide["meta"]["sources"] == []
     assert set(guide["cover"]) == {"markdown"}
+    assert guide["resumos"] == []
     cover = guide["cover"]["markdown"]
     # The cover held only a title, the metadata block and the manual index, all of
     # which the page header and the chapter list already provide, so it is empty.

@@ -105,6 +105,20 @@ export type GuideJson = {
   meta: GuideMeta
   cover: { markdown: string }
   chapters: ChapterSummary[]
+  /**
+   * Chapter ids that have a "guia resumido" (summary mode) file next to the
+   * guide: `guides/<id>/resumos/<chapterId>.json`. A guide generated before the
+   * feature omits the key, and the parser reads that as "none".
+   */
+  resumos: string[]
+}
+
+/** `guides/<id>/resumos/<chapterId>.json`: the short version of one chapter. */
+export type ResumoPayload = {
+  guideId: string
+  chapterId: string
+  markdown: string
+  images: ChapterImage[]
 }
 
 export class ContentError extends Error {
@@ -148,6 +162,10 @@ export function guidePath(guideId: string): string {
 
 export function chapterPath(guideId: string, chapterSlug: string): string {
   return `${CONTENT_ROOT}/guides/${guideId}/chapters/${chapterSlug}.json`
+}
+
+export function resumoPath(guideId: string, chapterId: string): string {
+  return `${CONTENT_ROOT}/guides/${guideId}/resumos/${chapterId}.json`
 }
 
 /* -------------------------------------------------------------------------- */
@@ -271,6 +289,23 @@ export function parseChapter(payload: unknown, path: string): ChapterJson {
   }
 }
 
+function readResumos(source: Record<string, unknown>, path: string): string[] {
+  const value = source.resumos
+  if (value === undefined || value === null) return []
+  if (!Array.isArray(value)) throw invalid(path, 'o campo "resumos" não é uma lista.')
+  return value.filter((entry): entry is string => typeof entry === "string")
+}
+
+export function parseResumo(payload: unknown, path: string): ResumoPayload {
+  if (!isRecord(payload)) throw invalid(path, "o corpo não é um objeto.")
+  return {
+    chapterId: readString(payload, "chapterId", path),
+    guideId: readString(payload, "guideId", path),
+    images: readImages(payload.images, path),
+    markdown: readString(payload, "markdown", path),
+  }
+}
+
 export function parseGuide(payload: unknown, path: string): GuideJson {
   if (!isRecord(payload)) throw invalid(path, "o corpo não é um objeto.")
   const meta = isRecord(payload.meta) ? payload.meta : {}
@@ -292,6 +327,7 @@ export function parseGuide(payload: unknown, path: string): GuideJson {
         ? meta.sources.filter((entry): entry is string => typeof entry === "string")
         : [],
     },
+    resumos: readResumos(payload, path),
     subject: readOptionalString(payload, "subject", path) ?? "",
     title: readString(payload, "title", path),
     type: readOptionalString(payload, "type", path) ?? "teoria",
@@ -359,6 +395,11 @@ export function fetchGuide(guideId: string): Promise<GuideJson> {
   return getJson(guidePath(guideId), parseGuide)
 }
 
+/** The short version of one chapter; only guides that list it ship the file. */
+export function loadResumo(guideId: string, chapterId: string): Promise<ResumoPayload> {
+  return getJson(resumoPath(guideId, chapterId), parseResumo)
+}
+
 /* -------------------------------------------------------------------------- */
 /* Hooks                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -414,6 +455,25 @@ export function useChapterContent(guideId: string, chapterSlug: string): Content
 /** One guide cover, fetched once per guide. */
 export function useGuideContent(guideId: string): ContentState<GuideJson> {
   return useContent(guideId || null, loadGuideKey)
+}
+
+function loadResumoKey(key: string): Promise<ResumoPayload> {
+  const [guideId, chapterId] = key.split("::")
+  return loadResumo(guideId, chapterId)
+}
+
+/**
+ * One chapter's "guia resumido", fetched only when summary mode asks for it.
+ * `enabled` false keeps the key null, so nothing is requested and the caller
+ * can keep rendering the full chapter while the choice is off or unknown.
+ */
+export function useResumoContent(
+  guideId: string,
+  chapterId: string,
+  enabled: boolean,
+): ContentState<ResumoPayload> {
+  const key = enabled && guideId && chapterId ? `${guideId}::${chapterId}` : null
+  return useContent(key, loadResumoKey)
 }
 
 /* -------------------------------------------------------------------------- */

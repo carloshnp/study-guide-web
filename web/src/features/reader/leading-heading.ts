@@ -249,6 +249,28 @@ export function prepareChapterBody(
   }
 }
 
+/**
+ * Body for a "guia resumido". The resumo opens with its own `# Resumo: …` title,
+ * which the page h1 already covers, so that line is dropped and the `###`
+ * sections are lifted one level to sit where the chapter's own top-level
+ * headings sit. Section ids stay the build's, because the text is untouched:
+ * the in-page TOC and the progress checks keep pointing at the same anchors.
+ */
+export function prepareResumoBody(markdown: string): string {
+  const lines = markdown.split("\n")
+
+  let cursor = 0
+  while (cursor < lines.length && lines[cursor].trim() === "") cursor += 1
+  if (cursor >= lines.length) return markdown
+
+  const heading = ATX_HEADING.exec(lines[cursor].trim())
+  if (!heading || heading[1].length !== 1) return markdown
+
+  const rest = lines.slice(cursor + 1)
+  while (rest.length > 0 && rest[0].trim() === "") rest.shift()
+  return shiftHeadings(rest.join("\n"), -1)
+}
+
 /** Headings stay inside the h2–h4 band the progress model and the TOC use. */
 function clampLevel(level: number): ChapterSection["level"] {
   if (level <= 2) return 2

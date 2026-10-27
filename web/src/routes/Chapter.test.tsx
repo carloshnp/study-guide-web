@@ -3,10 +3,11 @@ import userEvent from "@testing-library/user-event"
 import { createMemoryRouter, RouterProvider } from "react-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { ChapterJson, GuideJson } from "@/lib/content"
-import { resetContentCache } from "@/lib/content"
+import type { ChapterJson, GuideJson, ResumoPayload } from "@/lib/content"
+import { resetContentCache, resumoPath } from "@/lib/content"
 import { resetLayoutStore, setLayoutReaderView } from "@/features/preferences/layout"
 import { resetProgressStore } from "@/features/progress/useProgress"
+import { resetSummaryStore, setSummaryMode } from "@/features/preferences/summary"
 import { Chapter } from "./Chapter"
 
 const GUIDE: GuideJson = {
@@ -53,6 +54,7 @@ const GUIDE: GuideJson = {
       title: "Nomenclatura das ligas de alumínio",
     },
   ],
+  resumos: [],
 }
 
 const CHAPTER: ChapterJson = {
@@ -83,38 +85,55 @@ function jsonResponse(payload: unknown, status = 200) {
 
 let chapterPayload: ChapterJson = CHAPTER
 
-function stubContent() {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const path = String(input)
-      if (path === "/content/guides/aluminio/guide.json") {
-        return jsonResponse(GUIDE)
-      }
-      if (path === "/api/flashcards/notes") {
-        const payload =
-          typeof init?.body === "string"
-            ? (JSON.parse(init.body) as Record<string, unknown>)
-            : {}
-        return jsonResponse({
-          chapterSlug: "01-o-aluminio",
-          guideId: "aluminio",
-          id: 42,
-          sectionId: null,
-          sourceSnippet: null,
-          tags: "",
-          ...payload,
-        })
-      }
-      if (path === "/content/guides/aluminio/chapters/01-o-aluminio.json") {
-        return jsonResponse(chapterPayload)
-      }
-      if (path.startsWith("/api/progress")) {
-        return jsonResponse({ count: 0, guideId: "aluminio", units: {} })
-      }
-      return jsonResponse({}, 404)
-    }),
-  )
+const RESUMO: ResumoPayload = {
+  guideId: "aluminio",
+  chapterId: "01-o-aluminio",
+  markdown: [
+    "# Resumo: O alumínio como metal de engenharia",
+    "",
+    "### 1.1 Obtenção",
+    "",
+    "A bauxita é lavada e vira alumina no processo Bayer.",
+  ].join("\n"),
+  images: [],
+}
+
+function stubContent(options: { resumos?: string[]; resumo?: unknown } = {}) {
+  const guide: GuideJson = { ...GUIDE, resumos: options.resumos ?? [] }
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input)
+    if (path === "/content/guides/aluminio/guide.json") {
+      return jsonResponse(guide)
+    }
+    if (path === resumoPath("aluminio", "01-o-aluminio")) {
+      if (options.resumo === undefined) return jsonResponse({}, 404)
+      return jsonResponse(options.resumo)
+    }
+    if (path === "/api/flashcards/notes") {
+      const payload =
+        typeof init?.body === "string"
+          ? (JSON.parse(init.body) as Record<string, unknown>)
+          : {}
+      return jsonResponse({
+        chapterSlug: "01-o-aluminio",
+        guideId: "aluminio",
+        id: 42,
+        sectionId: null,
+        sourceSnippet: null,
+        tags: "",
+        ...payload,
+      })
+    }
+    if (path === "/content/guides/aluminio/chapters/01-o-aluminio.json") {
+      return jsonResponse(chapterPayload)
+    }
+    if (path.startsWith("/api/progress")) {
+      return jsonResponse({ count: 0, guideId: "aluminio", units: {} })
+    }
+    return jsonResponse({}, 404)
+  })
+  vi.stubGlobal("fetch", fetchMock)
+  return fetchMock
 }
 
 function renderChapter(path = "/g/aluminio/c/01-o-aluminio") {
@@ -132,6 +151,7 @@ beforeEach(() => {
   window.localStorage.clear()
   resetLayoutStore()
   chapterPayload = CHAPTER
+  resetSummaryStore()
   resetContentCache()
   resetProgressStore()
   stubContent()
@@ -275,6 +295,53 @@ describe("Chapter route", () => {
     } finally {
       vi.restoreAllMocks()
     }
+  })
+
+  it("shows the full chapter when summary mode is off, even if a resumo exists", async () => {
+    stubContent({ resumos: ["01-o-aluminio"], resumo: RESUMO })
+
+    renderChapter()
+
+    expect(await screen.findByText(/metal não ferroso mais usado/i)).toBeInTheDocument()
+    expect(screen.queryByText("Guia resumido")).not.toBeInTheDocument()
+    expect(screen.queryByText(/bauxita é lavada/i)).not.toBeInTheDocument()
+  })
+
+  it("shows the resumo and its label when summary mode is on and the guide lists the chapter", async () => {
+    setSummaryMode(true)
+    stubContent({ resumos: ["01-o-aluminio"], resumo: RESUMO })
+
+    renderChapter()
+
+    expect(await screen.findByText("Guia resumido")).toBeInTheDocument()
+    expect(await screen.findByText(/bauxita é lavada/i)).toBeInTheDocument()
+    expect(screen.queryByText(/metal não ferroso mais usado/i)).not.toBeInTheDocument()
+  })
+
+  it("keeps the full chapter when summary mode is on but the guide lists no resumo", async () => {
+    setSummaryMode(true)
+    const fetchMock = stubContent({ resumos: [] })
+
+    renderChapter()
+
+    expect(await screen.findByText(/metal não ferroso mais usado/i)).toBeInTheDocument()
+    expect(screen.queryByText("Guia resumido")).not.toBeInTheDocument()
+    expect(
+      fetchMock.mock.calls.some(([url]) => String(url).includes("/resumos/")),
+    ).toBe(false)
+  })
+
+  it("keeps the full chapter when the resumo fetch fails", async () => {
+    setSummaryMode(true)
+    const fetchMock = stubContent({ resumos: ["01-o-aluminio"] })
+
+    renderChapter()
+
+    expect(await screen.findByText(/metal não ferroso mais usado/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/resumos/"))).toBe(true)
+    })
+    expect(screen.queryByText("Guia resumido")).not.toBeInTheDocument()
   })
 
   it("reports a chapter that does not exist without inventing content", async () => {

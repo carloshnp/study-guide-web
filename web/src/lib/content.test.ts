@@ -8,8 +8,12 @@ import {
   fetchGuide,
   guidePath,
   guideUnitIds,
+  loadResumo,
+  parseGuide,
   resetContentCache,
+  resumoPath,
   type ChapterJson,
+  type ResumoPayload,
 } from "./content"
 
 const CHAPTER: ChapterJson = {
@@ -90,6 +94,55 @@ describe("content loader", () => {
     expect(chapterUnitIds("aluminio", { ...CHAPTER, sections: [] })).toEqual([
       "aluminio/01-o-aluminio-como-metal-de-engenharia",
     ])
+  })
+
+  it("builds the resumo path next to the chapter", () => {
+    expect(resumoPath("titanio", "03-intersticiais")).toBe(
+      "/content/guides/titanio/resumos/03-intersticiais.json",
+    )
+  })
+
+  it("loads a resumo with its markdown and images", async () => {
+    const payload: ResumoPayload = {
+      guideId: "titanio",
+      chapterId: "03-intersticiais",
+      markdown: "# Resumo: 3. Intersticiais\n\n### 3.1 Por que centésimos importam\n\nTexto curto.",
+      images: CHAPTER.images,
+    }
+    stubFetch({ [resumoPath("titanio", "03-intersticiais")]: payload })
+
+    const resumo = await loadResumo("titanio", "03-intersticiais")
+
+    expect(resumo.chapterId).toBe("03-intersticiais")
+    expect(resumo.markdown).toContain("Texto curto.")
+    expect(resumo.images).toEqual([])
+  })
+
+  it("rejects a resumo that the host answers with 404, naming the path", async () => {
+    stubFetch({})
+
+    await expect(loadResumo("titanio", "03-intersticiais")).rejects.toBeInstanceOf(ContentError)
+    await expect(loadResumo("titanio", "03-intersticiais")).rejects.toThrow(
+      "/content/guides/titanio/resumos/03-intersticiais.json",
+    )
+    await expect(loadResumo("titanio", "03-intersticiais")).rejects.toThrow(/404/)
+  })
+
+  it("reads the resumo list from the guide, treating a missing list as empty", () => {
+    const base = {
+      id: "titanio",
+      title: "Titânio",
+      subject: "Metalurgia",
+      type: "teoria",
+      meta: { discipline: null, professor: null, sources: [], generated: null },
+      cover: { markdown: "# Capa" },
+      chapters: [CHAPTER],
+    }
+
+    expect(parseGuide({ ...base, resumos: ["03-intersticiais"] }, "guide.json").resumos).toEqual([
+      "03-intersticiais",
+    ])
+    expect(parseGuide(base, "guide.json").resumos).toEqual([])
   })
 
   it("flattens a guide to every chapter unit", () => {

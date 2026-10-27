@@ -23,6 +23,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { FONT_SIZE, GUTTER, useLayout } from "@/features/preferences/layout"
+import { useSummaryMode } from "@/features/preferences/summary"
 import { THEME_LABEL, type ThemeChoice } from "@/lib/theme"
 import { useTheme } from "@/lib/theme-provider"
 
@@ -31,6 +32,7 @@ const THEME_ORDER: ThemeChoice[] = ["auto", "light", "dark"]
 export function SettingsMenu() {
   const theme = useTheme()
   const layout = useLayout()
+  const summary = useSummaryMode()
 
   return (
     <Popover>
@@ -151,6 +153,23 @@ export function SettingsMenu() {
               aria-describedby="config-imagem-fixa-ajuda"
               checked={layout.isPinnedView}
               onCheckedChange={(checked) => layout.setReaderView(checked ? "pinned" : "classic")}
+            />
+          </section>
+
+          <section className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-body font-medium" htmlFor="config-resumo">
+                Mostrar guia resumido
+              </label>
+              <p className="text-meta text-muted-foreground" id="config-resumo-ajuda">
+                Capítulos com resumo abrem na versão curta. Os demais seguem completos.
+              </p>
+            </div>
+            <Switch
+              id="config-resumo"
+              aria-describedby="config-resumo-ajuda"
+              checked={summary.on}
+              onCheckedChange={summary.setOn}
             />
           </section>
 

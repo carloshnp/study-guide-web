@@ -51,6 +51,7 @@ const GUIDE: GuideJson = {
       title: "Banco de Questões",
     },
   ],
+  resumos: [],
 }
 
 function jsonResponse(payload: unknown, status = 200) {

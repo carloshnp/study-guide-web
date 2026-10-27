@@ -8,6 +8,8 @@ Shapes are documented in ``docs/BRIEFING.md`` and pinned by
   chapter TOC with its sections;
 * ``content/guides/<id>/chapters/<slug>.json`` — one chapter of markdown plus
   its section ids and its image manifest;
+* ``content/guides/<id>/resumos/<chapterId>.json`` — an authored summary of one
+  chapter, when ``data/guides/<subject>/<slug>/resumos/<chapterId>.md`` exists;
 * ``content/search.json`` — one document per chapter (written by
   `pipeline.search`).
 
@@ -263,11 +265,43 @@ def _first_cover_source(
     return None
 
 
+def _resumo_files(directory: Path) -> list[Path]:
+    """Return the authored resumo files of a guide, sorted by chapter id.
+
+    Resumos live in ``<guide>/resumos/<chapterId>.md``; the ``imagens/``
+    subfolder holds their figures and is ignored here. The file stem must be a
+    chapter id of the same guide, which `emit_guide` enforces.
+    """
+    resumos = directory / "resumos"
+    if not resumos.is_dir():
+        return []
+    return sorted(
+        (
+            path
+            for path in resumos.iterdir()
+            if path.is_file() and path.suffix.lower() == ".md"
+        ),
+        key=lambda path: path.stem,
+    )
+
+
 def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
     """Write ``content/guides/<id>/`` for an already loaded guide."""
     entry = source.entry
     media_root = content_root / "media"
     guide_root = content_root / "guides" / entry.id
+
+    # A resumo is authored next to the guide and named after the chapter it
+    # summarises. A stem that matches no chapter would publish an unreachable
+    # page, so it fails the guide instead of being skipped.
+    resumo_files = _resumo_files(source.directory)
+    chapter_ids = {chapter.id for chapter in source.document.chapters}
+    for resumo in resumo_files:
+        if resumo.stem not in chapter_ids:
+            raise BuildError(
+                f"{resumo}: resumo stem {resumo.stem!r} does not match any chapter "
+                f"id of guide {entry.id}; rename the file to a chapter id"
+            )
 
     cover_markdown, cover_images = rewrite_links(
         source.document.cover,
@@ -321,6 +355,34 @@ def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
         if stale.name not in keep:
             stale.unlink()
 
+    resumo_payloads: list[dict[str, Any]] = []
+    for resumo in resumo_files:
+        markdown, images = rewrite_links(
+            resumo.read_text(encoding="utf-8"),
+            resumo,
+            media_root,
+        )
+        resumo_payloads.append(
+            {
+                "guideId": entry.id,
+                "chapterId": resumo.stem,
+                "markdown": markdown,
+                "images": [image.as_json() for image in images],
+            }
+        )
+        image_count += len(images)
+
+    resumos_dir = guide_root / "resumos"
+    keep_resumos = {f"{payload['chapterId']}.json" for payload in resumo_payloads}
+    if resumo_payloads:
+        resumos_dir.mkdir(parents=True, exist_ok=True)
+        for payload in resumo_payloads:
+            written += _write_json(resumos_dir / f"{payload['chapterId']}.json", payload)
+    if resumos_dir.is_dir():
+        for stale in resumos_dir.glob("*.json"):
+            if stale.name not in keep_resumos:
+                stale.unlink()
+
     cover_path: str | None = None
     cover_source = _first_cover_source(cover_images, chapter_images, content_root)
     cover_destination = media_root / "covers" / f"{entry.id}.webp"
@@ -338,6 +400,7 @@ def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
         "meta": parse_front_matter_meta(source.document.cover),
         "cover": {"markdown": cover_markdown},
         "chapters": [chapter.as_summary() for chapter in source.document.chapters],
+        "resumos": sorted(payload["chapterId"] for payload in resumo_payloads),
     }
     written += _write_json(guide_root / "guide.json", guide_payload, indent=2)
     return GuideBuild(
