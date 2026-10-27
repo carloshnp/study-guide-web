@@ -1,4 +1,10 @@
 import "@testing-library/jest-dom/vitest"
+import { configure } from "@testing-library/react"
+
+// The default 1000ms wait for findBy* is too short when the whole suite runs in
+// parallel: async content (route data, markdown) can take over a second under
+// load. Only the wait grows; a missing element still fails the test.
+configure({ asyncUtilTimeout: 5000 })
 
 /**
  * jsdom gaps that the shell and the coss primitives touch. Kept here so individual
