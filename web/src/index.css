@@ -618,3 +618,14 @@ html:has([data-slot="pinned-reader"]) body {
 [data-slot="pinned-text"] [id] {
   scroll-margin-top: 16px;
 }
+
+/* The pinned reader's two panes scroll without a visible bar: the wheel, touch and
+   keyboard still scroll them, the bar no longer sits against the text. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

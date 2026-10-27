@@ -138,7 +138,7 @@ export function PinnedReader({
       >
         {showImage ? (
           <aside
-            className="flex shrink-0 flex-col gap-5 xl:min-h-0 xl:overflow-y-auto xl:pe-1"
+            className="flex shrink-0 flex-col gap-5 xl:min-h-0 xl:overflow-y-auto xl:pe-1 no-scrollbar"
             data-slot="pinned-left"
           >
             <PinnedImagePane
@@ -181,7 +181,7 @@ export function PinnedReader({
         ) : null}
 
         <div
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain md:ps-8"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain no-scrollbar md:px-8"
           data-slot="pinned-text"
           ref={scrollRef}
           tabIndex={-1}

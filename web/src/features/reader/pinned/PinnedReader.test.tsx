@@ -86,6 +86,25 @@ describe("PinnedReader", () => {
     expect(screen.queryByRole("img", { name: "figura-3-1" })).toBeNull()
   })
 
+  it("hides the scroll bars of both panes but keeps them scrollable", async () => {
+    const { container } = renderReader()
+    scrollTo({ s1: 10, s2: 1000, "termos-introduzidos": 2000 }, container)
+    await screen.findByRole("img", { name: "figura-3-1" })
+
+    const text = container.querySelector('[data-slot="pinned-text"]')
+    const aside = container.querySelector('[data-slot="pinned-left"]')
+    expect(text).toHaveClass("no-scrollbar", "overflow-y-auto")
+    expect(aside).toHaveClass("no-scrollbar", "xl:overflow-y-auto")
+  })
+
+  it("gives the text the same margin on both sides so it sits centred beside the picture", () => {
+    const { container } = renderReader()
+    const text = container.querySelector('[data-slot="pinned-text"]')
+
+    expect(text).toHaveClass("md:px-8")
+    expect(text).not.toHaveClass("md:ps-8")
+  })
+
   it("lists the subchapters beside the picture and marks the current one", async () => {
     const { container } = renderReader()
     scrollTo({ s1: -900, s2: 20, "termos-introduzidos": 1000 }, container)
