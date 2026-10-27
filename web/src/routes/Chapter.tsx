@@ -26,6 +26,7 @@ import { ChapterToc } from "@/features/reader/ChapterToc"
 import { useLayout } from "@/features/preferences/layout"
 import { prepareChapterBody, shiftHeadings } from "@/features/reader/leading-heading"
 import { PinnedReader } from "@/features/reader/pinned/PinnedReader"
+import { dropPinnedFigures } from "@/features/reader/pinned/drop-pinned-figures"
 import { SectionCheck } from "@/features/progress/SectionCheck"
 import { useSummaryMode } from "@/features/preferences/summary"
 import {
@@ -163,6 +164,10 @@ export function Chapter() {
   const layout = useLayout()
   const sectionImages = data?.sectionImages ?? {}
   const pinned = layout.isPinnedView && Object.keys(sectionImages).length > 0
+  // The pinned pane already shows each section's picture, so the text drops its
+  // inline copy (same alt text) while the view is on. Continuous text is untouched.
+  const pinnedAlts = pinned ? Object.values(sectionImages).flat().map((image) => image.alt) : []
+  const textBody = pinned ? dropPinnedFigures(body, pinnedAlts) : body
 
   // Deep link to the exact passage a flashcard was created from: the link
   // carries a snippet fragment (?snippet=...); scroll to the paragraph whose
@@ -334,7 +339,7 @@ export function Chapter() {
               chapterSlug={chapterSlug}
               guideId={guideId}
               images={images}
-              markdown={body}
+              markdown={textBody}
               sections={sections}
             />
           </Suspense>

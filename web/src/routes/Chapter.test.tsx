@@ -98,6 +98,32 @@ const RESUMO: ResumoPayload = {
   images: [],
 }
 
+const RESUMO_WITH_FIGURE: ResumoPayload = {
+  guideId: "aluminio",
+  chapterId: "01-o-aluminio",
+  markdown: [
+    "# Resumo: O alumínio como metal de engenharia",
+    "",
+    "### 1.1 Obtenção",
+    "",
+    "A bauxita é lavada e vira alumina no processo Bayer.",
+    "",
+    "![Infográfico da obtenção do alumínio](/media/abc/1280.webp)",
+    "",
+    "Depois vem a eletrólise.",
+  ].join("\n"),
+  images: [
+    {
+      alt: "Infográfico da obtenção do alumínio",
+      height: 720,
+      original: "/media/abc/original.jpg",
+      src: "/media/abc/1280.webp",
+      srcset: null,
+      width: 1280,
+    },
+  ],
+}
+
 function stubContent(options: { resumos?: string[]; resumo?: unknown } = {}) {
   const guide: GuideJson = { ...GUIDE, resumos: options.resumos ?? [] }
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -411,6 +437,32 @@ describe("Chapter route", () => {
       expect(await screen.findByText(/bauxita é lavada/i)).toBeInTheDocument()
       expect(container.querySelector('[data-slot="pinned-reader"]')).not.toBeNull()
       expect(screen.getByText("Guia resumido")).toBeInTheDocument()
+    })
+
+    it("leaves the resumo's copy of a pinned picture out of the text while the pinned view is on", async () => {
+      setLayoutReaderView("pinned")
+      setSummaryMode(true)
+      chapterPayload = WITH_IMAGES
+      stubContent({ resumos: ["01-o-aluminio"], resumo: RESUMO_WITH_FIGURE })
+
+      const { container } = renderChapter()
+
+      expect(await screen.findByText(/depois vem a eletrólise/i)).toBeInTheDocument()
+      const text = container.querySelector('[data-slot="pinned-text"]')
+      expect(text).not.toBeNull()
+      expect(text?.querySelector('img[alt="Infográfico da obtenção do alumínio"]')).toBeNull()
+    })
+
+    it("keeps the resumo's picture in the text when the pinned view is off", async () => {
+      setSummaryMode(true)
+      chapterPayload = WITH_IMAGES
+      stubContent({ resumos: ["01-o-aluminio"], resumo: RESUMO_WITH_FIGURE })
+
+      const { container } = renderChapter()
+
+      expect(await screen.findByText(/depois vem a eletrólise/i)).toBeInTheDocument()
+      expect(container.querySelector('[data-slot="pinned-reader"]')).toBeNull()
+      expect(screen.getByRole("img", { name: /infográfico da obtenção/i })).toBeInTheDocument()
     })
 
     it("falls back to the continuous text for a chapter without pinned pictures", async () => {
