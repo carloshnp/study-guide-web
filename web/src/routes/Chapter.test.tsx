@@ -400,6 +400,19 @@ describe("Chapter route", () => {
       expect(screen.getByRole("link", { name: /classificação das ligas/i })).toBeInTheDocument()
     })
 
+    it("keeps the 'Guia resumido' label in the pinned view when the resumo is on", async () => {
+      setLayoutReaderView("pinned")
+      setSummaryMode(true)
+      chapterPayload = WITH_IMAGES
+      stubContent({ resumos: ["01-o-aluminio"], resumo: RESUMO })
+
+      const { container } = renderChapter()
+
+      expect(await screen.findByText(/bauxita é lavada/i)).toBeInTheDocument()
+      expect(container.querySelector('[data-slot="pinned-reader"]')).not.toBeNull()
+      expect(screen.getByText("Guia resumido")).toBeInTheDocument()
+    })
+
     it("falls back to the continuous text for a chapter without pinned pictures", async () => {
       setLayoutReaderView("pinned")
       const { container } = renderChapter()

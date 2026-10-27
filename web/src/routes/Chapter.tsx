@@ -380,6 +380,11 @@ export function Chapter() {
                   {data ? `${kicker} · ${kindLabel(data.kind)}` : kicker}
                 </p>
                 <h1 className="line-clamp-2 font-heading text-h3 text-foreground">{title}</h1>
+                {preparedResumo ? (
+                  <p className="text-caption font-semibold text-brand" data-slot="summary-label">
+                    Guia resumido
+                  </p>
+                ) : null}
               </div>
             </header>
           }
