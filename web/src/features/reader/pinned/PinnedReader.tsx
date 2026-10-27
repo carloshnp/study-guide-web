@@ -31,11 +31,24 @@ export type PinnedReaderProps = {
   header: ReactNode
   /** Optional status line between the header and the panes. */
   notice?: ReactNode
+  /**
+   * The `#id` of a deep link. Opening the chapter there puts that section's
+   * heading at the top of the text pane.
+   */
+  anchor?: string | null
   /** The chapter article. */
   children: ReactNode
 }
 
 const NO_IMAGES: readonly ChapterImage[] = []
+
+/**
+ * How long a deep link keeps the heading in place while the layout settles.
+ * Figures and the markdown renderer load late and push the heading down; after
+ * this long, or as soon as the reader scrolls, the pane belongs to the reader.
+ */
+const ANCHOR_SETTLE_MS = 5000
+const ANCHOR_RELEASE_EVENTS = ["wheel", "touchstart", "keydown", "mousedown"] as const
 
 /** Warm the cache for the picture of the next section so the swap is instant. */
 function prefetch(image: ChapterImage | undefined): void {
@@ -51,6 +64,7 @@ export function PinnedReader({
   sectionImages,
   header,
   notice,
+  anchor,
   children,
 }: PinnedReaderProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -107,6 +121,39 @@ export function PinnedReader({
       if (frame !== 0) window.cancelAnimationFrame(frame)
     }
   }, [measure])
+
+  // A deep link places its heading at the top of the pane. The text renders
+  // lazily, so the heading keeps moving down as figures load: re-place it on
+  // every layout change until the reader scrolls or the layout has settled.
+  useEffect(() => {
+    const pane = scrollRef.current
+    const content = contentRef.current
+    if (!pane || !content || !anchor) return
+    let released = false
+    const place = () => {
+      if (released) return
+      const heading = document.getElementById(anchor)
+      if (!heading || !pane.contains(heading)) return
+      const offset = heading.getBoundingClientRect().top - pane.getBoundingClientRect().top
+      if (Math.abs(offset) > 0.5) {
+        pane.scrollTop += offset
+        measure()
+      }
+    }
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(place)
+    observer?.observe(content)
+    let timer = 0
+    const release = () => {
+      released = true
+      window.clearTimeout(timer)
+      observer?.disconnect()
+      for (const name of ANCHOR_RELEASE_EVENTS) pane.removeEventListener(name, release)
+    }
+    timer = window.setTimeout(release, ANCHOR_SETTLE_MS)
+    for (const name of ANCHOR_RELEASE_EVENTS) pane.addEventListener(name, release, { passive: true })
+    place()
+    return release
+  }, [anchor, measure])
 
   const images = (activeId ? sectionImages[activeId] : undefined) ?? NO_IMAGES
   const activeUnit = units.find((unit) => unit.id === activeId)

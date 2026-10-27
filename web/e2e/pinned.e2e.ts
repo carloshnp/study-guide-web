@@ -15,6 +15,10 @@ const SECTION_COUNT = 8
 
 async function usePinnedView(page: Page, on = true): Promise<void> {
   await page.addInitScript((value) => {
+    // Seed the choice once per tab: an init script runs again on every reload,
+    // and a reload has to keep what the reader chose in the settings.
+    if (window.sessionStorage.getItem("e2e-layout-seeded")) return
+    window.sessionStorage.setItem("e2e-layout-seeded", "1")
     window.localStorage.setItem(
       "estudos-layout",
       JSON.stringify({
@@ -29,6 +33,8 @@ async function usePinnedView(page: Page, on = true): Promise<void> {
 
 /** Scrolls the text pane so the heading sits near its top, like a reader would. */
 async function scrollTextTo(page: Page, id: string): Promise<void> {
+  // The chapter renders after the page's load event, so wait for the heading.
+  await expect(page.locator(`[data-slot="pinned-text"] [id="${id}"]`)).toHaveCount(1)
   await page.evaluate((sectionId) => {
     const pane = document.querySelector<HTMLElement>('[data-slot="pinned-text"]')
     const heading = document.getElementById(sectionId)

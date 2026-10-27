@@ -168,3 +168,103 @@ describe("PinnedReader", () => {
     expect(pane?.querySelector('[data-slot="chapter-body"] article')).not.toBeNull()
   })
 })
+
+describe("PinnedReader deep link (anchor)", () => {
+  let offsets: Record<string, number>
+  let resize: (() => void) | null
+
+  // Heading tops depend on the pane's scroll, like a real layout: the heading's
+  // distance from the pane top shrinks as the pane scrolls down.
+  function paneScroll(): number {
+    return (document.querySelector('[data-slot="pinned-text"]') as HTMLElement | null)?.scrollTop ?? 0
+  }
+
+  function renderAnchored(anchor: string) {
+    return render(
+      <PinnedReader
+        anchor={anchor}
+        header={<header>cabeçalho</header>}
+        sectionImages={IMAGES}
+        sections={SECTIONS}
+      >
+        <article>
+          <h2 id="s1">3.1 Primeira</h2>
+          <h2 id="s2">3.2 Segunda</h2>
+          <h2 id="termos-introduzidos">Termos introduzidos</h2>
+        </article>
+      </PinnedReader>,
+    )
+  }
+
+  beforeEach(() => {
+    offsets = { s1: 500, s2: 1500, "termos-introduzidos": 2500 }
+    resize = null
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const top =
+        this.dataset.slot === "pinned-text" ? 0 : (offsets[this.id] ?? 0) - paneScroll()
+      return { bottom: top, height: 0, left: 0, right: 0, toJSON: () => ({}), top, width: 0, x: 0, y: top }
+    })
+    // A 768px pane whose text is 5000px tall: without a layout, the pane would
+    // read as scrolled to its end and pick the last section.
+    Object.defineProperty(HTMLElement.prototype, "clientHeight", {
+      configurable: true,
+      get() {
+        return this.dataset.slot === "pinned-text" ? 768 : 0
+      },
+    })
+    Object.defineProperty(HTMLElement.prototype, "scrollHeight", {
+      configurable: true,
+      get() {
+        return this.dataset.slot === "pinned-text" ? 5000 : 0
+      },
+    })
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: () => void) {
+          resize = callback
+        }
+        observe() {}
+        disconnect() {}
+      },
+    )
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+    delete (HTMLElement.prototype as { clientHeight?: number }).clientHeight
+    delete (HTMLElement.prototype as { scrollHeight?: number }).scrollHeight
+  })
+
+  it("puts the section named in the URL at the top of the text pane and marks it active", () => {
+    const { container } = renderAnchored("s2")
+
+    const pane = container.querySelector('[data-slot="pinned-text"]') as HTMLElement
+    expect(pane.scrollTop).toBe(1500)
+    expect(container.querySelector('[data-slot="pinned-reader"]')?.getAttribute("data-active-section")).toBe("s2")
+  })
+
+  it("keeps placing that heading while the text above it grows, and stops once the reader scrolls", () => {
+    const { container } = renderAnchored("s2")
+    const pane = container.querySelector('[data-slot="pinned-text"]') as HTMLElement
+    expect(pane.scrollTop).toBe(1500)
+
+    // A figure above the heading loads and pushes it 1100px further down.
+    offsets.s2 = 2600
+    act(() => {
+      resize?.()
+    })
+    expect(pane.scrollTop).toBe(2600)
+
+    // The reader takes over: a later change of layout must not move the pane.
+    fireEvent.wheel(pane)
+    offsets.s2 = 3000
+    act(() => {
+      resize?.()
+    })
+    expect(pane.scrollTop).toBe(2600)
+  })
+})

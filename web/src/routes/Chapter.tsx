@@ -236,9 +236,10 @@ export function Chapter() {
 
   // Sidebar section links navigate with a `#id` hash (SPA); react-router does
   // not scroll on its own, so drive the scroll here once the target heading is
-  // in the DOM (the markdown renderer is lazy, hence the polling).
+  // in the DOM (the markdown renderer is lazy, hence the polling). The pinned
+  // view scrolls its own text pane and handles the hash in `PinnedReader`.
   useEffect(() => {
-    if (!data) return
+    if (!data || pinned) return
     const raw = decodeURIComponent(location.hash.slice(1))
     if (!raw) {
       window.scrollTo({ top: 0 })
@@ -256,7 +257,7 @@ export function Chapter() {
     }
     timer = window.setTimeout(attempt, 100)
     return () => window.clearTimeout(timer)
-  }, [data, location.hash])
+  }, [data, location.hash, pinned])
 
   // Records what this device is reading, so home can offer one "Continuar" row.
   useEffect(() => {
@@ -394,6 +395,7 @@ export function Chapter() {
             </header>
           }
           notice={savedNotice}
+          anchor={decodeURIComponent(location.hash.slice(1))}
           sectionImages={sectionImages}
           sections={sections}
         >

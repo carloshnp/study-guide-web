@@ -37,6 +37,13 @@ async function contrastRatio(page: Page): Promise<number> {
   return (light + 0.05) / (dark + 0.05)
 }
 
+/** Picks a theme in the settings popover: the top bar no longer has a theme toggle. */
+async function chooseTheme(page: Page, label: "Auto" | "Claro" | "Escuro"): Promise<void> {
+  await page.getByRole("button", { name: /configurações de leitura/i }).click()
+  await page.getByLabel(`Tema ${label.toLowerCase()}`, { exact: true }).click()
+  await page.keyboard.press("Escape")
+}
+
 test.describe("theme and keyboard", () => {
   test("theme follows the system, cycles manually and persists across reloads", async ({
     page,
@@ -50,13 +57,12 @@ test.describe("theme and keyboard", () => {
     await expect(root).toHaveClass(/dark/)
     await expect(root).toHaveAttribute("data-theme", "auto")
 
-    const toggle = page.getByRole("button", { name: /^Tema:/ })
-    await toggle.click() // auto → light
+    await chooseTheme(page, "Claro") // auto → light
     await expect(root).not.toHaveClass(/dark/)
     await expect(root).toHaveAttribute("data-theme", "light")
     expect(await page.evaluate(() => window.localStorage.getItem("estudos-theme"))).toBe("light")
 
-    await toggle.click() // light → dark
+    await chooseTheme(page, "Escuro") // light → dark
     await expect(root).toHaveClass(/dark/)
     await expect(root).toHaveAttribute("data-theme", "dark")
 
@@ -67,7 +73,7 @@ test.describe("theme and keyboard", () => {
 
     // Both themes must keep 4.5:1 on body text.
     expect(await contrastRatio(page)).toBeGreaterThanOrEqual(4.5)
-    await toggle.click() // dark → auto (system is dark here)
+    await chooseTheme(page, "Auto") // dark → auto (system is dark here)
     await page.emulateMedia({ colorScheme: "light" })
     await page.reload()
     await expect(root).not.toHaveClass(/dark/)

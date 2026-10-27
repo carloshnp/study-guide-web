@@ -25,10 +25,18 @@ test.describe("published content", () => {
 
     const expected: Record<string, number> = {
       aluminio: 29,
-      titanio: 39,
-      magnesio: 9,
+      "cn-contorno": 25,
+      "cn-erros": 18,
+      "cn-sistemas": 20,
+      "cn-taylor": 12,
       dsa: 12,
+      isostatica: 14,
       "llm-l0l1": 14,
+      magnesio: 9,
+      "resmat-p1": 34,
+      "tensao-normal": 14,
+      titanio: 16,
+      torcao: 9,
     }
     expect(index.guides.map((guide) => guide.id).sort()).toEqual(Object.keys(expected).sort())
 
