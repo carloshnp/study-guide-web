@@ -54,6 +54,7 @@ const GUIDE: GuideJson = {
       title: "Nomenclatura das ligas de alumínio",
     },
   ],
+  pinnedImages: false,
   resumos: [],
 }
 

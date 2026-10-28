@@ -32,6 +32,7 @@ GUIDE_KEYS = {
     "cover",
     "chapters",
     "resumos",
+    "pinnedImages",
 }
 GUIDE_META_KEYS = {"discipline", "professor", "sources"}
 CHAPTER_SUMMARY_KEYS = {

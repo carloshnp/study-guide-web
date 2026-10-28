@@ -489,6 +489,10 @@ def ingest(
         "assets": [record.to_dict() for record in records],
         "warnings": warnings,
     }
+    # A guide-level choice made by hand (`pinnedImages`) survives a re-ingest.
+    previous = _read_meta(dest) or {}
+    if "pinnedImages" in previous:
+        meta["pinnedImages"] = previous["pinnedImages"]
     meta_path = dest / "meta.json"
     tmp_path = meta_path.with_suffix(".json.tmp")
     tmp_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

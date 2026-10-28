@@ -111,6 +111,12 @@ export type GuideJson = {
    * feature omits the key, and the parser reads that as "none".
    */
   resumos: string[]
+  /**
+   * The guide places several pictures per section in its text. The "imagem
+   * fixa" view then shows them in the pane, at the place they hold in the text.
+   * An older guide omits the key, and the parser reads that as "no".
+   */
+  pinnedImages: boolean
 }
 
 /** `guides/<id>/resumos/<chapterId>.json`: the short version of one chapter. */
@@ -327,6 +333,7 @@ export function parseGuide(payload: unknown, path: string): GuideJson {
         ? meta.sources.filter((entry): entry is string => typeof entry === "string")
         : [],
     },
+    pinnedImages: payload.pinnedImages === true,
     resumos: readResumos(payload, path),
     subject: readOptionalString(payload, "subject", path) ?? "",
     title: readString(payload, "title", path),

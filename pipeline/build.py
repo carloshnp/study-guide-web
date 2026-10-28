@@ -401,6 +401,8 @@ def emit_guide(source: GuideSource, *, content_root: Path) -> GuideBuild:
         "cover": {"markdown": cover_markdown},
         "chapters": [chapter.as_summary() for chapter in source.document.chapters],
         "resumos": sorted(payload["chapterId"] for payload in resumo_payloads),
+        # Guides that place several pictures per section in their text opt in here.
+        "pinnedImages": source.meta.get("pinnedImages") is True,
     }
     written += _write_json(guide_root / "guide.json", guide_payload, indent=2)
     return GuideBuild(

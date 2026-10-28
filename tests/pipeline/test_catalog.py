@@ -183,8 +183,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
     measured = {
         "aluminio": (2, 29),
         "titanio": (2, 16),
-        # 6 theory chapters + 3 promoted appendices (banco, referência, glossário).
-        "magnesio": (2, 9),
+        # 5 theory chapters + 2 promoted appendices (banco, glossário).
+        "magnesio": (2, 7),
         "dsa": (1, 12),
         "llm-l0l1": (2, 14),
         # Resistência dos Materiais (EEA338) and its P1 review, which is 34 and

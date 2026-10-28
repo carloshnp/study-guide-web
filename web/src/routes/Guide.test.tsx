@@ -51,6 +51,7 @@ const GUIDE: GuideJson = {
       title: "Banco de Questões",
     },
   ],
+  pinnedImages: false,
   resumos: [],
 }
 
