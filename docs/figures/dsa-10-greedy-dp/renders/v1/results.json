@@ -1,0 +1,74 @@
+{
+  "FIG-10-01": {
+    "success": true,
+    "seconds": 18.5,
+    "error": null,
+    "source": "/home/carloshnp/.hermes/cache/generated/images/openrouter_bytedance-seed_seedream-5-0-flash_20261022_154206_b2a833e9.jpg",
+    "file": "/home/carloshnp/study-site/docs/figures/dsa-10-greedy-dp/renders/FIG-10-01.jpg",
+    "bytes": 183172,
+    "dims": [
+      2048,
+      2048
+    ]
+  },
+  "FIG-10-02": {
+    "success": true,
+    "seconds": 17.4,
+    "error": null,
+    "source": "/home/carloshnp/.hermes/cache/generated/images/openrouter_bytedance-seed_seedream-5-0-flash_20261022_154223_a53cd338.jpg",
+    "file": "/home/carloshnp/study-site/docs/figures/dsa-10-greedy-dp/renders/FIG-10-02.jpg",
+    "bytes": 204052,
+    "dims": [
+      2048,
+      2048
+    ]
+  },
+  "FIG-10-03": {
+    "success": true,
+    "seconds": 15.7,
+    "error": null,
+    "source": "/home/carloshnp/.hermes/cache/generated/images/openrouter_bytedance-seed_seedream-5-0-flash_20261022_154239_fb43bf19.jpg",
+    "file": "/home/carloshnp/study-site/docs/figures/dsa-10-greedy-dp/renders/FIG-10-03.jpg",
+    "bytes": 229942,
+    "dims": [
+      2048,
+      2048
+    ]
+  },
+  "FIG-10-04": {
+    "success": true,
+    "seconds": 17.3,
+    "error": null,
+    "source": "/home/carloshnp/.hermes/cache/generated/images/openrouter_bytedance-seed_seedream-5-0-flash_20261022_154302_d7a120ed.jpg",
+    "file": "/home/carloshnp/study-site/docs/figures/dsa-10-greedy-dp/renders/FIG-10-04.jpg",
+    "bytes": 254562,
+    "dims": [
+      2048,
+      2048
+    ]
+  },
+  "FIG-10-05": {
+    "success": true,
+    "seconds": 12.6,
+    "error": null,
+    "source": "/home/carloshnp/.hermes/cache/generated/images/openrouter_bytedance-seed_seedream-5-0-flash_20261022_154315_bf8e6df4.jpg",
+    "file": "/home/carloshnp/study-site/docs/figures/dsa-10-greedy-dp/renders/FIG-10-05.jpg",
+    "bytes": 172664,
+    "dims": [
+      2048,
+      2048
+    ]
+  },
+  "FIG-10-06": {
+    "success": true,
+    "seconds": 14.2,
+    "error": null,
+    "source": "/home/carloshnp/.hermes/cache/generated/images/openrouter_bytedance-seed_seedream-5-0-flash_20261022_154329_bd594b16.jpg",
+    "file": "/home/carloshnp/study-site/docs/figures/dsa-10-greedy-dp/renders/FIG-10-06.jpg",
+    "bytes": 166008,
+    "dims": [
+      2048,
+      2048
+    ]
+  }
+}

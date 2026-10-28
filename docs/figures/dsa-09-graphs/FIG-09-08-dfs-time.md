@@ -1,0 +1,173 @@
+# FIG-09-08: DFS and the shape of time
+status: draft   rev: 2   date: 2026-10-22   author: illustration spec agent
+
+## 1. Summary
+The figure shows one depth-first run twice: on the left, the current path drawn as nested frames; on the right, five intervals on a shared time axis, one per vertex, opening at the discover time and closing at the finish time. The right view is the argument, because the containment of `s` inside `a` inside `b` inside `c` inside `t` is a distance on the axis a reader can check with a ruler, not a caption to be believed.
+MESSAGE = the recursion is measurable: every vertex is an interval, and one interval sits inside another exactly when the call that opened it was still running.
+
+## 2. Communicative intent
+- AUDIENCE: a student revising for an exam, stacks and heaps from chapters 4 and 5 behind them, who reads the finish times of Listing 9.2 as an arbitrary counter.
+- INTENDED CHANGE: understand that the nesting of discover and finish times is a record of the call stack, and read depth and status off a timeline.
+- READING CONTEXT: chapter 9.3.3, anchor section `933-depth-first-search`, after the invariant paragraph; column capped at 1120 px, light and dark, phone read in the lightbox.
+- REPRODUCTION: viewBox `0 0 1000 480`, aspect 25:12, displayed up to 1050 CSS px, screen.
+- LIFETIME: illustration system for the chapter, shared palette and line grammar.
+- ASSUMPTIONS:
+  1. The run covers the first tree only, five vertices, times 1 to 10. Confirmed by the briefing, which states the times for the connected piece (see Q1 for the rest).
+  2. The adjacency order is `s`:[a,b], `a`:[s,b,c,t], `b`:[s,a,c], `c`:[a,b,t], `t`:[a,c]. Confirmed by recomputation: ten events, exactly one per time step.
+  3. The parent chain is `s`, `a`, `b`, `c`, `t`. Confirmed by the same recomputation.
+  4. Height 480 with the two views side by side. Corrected: the roster fixes width 1000 only, so the height and the split are this figure's decision.
+  5. Palette and line grammar from the chapter's lock, no hue added. Confirmed.
+  6. The run is on the undirected piece of Listing 9.2, the object BFS and Dijkstra also use; FIG-09-10 runs the same visit procedure on the directed acyclic graph of Listing 9.4, so the two finish orders, `t` `c` `b` `a` `s` here and `t` `c` `a` `b` `s` there, belong to different graphs and neither contradicts the other.
+
+## 3. Goals and non-goals
+- GOAL-1: a reader locates any of the ten times on the axis by reading one bar end.
+- GOAL-2: a reader sees that five intervals are nested by measuring, not by reading labels.
+- GOAL-3: a reader states the status of any vertex at any tick from the row chip.
+- NON-GOAL-1: proving DFS is correct, which is the invariant's job in the prose.
+- NON-GOAL-2: the spanning forest drawn as a tree, which is the forbidden form here.
+- NON-GOAL-3: the other two components, `u`, `v`, `w` (see Q1).
+- NON-GOAL-4: the explicit stack of an iterative rewrite, which the chapter does not show.
+
+## 4. Constraints
+- canvas: viewBox `0 0 1000 480`, aspect 25:12, 1 unit = 1 CSS px at the 1000 unit width.
+- node budget: 380 live shapes, the two panel ceiling; this inventory counts 102.
+- palette budget: at most 9 roles from the chapter's lock, no hue added.
+- typography: Montserrat; vertex id 18, panel label 16 semibold, bar numeral and chip label 15, note and rail 14.
+- text split: prose in the chapter; in-SVG labels are vertex ids, the ten numerals, the tick values 0 to 10, and three status names of one word.
+- convention: flat schematic, one projection on the sheet, no perspective, no depth cue.
+- canonical coordinates: none used as a drawing position. BRIEFING section 3 supplies the vertex order `s`, `a`, `b`, `c`, `t` and nothing else, and no offset or translation of that table is drawn, so no reader can read a chip at a graph position.
+- time appetite: one build pass and one review pass; the state sweep is the expensive part.
+- detail: full. Nothing is dropped; the legend and the depth rail are both required.
+- element floor: 36 for view A and 66 for view B, taken from the inventory, asserted at state 5. The roster's 24 and 22 stand as the inherited minimum; this figure raises them, because the legend and the depth rail are part of the argument and a thinner redraw must fail a number rather than a glance.
+- boundaries: Always run `check_spec.py` and the state sweep, and patch rather than redraw. Ask first: dropping the legend, changing the two view split, changing the height. Never: a number without a ledger row, a status carried by hue alone, an arrow from parent to child.
+- claim status: the ten times are verified (BRIEFING section 2, recomputed here). 48 units per time unit, 22 per depth inset, 4 unit rim and 8 unit cap are declared local geometry with no external source. The contrast pairs 17.78, 5.98, 10.23, 5.87 and 3.13 are verified (BRIEFING section 5). No state of this run holds all three statuses: derived from the ten times.
+
+## 5. Visual system lock
+- projection: flat schematic, one sheet, no light source, no shadow, no gradient.
+- line grammar: panel frame 1.0 in `border`, never 3.2, because a frame separates and does not outline a subject; outline 3.2 only on the marks that carry a state, a frame rim, a bar rim and the cursor; connector and annotation 1.6 (bars, caps, axis); hairline 1.0 (ticks, row rules, hatch); secondary rule long dash 6 4 on the midpoint rule only, which is vertical and so differs in silhouette from every bar. Arrowheads are not used in this figure.
+- palette, roles not swatches:
+
+| NAME | HEX (light) | HEX (dark) | ROLE | USED FOR |
+|---|---|---|---|---|
+| ink | #15181e | #e8eaef | structure and primary text | vertex ids, numerals, panel labels |
+| muted | #5c6470 | #a3abba | meaningful secondary | axis, ticks, row rules, midpoint rule |
+| faint | #8a92a0 | #7b8496 | aids only, never text | depth rail ticks |
+| border | #e7eaf0 | #262b36 | decorative separation | panel frames, row separators |
+| card | #ffffff | #15181e | panel fill | panel background, unvisited status fill |
+| accent | #1d4ed8 | #7aa2ff | active, current | bar rim, active frame, cursor, caps |
+| accent-soft | #eef3fe | #16213c | active wash | bar fill, active frame fill |
+| accent-ink | #14357f | #c7d6ff | text on accent-soft | the ten numerals inside bars |
+| success | #157347 | #4ade80 | final, settled | finished status rim and hatch |
+
+- status mapping, each status with a hue role and a second carrier: unvisited is a card fill inside a dotted muted rim (dash 1 5, weight 1.6); active is an accent-soft fill inside a 3.2 accent rim, with a second accent rim 4 units outside; finished is a card fill under a 45 degree success hatch at 1.0 inside a 3.2 success rim. The three rims differ in dash, in rim count and in fill texture, so the status survives desaturation and both themes.
+- value plan: card, accent-soft and faint as the three surfaces, ink as the darkest text; the strongest junction sits on the bar ends, the dominant element, where accent-soft meets card across a 1.6 accent rim.
+- light: flat, no light declared; depth in this figure is temporal, not spatial.
+- detail floor: nothing meaningful below 14 canvas units; no stroke below 1.0.
+- style reference: none yet, this is the first sheet of the chapter's DFS beat.
+
+## 6. Content inventory
+Views first, then the elements, grouped by class. The budget column is the live count at state 5, where the frame stack is deepest; the floor in the view map is that count.
+
+| view | job in the argument | depends on | element floor |
+|---|---|---|---|
+| A | the recursion as a frame stack: depth is drawn as an inset, not written | none | 36 |
+| B | the times as intervals: containment is a length on one shared axis | A, and repeats its vertex order | 66 |
+
+| ID | element | job in the argument | budget | label |
+|---|---|---|---|---|
+| A-01 | frame rectangle, one per active vertex | the call that is still running | 5 | none |
+| A-02 | frame vertex id | which call the frame is | 5 | `s`, `a`, `b`, `c`, `t` |
+| A-03 | frame discover numeral | when the call opened | 5 | 1, 2, 3, 4, 5 |
+| A-04 | innermost second rim | the active vertex, not just a frame | 1 | none |
+| A-05 | depth rail with its ticks and title | depth as a scale beside the stack | 8 | `depth` |
+| A-06 | panel frame at 1.0 border and panel label at 16 semibold | names the view | 2 | `A  the current path` |
+| A-07 | state caption | the time the sheet is drawn at, and the frame count | 1 | `t 5, 5 frames` |
+| A-08 | legend chip | the three status carriers, shown apart from the state | 3 | none |
+| A-09 | legend name and carrier caption | ties each carrier to a status word | 6 | `unvisited`, `active`, `finished` |
+| B-01 | panel frame at 1.0 border and panel label at 16 semibold | names the view | 2 | `B  discover and finish` |
+| B-02 | time axis with its ticks and title | the shared scale both views read | 13 | `time` |
+| B-03 | tick label | the value at each tick | 11 | 0 to 10 |
+| B-04 | row status chip | status at the state, carrier plus hue | 5 | none |
+| B-05 | row vertex id | which interval the row is | 5 | `s`, `a`, `b`, `c`, `t` |
+| B-06 | interval bar with its two caps | the interval, and which end opens | 15 | none |
+| B-07 | discover numeral inside the left end | the verified open time, on the bar | 5 | 1, 2, 3, 4, 5 |
+| B-08 | finish numeral inside the right end | the verified close time, on the bar | 5 | 6, 7, 8, 9, 10 |
+| B-09 | midpoint rule and its label | the point all five intervals contain | 2 | `5.5` |
+| B-10 | state cursor and its label | where the state sits on the axis | 2 | `t 5` |
+| B-11 | nesting note | the claim the bars make, in words | 1 | `5 nested, none partial` |
+
+## 7. Requirements
+- REQ-FIG0908-01 [MUST-STANDARD] The axis carries exactly ten times, discover `s` 1, `a` 2, `b` 3, `c` 4, `t` 5 and finish `t` 6, `c` 7, `b` 8, `a` 9, `s` 10, each on an integer tick, and no other time is drawn. (source: BRIEFING section 2, recomputed here)
+- REQ-FIG0908-02 [MUST-STANDARD] The caption and the alt text name the adjacency order `s`:[a,b], `a`:[s,b,c,t], `b`:[s,a,c], `c`:[a,b,t], `t`:[a,c], because the ten times hold only for that order. (source: BRIEFING section 2)
+- REQ-FIG0908-03 [MUST-LOCAL] Bar `k` contains bar `k+1` with a 48 unit inset at each end, so containment is a length read on the shared axis and never a caption. (why: the bar geometry is the argument)
+- REQ-FIG0908-04 [MUST-STANDARD] Unvisited carries a dotted muted rim at 1.6 plus a card fill, active a second accent rim 4 units outside plus an accent-soft fill, finished a 45 degree success hatch at 1.0 over a card fill plus a success rim, so no status is carried by hue alone. (source: WCAG 1.4.1, BRIEFING section 5)
+- REQ-FIG0908-05 [MUST-STANDARD] Every label is 18, 16, 15 or 14 canvas units in ink, muted or accent-ink, the two panel labels are 16 semibold, and faint carries ticks only. (source: BRIEFING section 4, with the contrast values of BRIEFING section 5)
+- REQ-FIG0908-06 [MUST-LOCAL] The open end of a bar is a bracket 6 units tall with no fill and the close end a filled square of 8 units, so the two events differ in shape at any theme and any hue. (why: the caps are the discover and finish events of Listing 9.2, lines 13 and 20)
+- REQ-FIG0908-07 [MUST-LOCAL] View A draws one frame per vertex with discover at most `t` and finish greater than `t`, inset 22 units per depth, with the second rim on the frame of largest depth. (why: depth is drawn, not written)
+- REQ-FIG0908-08 [MUST-LOCAL] Both views render from one function of `t`, the state is an integer 0 to 10, and the published sheet is that function at `t` 5. (why: a frozen frame and a slider must not disagree)
+- REQ-FIG0908-09 [MUST-LOCAL] The five row chips report status at `t`, and the legend in view A is the only place the three statuses appear together, because no state of this run holds all three. (why: derived from the ten times, see 9b)
+- REQ-FIG0908-10 [MUST-LOCAL] No parent to child arrow and no rooted tree appears on the sheet; the row order and the insets carry the nesting. (why: the forbidden form hides nesting)
+- REQ-FIG0908-11 [MUST-LOCAL] No vertex sits at a canonical graph coordinate; BRIEFING section 3 supplies the vertex order only, and views A and B use that order identically. (why: a chip at a graph position would read as a graph)
+- REQ-FIG0908-12 [SHOULD] The alt text is two sentences naming the nested finish order 10, 9, 8, 7, 6 and links the ten time pairs as a data table. (source: WCAG 1.1.1; cost is one small table per figure)
+- REQ-FIG0908-13 [MUST-STANDARD] Panel frames are 1.0 in `border`, the three marks that carry a state are 3.2 (frame rim, bar rim, cursor), connectors and annotation 1.6, hairlines 1.0, so no frame outweighs the subject it holds. (source: BRIEFING section 5 line grammar)
+
+## 8. Composition plan
+- DOMINANT: the five interval bars in view B, drawn widest and darkest-edged on the sheet.
+- FOCAL MECHANISM: size (the bars are the widest marks), detail density (numerals, caps, ticks in one band) and value contrast (accent-soft against card across the bar rims).
+- HIERARCHY: three levels, the bars, then the axis and the frame stack, then the legend and the rails.
+- READING PATH: the `t` bar at the bottom of the axis, up through `c`, `b`, `a` to `s`, then left into view A, then the legend.
+- BALANCE: asymmetrical; the heavy bar mass on the right is offset by the empty depth rail and the light frame stack on the left.
+- FRAMING: two panels inside one 1000 by 480 sheet, 30 units of margin, no crop, no bleed.
+- NEGATIVE SPACE: the band above `s` and below `t` holds the axis and its labels; the right column above `s` stays empty so no mark competes with the outer bar.
+- GROUPING: each bar with its two numerals and its row chip is one group at an 8 unit gap, tighter than the 44 unit row pitch; the legend sits 20 units from the stack.
+
+## 9. Build contract
+- steps: 6. 0 state function and the two panel frames. 1 axis, ticks, tick labels. 2 bars with caps and numerals. 3 row chips and row ids. 4 frame stack and depth rail. 5 legend, midpoint rule, state cursor, the two notes.
+- interaction: a slider on `t` 0 to 10 with two step buttons, because the reader must watch the stack open and close one event at a time.
+- animation: none. A played timeline would hide which event belongs to which step, and the reader needs to stop at an event.
+- ids and classes: DOM id `VIZ-<ID>` for every inventory row, one class per role (`status-unvisited`, `status-active`, `status-finished`, `frame`, `bar`, `cap-open`, `cap-close`).
+- verification hooks: `?t=<0..10>&audit=1&still=1` forces a state and runs the page audit.
+- commands: build `node build/fig-09-08.js --t 5 --out fig-09-08.svg`; serve `python3 -m http.server 8000`; capture `chromium --headless=new --no-sandbox --virtual-time-budget=6000 --dump-dom "http://127.0.0.1:8000/fig-09-08.html?t=5&audit=1" > dom.html`; sweep `for t in $(seq 0 10)` over the same URL; spec `python3 ~/.hermes/skills/svg/illustration-spec/scripts/check_spec.py docs/figures/dsa-09-graphs/FIG-09-08-dfs-time.md`; chapter `python3 docs/figures/dsa-09-graphs/verify_specs.py`.
+
+## 9b. Mechanism and state model
+- STATE: `t`, time index, integer, 0 to 10, step 1, default 0.
+- DATUM: `t` 0 is the state before any call, that is before line 7 of Listing 9.2 reaches `VISIT(s)`, with all five vertices unvisited and no frame open. Every other state is one event later, because the ten times are ten events.
+- DERIVED:
+  - A-01: one rectangle per vertex with discover at most `t` and finish greater than `t`; depth `d` is 0 for `s` and `d(parent) + 1` below; the rectangle is (70 + 22d, 105 + 22d, 330 - 44d, 250 - 44d).
+  - A-02: vertex id at (80 + 22d, 131 + 22d). A-03: numeral is the discover time of that vertex, constant per vertex.
+  - A-04: second rim is the frame rectangle of largest depth offset by 4 on every side.
+  - A-05: rail tick at y = 105 + 22d for `d` 0 to 5, the sixth tick marking the first depth that holds no frame at state 5. A-07: caption text is `t` followed by the number of open frames.
+  - B-04: status is unvisited when `t` is below the discover time, active when `t` is at least the discover time and below the finish time, finished when `t` is at least the finish time.
+  - B-06: bar is (470 + 48 * discover, row top, 48 * (finish - discover), 24), with row top 132 + 44 * row index in the order `s`, `a`, `b`, `c`, `t`.
+  - B-10: cursor x is 470 + 48 * `t`.
+- CHAIN: `t` -> active set -> frame depth `d` -> A-01 rectangle -> A-02 anchor, A-03 numeral, A-04 rim; and `t` -> B-04 status -> chip rim and fill; and `t` -> B-10 cursor x.
+- INVARIANTS: INV-01 every interval opens before it closes: at all five rows the left end x is below the right end x. INV-02 no two intervals partially overlap: for every pair one contains the other or they are disjoint, and in this run all five are nested. INV-03 the number of open frames equals the number of vertices active at `t` and equals the frame count printed in A-07. INV-04 the frames are strictly nested: each rectangle is inside its parent by 22 units on each side. INV-05 the number of events with time at most `t` equals `t` at every integer `t` from 0 to 10. INV-06 every cap sits on a tick centre, so cap x minus 470 is a multiple of 48. INV-07 no bar end lies outside the axis span 470 to 950.
+- SAMPLED STATES: `t` 0 datum, five unvisited chips, no frame; `t` 3 three active frames with `c` and `t` still unvisited; `t` 5 the sheet state, deepest stack, five active chips; `t` 7 two finished chips and no unvisited one, which is why the legend carries the triple; `t` 10 the cursor at the right end, all finished, stack closed.
+- SWEEP: every integer `t` 0 to 10, eleven states, run by `for t in $(seq 0 10)` with `?t=$t&audit=1`, asserting INV-01 to INV-07 at each state and reporting the first failing `t` by value.
+
+## 10. Acceptance criteria
+| REQ | test | pass condition | method |
+|---|---|---|---|
+| REQ-FIG0908-01 | read every bar end against the axis | the ten numerals equal the ten times and no eleventh appears | DOM text dump at `t` 10 |
+| REQ-FIG0908-02 | read caption and alt text | the adjacency order appears verbatim in both | non author read |
+| REQ-FIG0908-03 | measure the insets between consecutive bars | every inset is 48 units at each end, five bars nested | geometry assertion on the render |
+| REQ-FIG0908-04 | inspect the three chips at `t` 0, 3, 7 | dotted rim, second rim and hatch each appear, no status by hue alone | DOM class audit plus grayscale capture |
+| REQ-FIG0908-05 | read every label at 1050 px and at 2x | no label below 14 units, both panel labels 16 semibold, no faint or border text | at size capture, font size dump |
+| REQ-FIG0908-06 | compare the two ends of one bar | the open end has no fill, the close end is a filled square | DOM fill assertion |
+| REQ-FIG0908-07 | count frames at `t` 0 to 10 | the frame count equals the active count at every state | state sweep |
+| REQ-FIG0908-08 | force `?t=5` and the build default | the two renders are element for element identical | superset count on both dumps |
+| REQ-FIG0908-09 | read the chips at `t` 7 | three active, two finished, and the legend is the only place all three appear | state sweep plus DOM query |
+| REQ-FIG0908-10 | search the dump for arrows and parent links | no marker or path joins two vertices | DOM query on `marker` and `path` |
+| REQ-FIG0908-11 | compare chip positions against BRIEFING section 3 | no chip sits on a canonical vertex coordinate | coordinate assertion |
+| REQ-FIG0908-12 | read the alt text alone | two sentences, the finish order, a linked table | non author read |
+| REQ-FIG0908-13 | measure the panel frame and the dominant mark | panel frame 1.0 border, bar rim 3.2, connector 1.6 | computed style dump |
+
+## 11. Open questions
+- Q1: the loop of Listing 9.2 runs over every vertex, so the run continues into the `u`, `v` component after `s` finishes at 10. This figure stops at the first tree because no ledger row covers the later times. Closed by a ledger row for the second component, or by a sentence in 9.3.3 scoping the trace to one tree.
+- Q2: if only one view survives review, view B is kept, per the plan's own rule. Owner: the requester; evidence is the review note.
+
+## 12. Revision history
+| rev | date | change | why |
+|---|---|---|---|
+| 1 | 2026-10-22 | First spec, two views, state model over `t` 0 to 10 | Chapter 9 figure roster, FIG-09-08 |
+| 2 | 2026-10-22 | legend and class names use the chapter's unvisited, active, finished; panel labels 16 semibold; panel frames 1.0 border; assumption 6 separates this run from FIG-09-10 | white, gray, black first appear at 9.4.1, while 9.3.3 names the same three states unvisited, active, finished |

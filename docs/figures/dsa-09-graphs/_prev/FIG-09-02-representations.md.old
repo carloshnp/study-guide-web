@@ -1,0 +1,198 @@
+# FIG-09-02: Two representations, two costs
+status: draft   rev: 1   date: 2026-10-22   author: illustration-spec agent
+
+## 1. Summary
+
+The sheet holds the sample graph twice: as an adjacency list with five key rows, and as a five by five adjacency matrix, with a bottom strip setting the two containers against each other on space and on query. The matrix is drawn largest, because its empty cells are the argument: on the whole sample graph the list stores 16 entries, the table holds 64 cells, and 48 of those cells record no edge.
+
+MESSAGE = the list pays for the edges that exist, the matrix pays for every pair, and the one cell join test is bought with cells that hold nothing.
+
+## 2. Communicative intent
+
+- AUDIENCE: a student revising for an exam, who can read pseudocode, has met stacks, queues and heaps in chapters 4 and 5, and has read section 9.1.1 once.
+- INTENDED CHANGE: from "two ways to store a graph, pick either" to "each container is a cost curve, and the matrix's cost is quadratic in a quantity the edges never use".
+- READING CONTEXT: inside chapter 9 after the 9.1.1 paragraph that ends "beside the decompositions that use them", in a column capped at 1120 px, light and dark, phone read in the site lightbox at 2x zoom.
+- REPRODUCTION: 1000 unit flat schematic at 1000 by 660, rebuilt from the inventory in section 6, no external asset and no photograph.
+- LIFETIME: illustration system for the chapter
+- ASSUMPTIONS: 1. The cost pair counts the whole sample graph, V 8 and E 8, so 16 entries against 64 cells; the arithmetic comes from the task brief and is fixed once in section 6. 2. Views A and B draw the five vertex connected piece, as the roster row of PLAN.md states. 3. O(V+E), O(V squared) and the O(1) join test are chapter 9.1.1; the list answering a join test by scanning one row is derived from the adjacency list definition and is logged in section 4. 4. Type sizes are the chapter's, nothing below 14 canvas units. 5. The 1000 vertex graph of exercise 2 is out of scope, as PLAN.md open question 2 decides.
+
+## 3. Goals and non-goals
+
+- GOAL-1 The reader can count the list's 16 entries and the matrix's 64 cells on the sheet and see that both counts describe the same eight vertex graph.
+- GOAL-2 The reader can point at one filled cell and at its mirror and say that the same edge is stored twice, once in each half.
+- GOAL-3 The reader can say which container answers a join test in one cell and which must scan a row.
+- NON-GOAL-1 No traversal state: BFS, DFS and Dijkstra belong to FIG-09-07 to FIG-09-09.
+- NON-GOAL-2 No weight is drawn or claimed; weights belong to FIG-09-05 and FIG-09-09.
+- NON-GOAL-3 No petgraph family comparison; that argument is a table, not this sheet.
+- NON-GOAL-4 No directed graph, so no in-degree and out-degree count appears.
+
+## 4. Constraints
+
+- canvas: viewBox `0 0 1000 660`, aspect 1000:660, three views on one sheet.
+- node budget: 380 live nodes, the two panel allowance of BRIEFING section 4 taken as the cap for this three view sheet; the inventory sums to 98.
+- palette budget: the palette rows in section 5 are the only paints; no hue is added.
+- typography: Montserrat, self hosted; vertex id 18, panel label 16 semibold, value and callout 15, note 14.
+- text split: prose stays in the chapter markdown; in-SVG labels are vertex ids, the two counts, the two asymptotes and one to three word notes, 24 characters maximum, 2 lines maximum.
+- convention: flat schematic, one sheet, one projection, no perspective and no depth.
+- time appetite: half a day for the build and one review pass.
+- detail: full
+- element floor: 26 in A, 40 in B, 10 in C, read from the inventory in section 6.
+- boundaries: this file only; no edit under `content/`, `web/`, `pipeline/`, `data/`, and no other spec.
+- coordinates: no vertex is drawn, so the canonical node table of BRIEFING section 3 is not used; the vertex order `s`, `a`, `b`, `c`, `t` is inherited from it, and the three panel boxes are placed here (A 32 to 452, B 500 to 968, strip band 32 to 968).
+- claim status: 5 vertices and 6 edges in the piece, degrees s 2, a 4, b 3, c 3, t 2, 8 vertices and 8 edges in the sample graph, 16 entries and 64 cells, all `verified` from BRIEFING section 2.
+- claim status: 25 cells (5 times 5) and 14 filled cells (7 edges stored in each half), `derived`, arithmetic stated in section 6.
+- claim status: O(V+E) space, O(V squared) space and the O(1) join test are `chapter`, section 9.1.1; the list answering a join test by scanning the row of one endpoint is `derived` from that section's definition, named as the operation, with no complexity asserted for it.
+
+## 5. Visual system lock
+
+- projection: flat schematic, front on, one sheet, no depth, no shadow.
+- line grammar: outline 3.2 for panel frames, cells and the inset of a filled cell; connector and leader 1.6; hairline 1.0 for rules and gridlines; long dash 6 4 on the diagonal rule only; no arrowhead, because nothing flows.
+- palette: role names only, light hex in `:root`, dark hex in `.dark`, no raw hex inside the drawing.
+
+| NAME | HEX (light) | HEX (dark) | ROLE | USED FOR |
+|---|---|---|---|---|
+| ink | #15181e | #e8eaef | structure and primary text | vertex ids, counts, panel labels |
+| muted | #5c6470 | #a3abba | meaningful secondary | leaders, diagonal rule, half labels, notes |
+| border | #e7eaf0 | #262b36 | decorative separation | panel frames, row rules, cell rules |
+| card | #ffffff | #15181e | panel fill | panel and empty cell background |
+| wash | #f5f7fa | #111522 | table zebra | key rows 2 and 4 of the list |
+| accent | #1d4ed8 | #7aa2ff | active, examined | filled cell above the diagonal and its mirror |
+| accent-soft | #eef3fe | #16213c | active wash | the space column band of the strip |
+| accent-ink | #14357f | #c7d6ff | text on accent-soft | the two space values and the two asymptotes |
+| success | #157347 | #4ade80 | final, verified | the filled cell count, 12 |
+
+- value plan: three foundation values (card, wash, accent-soft) plus ink as the darkest text value; the strongest junction sits on the boundary between a filled cell and its empty neighbour inside the grid, named in section 8.
+- light: flat, no light source declared, no shadow, no gradient.
+- detail floor: stroke 1.0 and type 14, nothing below either.
+- style reference: the chapter's other sheets and the geometry in BRIEFING section 3; no icon set, no texture.
+- hue rule (BRIEFING section 5): faint and border carry no text and no meaningful edge, so the filled against empty distinction is carried by an inset outline and by position, not by fill alone.
+
+## 6. Content inventory
+
+The counted graph, stated once: the cost pair counts the whole sample graph, V 8 and E 8, so V + E = 8 + 8 = 16 entries and V times V = 8 times 8 = 64 cells. Views A and B draw the connected piece, whose grid holds 25 cells and 14 filled cells. The strip's pair is the whole graph, and no other pair appears on the sheet.
+
+| view | job | dominant | element floor |
+|---|---|---|---|
+| A | the adjacency list of the five vertices, five key rows with neighbour lists | no | 26 |
+| B | the adjacency matrix as a five by five grid, filled cells mirrored | yes | 40 |
+| C | the cost strip, space against query for both containers | no | 10 |
+
+| ID | view | element | paint role | count |
+|---|---|---|---|---|
+| A-01 | A | panel frame | border | 1 |
+| A-02 | A | panel label "Adjacency list" | ink | 1 |
+| A-03 | A | header rule under the panel label | border | 1 |
+| A-04 | A | key text, one per row: `s` `a` `b` `c` `t` | ink | 5 |
+| A-05 | A | neighbour list text, one per row | ink | 5 |
+| A-06 | A | degree value at the row's right end | muted | 5 |
+| A-07 | A | row rule under each row | border | 5 |
+| A-08 | A | zebra wash on rows 2 and 4 | wash | 2 |
+| A-09 | A | note "one row per vertex" | muted | 1 |
+| A-10 | A | leader from the note to the `a` row | muted | 1 |
+| B-01 | B | panel frame | border | 1 |
+| B-02 | B | panel label "Adjacency matrix" | ink | 1 |
+| B-03 | B | column header text, one per column | ink | 5 |
+| B-04 | B | row header text, one per row | ink | 5 |
+| B-05 | B | grid cell, five per grid row | card and accent | 25 |
+| B-06 | B | inset outline inside each filled cell | ink | 14 |
+| B-07 | B | descending diagonal rule, dash 6 4 | muted | 1 |
+| B-08 | B | half label "upper half" | muted | 1 |
+| B-09 | B | half label "lower half" | muted | 1 |
+| B-10 | B | filled count "14 of 25" | success | 1 |
+| C-01 | C | strip rule above the headers | border | 1 |
+| C-02 | C | column header "space" | ink | 1 |
+| C-03 | C | column header "query" | ink | 1 |
+| C-04 | C | row label "list" | ink | 1 |
+| C-05 | C | row label "matrix" | ink | 1 |
+| C-06 | C | space value "16 entries" | accent-ink | 1 |
+| C-07 | C | space value "64 cells" | accent-ink | 1 |
+| C-08 | C | asymptotic "O(V+E)" | accent-ink | 1 |
+| C-09 | C | asymptotic "O(V" with a raised 2 tspan | accent-ink | 2 |
+| C-10 | C | query value "scan one row" | ink | 1 |
+| C-11 | C | query value "one cell, O(1)" | ink | 1 |
+| C-12 | C | graph label "sample graph, 8 vertices" | muted | 1 |
+| C-13 | C | source tag "9.1.1" | muted | 1 |
+| C-14 | C | leader from the graph label to the pair | muted | 1 |
+| C-15 | C | strip row rule between the two rows | border | 1 |
+
+Counts per view from the rows above: A 27, B 55, C 16, total 98.
+
+## 7. Requirements
+
+- REQ-FIG0902-01 [MUST-STANDARD] View A shows five key rows, one per vertex, in the order `s`, `a`, `b`, `c`, `t`, each row holding the neighbours of its vertex (source: chapter 9.1.1, adjacency list definition; vertex order from BRIEFING section 3).
+- REQ-FIG0902-02 [MUST-STANDARD] Every neighbour entry in view A is an edge of the sample graph, and each row holds exactly its vertex's degree, so the five rows hold 2, 4, 3, 3 and 2 entries (source: BRIEFING section 2, verified degrees).
+- REQ-FIG0902-03 [MUST-STANDARD] View B shows the matrix as five row headers by five column headers around one grid of 25 cells, headers in the same order as view A (source: chapter 9.1.1, V by V table).
+- REQ-FIG0902-04 [MUST-STANDARD] Fourteen cells are filled, one per directed incidence of the seven piece edges, and every filled cell has a filled mirror across the diagonal, so the grid is symmetric (source: verified edge list of BRIEFING section 2, arithmetic in section 6).
+- REQ-FIG0902-05 [MUST-STANDARD] A 1.6 diagonal rule with dash 6 4 separates the two halves and each half carries a 15 unit label, so the mirror is carried by position and shape and not by hue (source: BRIEFING section 5, hue always doubled by shape or label).
+- REQ-FIG0902-06 [MUST-STANDARD] View C pairs space against query and quotes 16 entries against 64 cells, both counted on the whole sample graph, which the strip names once beside the pair (source: BRIEFING section 2, V + E 16 and V squared 64 on 8 vertices and 8 edges).
+- REQ-FIG0902-07 [MUST-STANDARD] The same strip carries the asymptotic pair O(V+E) against O(V squared) credited to 9.1.1, and no single pair mixes a count from the piece with a count from the whole graph (source: chapter 9.1.1).
+- REQ-FIG0902-08 [MUST-STANDARD] The query side states that the matrix answers a join test in one cell at O(1) and that the list answers it by scanning one row (source: chapter 9.1.1 for O(1); the scan follows from the list definition and is named as the operation).
+- REQ-FIG0902-09 [MUST-LOCAL] A cell carries one of two states, filled with a 3.2 inset outline or empty with a 1.0 rule, and no cell fill varies with degree or count (source: PLAN.md forbidden list, no heat map).
+- REQ-FIG0902-10 [MUST-LOCAL] The matrix cell is 62 units and the list row is 52 units, so the grid is the largest repeated structure on the sheet (source: PLAN.md dominant element, the matrix grid).
+- REQ-FIG0902-11 [MUST-STANDARD] No type is below 14 canvas units and every stroke and fill is a role from section 5 (source: BRIEFING sections 4 and 5).
+
+## 8. Composition plan
+
+- dominant: the matrix grid, 310 by 310 at x 630 to 940 and y 126 to 436, whose cell is the largest repeated shape on the sheet.
+- focal mechanism: the strongest junction is the edge between a filled cell and its empty neighbour inside the grid, where accent meets card across a hairline, read along the diagonal.
+- hierarchy: grid fill area first, then the two space values in accent-ink, then the list rows, then the half labels and notes in muted.
+- reading path: the panel labels at the top, down the five list rows, across to the grid, along the diagonal to the mirrored half, out at the strip's pair.
+- balance: the sheet is asymmetric by design, the grid panel 468 wide against the list panel 420, and the full width strip below acts as the tie.
+- framing: two framed panels on the top band, one unframed strip on the bottom band, with 28 units of empty sheet between the bands.
+- negative space: 11 of the 25 grid cells stay empty and read as the argument; the margin outside the three panels stays empty so the grid keeps its weight.
+- grouping: proximity binds each header to its grid, the zebra binds alternate rows, the leader binds "sample graph, 8 vertices" to the pair it counts.
+
+## 9. Build contract
+
+Steps, in order:
+
+1. Set the viewBox and the sheet; place panel A at 32 to 452, panel B at 500 to 968, both from y 56 to 452, and the strip band at 32 to 968 from y 480 to 620.
+2. Build view A: five rows of 52 units from y 118, key column at x 56, neighbour column at x 140, degree value right aligned at x 430.
+3. Build view B: column headers at y 112, grid 310 by 310 at x 630 to 940 and y 126 to 436, cell 62.
+4. Fill the seven piece edges into both halves, 14 cells: `{s,a}`, `{s,b}`, `{a,b}`, `{a,c}`, `{b,c}`, `{c,t}`, `{a,t}`.
+5. Draw the diagonal from the grid's top right corner to its bottom left corner, 1.6, dash 6 4, and place the two half labels outside the cells they name.
+6. Build view C: headers at y 508, list row at y 542, matrix row at y 578, space values at x 380, query values at x 700, graph label at x 380 on a leader.
+7. Route every paint through a CSS custom property set in `:root` and in `.dark`; no raw hex in the drawing.
+8. Run the audit and the DOM checks below, then hand the sheet to a non-author read.
+
+- interaction: none, static sheet, no hover, no focus target.
+- animation: none, the sheet has one state.
+- ids and classes: `#fig-09-02`, `.panel`, `.key`, `.row`, `.cell-filled`, `.cell-empty`, `.diag`, `.pair`, `.asym`, `.note`.
+- verification hooks: `data-graph="sample-8"`, `data-count-list="16"`, `data-count-matrix="64"`, `data-cells="25"`, `data-filled="12"`, so a DOM assertion reads the numbers the strip prints.
+- commands: `python3 /home/carloshnp/.hermes/skills/svg/illustration-spec/scripts/check_spec.py /home/carloshnp/study-site/docs/figures/dsa-09-graphs/FIG-09-02-representations.md`, then `grep -nP "[\x{2013}\x{2014}]"` on the built SVG, then the element count per view against the floors.
+
+## 9b. Mechanism and state model
+
+- STATE: none: every coordinate is placed, nothing is derived
+- DATUM: not applicable, no derived coordinate
+- INV-01 The grid holds 25 cells at every build, five per row and five per column, and its headers name the same five vertices as view A.
+- INV-02 The filled cells number twice the seven piece edges, 14, and every filled cell has a filled mirror across the diagonal.
+- INV-03 Both numbers in a printed pair come from the graph named beside that pair, so the strip prints 16 against 64 on the sample graph and never a count taken from the piece.
+- FUTURE STATE: a later revision may print the piece's own pair, 12 entries against 25 cells, inside views A and B; the strip keeps the whole graph pair, and the two scopes stay labelled apart.
+
+## 10. Acceptance criteria
+
+| REQ | test | pass condition | method |
+|---|---|---|---|
+| REQ-FIG0902-01 | key rows and their order in view A | five rows, `s` `a` `b` `c` `t` top to bottom | DOM assertion |
+| REQ-FIG0902-02 | neighbour entries against the edge list | rows hold 2, 4, 3, 3, 2 entries, each an edge | element count and set comparison |
+| REQ-FIG0902-03 | grid geometry | five by five cells, 25 in total, headers on both axes | element count |
+| REQ-FIG0902-04 | filled cells and mirroring | 14 filled, symmetric across the diagonal | DOM assertion |
+| REQ-FIG0902-05 | diagonal rule and half labels | one dashed rule, two half labels, both halves named | DOM assertion |
+| REQ-FIG0902-06 | printed space pair and its label | 16 and 64 printed, sample graph named beside them | non-author read |
+| REQ-FIG0902-07 | asymptotic pair | O(V+E) and O(V squared) printed with the 9.1.1 credit, no mixed pair | non-author read |
+| REQ-FIG0902-08 | query column | matrix one cell at O(1), list scan of one row | non-author read |
+| REQ-FIG0902-09 | cell states | two states only, no fill varies with degree or count | DOM assertion on fill roles |
+| REQ-FIG0902-10 | size ratio | cell 62 against row 52, grid the largest repeated shape | box measurement |
+| REQ-FIG0902-11 | type and palette sweep | no size below 14, every paint a role, contrast computed | contrast computation |
+
+## 11. Open questions
+
+- Q1 Should views A and B print the piece's own pair, 12 entries against 25 cells, so the drawn grid can be checked against a number on the same panel? Evidence that settles it: a non-author read of the built sheet, asking the reader how many cells the drawn grid holds and how many the strip quotes.
+- Q2 Should the query side print a row length for the list, the row of `a` holding four neighbours? The chapter gives no complexity for the list query, so a printed length adds a claim; evidence: the chapter author's decision on whether degree belongs in the figure.
+
+## 12. Revision history
+
+| rev | date | change | why |
+|---|---|---|---|
+| 1 | 2026-10-22 | First spec: three views, cost pair fixed on the whole sample graph | FIG-09-02 row of PLAN.md |

@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 480" width="1000" height="480" role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">FIG-09-08: DFS and the shape of time</title>
+  <desc id="fig-desc">Five intervals share one time axis, and one bar sits inside another exactly when the call that opened it was still running.</desc>
+  <style>
+    .ink { fill: #15181e; } .muted { fill: #5c6470; } .faint { fill: #8a92a0; }
+    .accent { fill: #1d4ed8; } .accent-ink { fill: #14357f; }
+    .success { fill: #157347; } .warning { fill: #b42318; }
+    .f-card { fill: #ffffff; } .f-wash { fill: #f5f7fa; } .f-soft { fill: #eef3fe; } .f-none { fill: none; }
+    .s-ink { stroke: #15181e; } .s-muted { stroke: #5c6470; } .s-faint { stroke: #8a92a0; }
+    .s-border { stroke: #e7eaf0; } .s-accent { stroke: #1d4ed8; } .s-success { stroke: #157347; }
+    .w-out { stroke-width: 3.2; } .w-line { stroke-width: 1.6; } .w-hair { stroke-width: 1.0; }
+    .dash { stroke-dasharray: 6 4; } .dash-dot { stroke-dasharray: 1 5; }
+    text { font-family: "Montserrat", sans-serif; }
+    .t-id { font-size: 18px; font-weight: 400; }
+    .t-label { font-size: 15px; font-weight: 400; }
+    .t-panel { font-size: 16px; font-weight: 600; }
+    .t-note { font-size: 14px; font-weight: 400; }
+  </style>
+  <rect x="0" y="0" width="1000" height="480" fill="#ffffff"/>
+  <g data-view="A">
+<rect id="VIZ-A-06" data-el="A-06" x="30" y="50" width="382" height="402" class="f-card s-border w-hair"/>
+<text id="VIZ-A-06" data-el="A-06" x="48" y="78" font-size="16" class="t-panel ink">A  the current path</text>
+<path id="VIZ-A-05" data-el="A-05" d="M56,105 L56,215" class="f-none s-muted w-hair"/>
+<path id="VIZ-A-05" data-el="A-05" d="M48,105 L56,105" class="f-none s-faint w-hair"/>
+<path id="VIZ-A-05" data-el="A-05" d="M48,127 L56,127" class="f-none s-faint w-hair"/>
+<path id="VIZ-A-05" data-el="A-05" d="M48,149 L56,149" class="f-none s-faint w-hair"/>
+<path id="VIZ-A-05" data-el="A-05" d="M48,171 L56,171" class="f-none s-faint w-hair"/>
+<path id="VIZ-A-05" data-el="A-05" d="M48,193 L56,193" class="f-none s-faint w-hair"/>
+<path id="VIZ-A-05" data-el="A-05" d="M48,215 L56,215" class="f-none s-faint w-hair"/>
+<text id="VIZ-A-05" data-el="A-05" x="52" y="94" font-size="14" class="t-note muted" text-anchor="middle">depth</text>
+<rect id="VIZ-A-01" data-el="A-01" x="70" y="105" width="330" height="250" class="f-none s-accent w-out"/>
+<rect id="VIZ-A-01" data-el="A-01" x="92" y="127" width="286" height="206" class="f-none s-accent w-out"/>
+<rect id="VIZ-A-01" data-el="A-01" x="114" y="149" width="242" height="162" class="f-none s-accent w-out"/>
+<rect id="VIZ-A-01" data-el="A-01" x="136" y="171" width="198" height="118" class="f-none s-accent w-out"/>
+<rect id="VIZ-A-01" data-el="A-01" x="158" y="193" width="154" height="74" class="f-soft s-accent w-out"/>
+<rect id="VIZ-A-04" data-el="A-04" x="154" y="189" width="162" height="82" class="f-none s-accent w-out"/>
+<text id="VIZ-A-02" data-el="A-02" x="80" y="131" font-size="18" class="t-id ink">s</text>
+<text id="VIZ-A-03" data-el="A-03" x="388" y="131" font-size="15" class="t-label accent-ink" text-anchor="end">1</text>
+<text id="VIZ-A-02" data-el="A-02" x="102" y="153" font-size="18" class="t-id ink">a</text>
+<text id="VIZ-A-03" data-el="A-03" x="366" y="153" font-size="15" class="t-label accent-ink" text-anchor="end">2</text>
+<text id="VIZ-A-02" data-el="A-02" x="124" y="175" font-size="18" class="t-id ink">b</text>
+<text id="VIZ-A-03" data-el="A-03" x="344" y="175" font-size="15" class="t-label accent-ink" text-anchor="end">3</text>
+<text id="VIZ-A-02" data-el="A-02" x="146" y="197" font-size="18" class="t-id ink">c</text>
+<text id="VIZ-A-03" data-el="A-03" x="322" y="197" font-size="15" class="t-label accent-ink" text-anchor="end">4</text>
+<text id="VIZ-A-02" data-el="A-02" x="168" y="219" font-size="18" class="t-id ink">t</text>
+<text id="VIZ-A-03" data-el="A-03" x="300" y="219" font-size="15" class="t-label accent-ink" text-anchor="end">5</text>
+<text id="VIZ-A-07" data-el="A-07" x="48" y="382" font-size="15" class="t-label ink">t 5, 5 frames</text>
+<rect id="VIZ-A-08" data-el="A-08" x="48" y="404" width="16" height="16" class="f-card s-muted w-line dash-dot"/>
+<rect id="VIZ-A-08" data-el="A-08" x="172" y="404" width="16" height="16" class="f-soft s-accent w-out"/>
+<rect id="VIZ-A-08" data-el="A-08" x="168" y="400" width="24" height="24" class="f-none s-accent w-out"/>
+<rect id="VIZ-A-08" data-el="A-08" x="268" y="404" width="16" height="16" class="f-card s-success w-out"/>
+<path id="VIZ-A-08" data-el="A-08" d="M268,412 L276,404" class="f-none s-success w-hair"/>
+<path id="VIZ-A-08" data-el="A-08" d="M268,420 L284,404" class="f-none s-success w-hair"/>
+<path id="VIZ-A-08" data-el="A-08" d="M276,420 L284,412" class="f-none s-success w-hair"/>
+<path id="VIZ-A-09" data-el="A-09" d="M66,412 L74,412" class="f-none s-muted w-line"/>
+<text id="VIZ-A-09" data-el="A-09" x="78" y="417" font-size="15" class="t-label ink">unvisited</text>
+<path id="VIZ-A-09" data-el="A-09" d="M190,412 L198,412" class="f-none s-muted w-line"/>
+<text id="VIZ-A-09" data-el="A-09" x="202" y="417" font-size="15" class="t-label ink">active</text>
+<path id="VIZ-A-09" data-el="A-09" d="M286,412 L294,412" class="f-none s-muted w-line"/>
+<text id="VIZ-A-09" data-el="A-09" x="298" y="417" font-size="15" class="t-label ink">finished</text>
+  </g>
+  <g data-view="B">
+<rect id="VIZ-B-01" data-el="B-01" x="428" y="50" width="542" height="402" class="f-card s-border w-hair"/>
+<text id="VIZ-B-01" data-el="B-01" x="446" y="78" font-size="16" class="t-panel ink">B  discover and finish</text>
+<path id="VIZ-B-09" data-el="B-09" d="M734,124 L734,310" class="f-none s-muted w-hair dash"/>
+<text id="VIZ-B-09" data-el="B-09" x="734" y="116" font-size="14" class="t-note muted" text-anchor="middle">5.5</text>
+<rect id="VIZ-B-06" data-el="B-06" x="518" y="132" width="432" height="24" class="f-soft s-accent w-out"/>
+<path id="VIZ-B-06" data-el="B-06" d="M522,141 L526,141" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M522,141 L522,147" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M522,147 L526,147" class="f-none s-accent w-line"/>
+<rect id="VIZ-B-06" data-el="B-06" x="938" y="140" width="8" height="8" fill="#1d4ed8"/>
+<text id="VIZ-B-07" data-el="B-07" x="530" y="149" font-size="15" class="t-label accent-ink">1</text>
+<text id="VIZ-B-08" data-el="B-08" x="934" y="149" font-size="15" class="t-label accent-ink" text-anchor="end">10</text>
+<rect id="VIZ-B-06" data-el="B-06" x="566" y="176" width="336" height="24" class="f-soft s-accent w-out"/>
+<path id="VIZ-B-06" data-el="B-06" d="M570,185 L574,185" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M570,185 L570,191" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M570,191 L574,191" class="f-none s-accent w-line"/>
+<rect id="VIZ-B-06" data-el="B-06" x="890" y="184" width="8" height="8" fill="#1d4ed8"/>
+<text id="VIZ-B-07" data-el="B-07" x="578" y="193" font-size="15" class="t-label accent-ink">2</text>
+<text id="VIZ-B-08" data-el="B-08" x="886" y="193" font-size="15" class="t-label accent-ink" text-anchor="end">9</text>
+<rect id="VIZ-B-06" data-el="B-06" x="614" y="220" width="240" height="24" class="f-soft s-accent w-out"/>
+<path id="VIZ-B-06" data-el="B-06" d="M618,229 L622,229" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M618,229 L618,235" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M618,235 L622,235" class="f-none s-accent w-line"/>
+<rect id="VIZ-B-06" data-el="B-06" x="842" y="228" width="8" height="8" fill="#1d4ed8"/>
+<text id="VIZ-B-07" data-el="B-07" x="626" y="237" font-size="15" class="t-label accent-ink">3</text>
+<text id="VIZ-B-08" data-el="B-08" x="838" y="237" font-size="15" class="t-label accent-ink" text-anchor="end">8</text>
+<rect id="VIZ-B-06" data-el="B-06" x="662" y="264" width="144" height="24" class="f-soft s-accent w-out"/>
+<path id="VIZ-B-06" data-el="B-06" d="M666,273 L670,273" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M666,273 L666,279" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M666,279 L670,279" class="f-none s-accent w-line"/>
+<rect id="VIZ-B-06" data-el="B-06" x="794" y="272" width="8" height="8" fill="#1d4ed8"/>
+<text id="VIZ-B-07" data-el="B-07" x="674" y="281" font-size="15" class="t-label accent-ink">4</text>
+<text id="VIZ-B-08" data-el="B-08" x="790" y="281" font-size="15" class="t-label accent-ink" text-anchor="end">7</text>
+<rect id="VIZ-B-06" data-el="B-06" x="710" y="308" width="48" height="24" class="f-soft s-accent w-out"/>
+<path id="VIZ-B-06" data-el="B-06" d="M714,317 L718,317" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M714,317 L714,323" class="f-none s-accent w-line"/>
+<path id="VIZ-B-06" data-el="B-06" d="M714,323 L718,323" class="f-none s-accent w-line"/>
+<rect id="VIZ-B-06" data-el="B-06" x="746" y="316" width="8" height="8" fill="#1d4ed8"/>
+<text id="VIZ-B-07" data-el="B-07" x="722" y="325" font-size="15" class="t-label accent-ink">5</text>
+<text id="VIZ-B-08" data-el="B-08" x="742" y="325" font-size="15" class="t-label accent-ink" text-anchor="end">6</text>
+<path id="VIZ-B-02" data-el="B-02" d="M470,356 L950,356" class="f-none s-muted w-line"/>
+<path id="VIZ-B-02" data-el="B-02" d="M470,356 L470,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M518,356 L518,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M566,356 L566,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M614,356 L614,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M662,356 L662,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M710,356 L710,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M758,356 L758,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M806,356 L806,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M854,356 L854,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M902,356 L902,363" class="f-none s-muted w-hair"/>
+<path id="VIZ-B-02" data-el="B-02" d="M950,356 L950,363" class="f-none s-muted w-hair"/>
+<text id="VIZ-B-02" data-el="B-02" x="950" y="402" font-size="15" class="t-label muted" text-anchor="end">time</text>
+<text id="VIZ-B-03" data-el="B-03" x="470" y="380" font-size="15" class="t-label muted" text-anchor="middle">0</text>
+<text id="VIZ-B-03" data-el="B-03" x="518" y="380" font-size="15" class="t-label muted" text-anchor="middle">1</text>
+<text id="VIZ-B-03" data-el="B-03" x="566" y="380" font-size="15" class="t-label muted" text-anchor="middle">2</text>
+<text id="VIZ-B-03" data-el="B-03" x="614" y="380" font-size="15" class="t-label muted" text-anchor="middle">3</text>
+<text id="VIZ-B-03" data-el="B-03" x="662" y="380" font-size="15" class="t-label muted" text-anchor="middle">4</text>
+<text id="VIZ-B-03" data-el="B-03" x="710" y="380" font-size="15" class="t-label muted" text-anchor="middle">5</text>
+<text id="VIZ-B-03" data-el="B-03" x="758" y="380" font-size="15" class="t-label muted" text-anchor="middle">6</text>
+<text id="VIZ-B-03" data-el="B-03" x="806" y="380" font-size="15" class="t-label muted" text-anchor="middle">7</text>
+<text id="VIZ-B-03" data-el="B-03" x="854" y="380" font-size="15" class="t-label muted" text-anchor="middle">8</text>
+<text id="VIZ-B-03" data-el="B-03" x="902" y="380" font-size="15" class="t-label muted" text-anchor="middle">9</text>
+<text id="VIZ-B-03" data-el="B-03" x="950" y="380" font-size="15" class="t-label muted" text-anchor="middle">10</text>
+<path id="VIZ-B-10" data-el="B-10" d="M710,114 L710,344" class="f-none s-accent w-out"/>
+<text id="VIZ-B-10" data-el="B-10" x="710" y="402" font-size="15" class="t-label accent-ink" text-anchor="middle">t 5</text>
+<rect id="VIZ-B-04" data-el="B-04" x="448" y="137" width="14" height="14" class="f-soft s-accent w-out"/>
+<rect id="VIZ-B-04" data-el="B-04" x="444" y="133" width="22" height="22" class="f-none s-accent w-out"/>
+<text id="VIZ-B-05" data-el="B-05" x="432" y="149" font-size="18" class="t-id ink">s</text>
+<rect id="VIZ-B-04" data-el="B-04" x="448" y="181" width="14" height="14" class="f-soft s-accent w-out"/>
+<rect id="VIZ-B-04" data-el="B-04" x="444" y="177" width="22" height="22" class="f-none s-accent w-out"/>
+<text id="VIZ-B-05" data-el="B-05" x="432" y="193" font-size="18" class="t-id ink">a</text>
+<rect id="VIZ-B-04" data-el="B-04" x="448" y="225" width="14" height="14" class="f-soft s-accent w-out"/>
+<rect id="VIZ-B-04" data-el="B-04" x="444" y="221" width="22" height="22" class="f-none s-accent w-out"/>
+<text id="VIZ-B-05" data-el="B-05" x="432" y="237" font-size="18" class="t-id ink">b</text>
+<rect id="VIZ-B-04" data-el="B-04" x="448" y="269" width="14" height="14" class="f-soft s-accent w-out"/>
+<rect id="VIZ-B-04" data-el="B-04" x="444" y="265" width="22" height="22" class="f-none s-accent w-out"/>
+<text id="VIZ-B-05" data-el="B-05" x="432" y="281" font-size="18" class="t-id ink">c</text>
+<rect id="VIZ-B-04" data-el="B-04" x="448" y="313" width="14" height="14" class="f-soft s-accent w-out"/>
+<rect id="VIZ-B-04" data-el="B-04" x="444" y="309" width="22" height="22" class="f-none s-accent w-out"/>
+<text id="VIZ-B-05" data-el="B-05" x="432" y="325" font-size="18" class="t-id ink">t</text>
+<text id="VIZ-B-11" data-el="B-11" x="446" y="428" font-size="14" class="t-note muted">5 nested, none partial</text>
+  </g>
+</svg>

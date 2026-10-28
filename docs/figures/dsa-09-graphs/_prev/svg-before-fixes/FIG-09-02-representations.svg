@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 780" width="1000" height="780" role="img" aria-labelledby="fig-title fig-desc" data-graph="sample-8" data-vertices="8" data-count-list="16" data-count-matrix="64" data-cells="64" data-filled="16" data-empty="48">
+  <title id="fig-title">FIG-09-02: Two representations, two costs</title>
+  <desc id="fig-desc">The same eight vertex graph stored as an adjacency list of sixteen entries and as an eight by eight matrix where sixteen cells hold an edge and forty eight hold nothing.</desc>
+  <style>
+    .ink { fill: #15181e; } .muted { fill: #5c6470; } .accent-ink { fill: #14357f; }
+    .f-card { fill: #ffffff; } .f-wash { fill: #f5f7fa; } .f-soft { fill: #eef3fe; } .f-none { fill: none; }
+    .s-ink { stroke: #15181e; } .s-muted { stroke: #5c6470; } .s-border { stroke: #e7eaf0; }
+    .w-line { stroke-width: 1.6; } .w-hair { stroke-width: 1.0; }
+    text { font-family: "Montserrat", sans-serif; }
+    .t-id { font-size: 18px; font-weight: 400; }
+    .t-label { font-size: 15px; font-weight: 400; }
+    .t-panel { font-size: 16px; font-weight: 600; }
+    .t-note { font-size: 14px; font-weight: 400; }
+  </style>
+  <rect x="0" y="0" width="1000" height="780" class="f-card"/>
+
+  <g data-view="A">
+    <rect id="VIZ-A-01" data-el="A-01" x="32" y="56" width="400" height="524" class="f-card s-border w-hair"/>
+    <rect id="VIZ-A-10" data-el="A-10" class="f-wash" x="56" y="172" width="352" height="48"/>
+    <rect id="VIZ-A-10" data-el="A-10" class="f-wash" x="56" y="268" width="352" height="48"/>
+    <rect id="VIZ-A-10" data-el="A-10" class="f-wash" x="56" y="364" width="352" height="48"/>
+    <rect id="VIZ-A-10" data-el="A-10" class="f-wash" x="56" y="460" width="352" height="48"/>
+    <path id="VIZ-A-03" data-el="A-03" class="f-none s-border w-hair" d="M56,98 L408,98"/>
+    <text id="VIZ-A-02" data-el="A-02" x="56" y="86" font-size="16" class="t-panel ink">Adjacency list</text>
+    <text id="VIZ-A-04" data-el="A-04" x="404" y="114" font-size="14" text-anchor="end" class="t-note muted">degree</text>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,172 L408,172"/>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,220 L408,220"/>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,268 L408,268"/>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,316 L408,316"/>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,364 L408,364"/>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,412 L408,412"/>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,460 L408,460"/>
+    <path id="VIZ-A-09" data-el="A-09" class="f-none s-border w-hair" d="M56,508 L408,508"/>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="154" font-size="18" class="t-id key ink">s</text>
+    <text id="VIZ-A-06" data-el="A-06" x="130" y="154" font-size="18" class="t-id ink">a b</text>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="202" font-size="18" class="t-id key ink">a</text>
+    <text id="VIZ-A-06" data-el="A-06" x="130" y="202" font-size="18" class="t-id ink">s b c t</text>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="250" font-size="18" class="t-id key ink">b</text>
+    <text id="VIZ-A-06" data-el="A-06" x="130" y="250" font-size="18" class="t-id ink">s a c</text>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="298" font-size="18" class="t-id key ink">c</text>
+    <text id="VIZ-A-06" data-el="A-06" x="130" y="298" font-size="18" class="t-id ink">a b t</text>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="346" font-size="18" class="t-id key ink">t</text>
+    <text id="VIZ-A-06" data-el="A-06" x="130" y="346" font-size="18" class="t-id ink">a c</text>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="394" font-size="18" class="t-id key ink">u</text>
+    <text id="VIZ-A-06" data-el="A-06" x="130" y="394" font-size="18" class="t-id ink">v</text>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="442" font-size="18" class="t-id key ink">v</text>
+    <text id="VIZ-A-06" data-el="A-06" x="130" y="442" font-size="18" class="t-id ink">u</text>
+    <text id="VIZ-A-05" data-el="A-05" x="56" y="490" font-size="18" class="t-id key ink">w</text>
+    <path id="VIZ-A-07" data-el="A-07" class="f-none s-muted w-line pair" d="M138,470 L130,470 L130,494 L138,494"/>
+    <path id="VIZ-A-07" data-el="A-07" class="f-none s-muted w-line pair" d="M146,470 L154,470 L154,494 L146,494"/>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="154" font-size="15" text-anchor="end" class="t-label muted">2</text>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="202" font-size="15" text-anchor="end" class="t-label muted">4</text>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="250" font-size="15" text-anchor="end" class="t-label muted">3</text>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="298" font-size="15" text-anchor="end" class="t-label muted">3</text>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="346" font-size="15" text-anchor="end" class="t-label muted">2</text>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="394" font-size="15" text-anchor="end" class="t-label muted">1</text>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="442" font-size="15" text-anchor="end" class="t-label muted">1</text>
+    <text id="VIZ-A-08" data-el="A-08" x="404" y="490" font-size="15" text-anchor="end" class="t-label muted">0</text>
+    <text id="VIZ-A-11" data-el="A-11" x="56" y="546" font-size="14" class="t-note note muted">one row per vertex</text>
+    <path id="VIZ-A-12" data-el="A-12" class="f-none s-muted w-line" d="M182,540 L134,502"/>
+  </g>
+
+  <g data-view="B">
+    <rect id="VIZ-B-01" data-el="B-01" x="458" y="56" width="510" height="524" class="f-card s-border w-hair"/>
+    <text id="VIZ-B-02" data-el="B-02" x="482" y="80" font-size="16" class="t-panel ink">Adjacency matrix</text>
+    <text id="VIZ-B-03" data-el="B-03" x="584" y="116" font-size="18" text-anchor="middle" class="t-id ink">s</text>
+    <text id="VIZ-B-03" data-el="B-03" x="632" y="116" font-size="18" text-anchor="middle" class="t-id ink">a</text>
+    <text id="VIZ-B-03" data-el="B-03" x="680" y="116" font-size="18" text-anchor="middle" class="t-id ink">b</text>
+    <text id="VIZ-B-03" data-el="B-03" x="728" y="116" font-size="18" text-anchor="middle" class="t-id ink">c</text>
+    <text id="VIZ-B-03" data-el="B-03" x="776" y="116" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+    <text id="VIZ-B-03" data-el="B-03" x="824" y="116" font-size="18" text-anchor="middle" class="t-id ink">u</text>
+    <text id="VIZ-B-03" data-el="B-03" x="872" y="116" font-size="18" text-anchor="middle" class="t-id ink">v</text>
+    <text id="VIZ-B-03" data-el="B-03" x="920" y="116" font-size="18" text-anchor="middle" class="t-id ink">w</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="156" font-size="18" text-anchor="end" class="t-id ink">s</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="204" font-size="18" text-anchor="end" class="t-id ink">a</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="252" font-size="18" text-anchor="end" class="t-id ink">b</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="300" font-size="18" text-anchor="end" class="t-id ink">c</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="348" font-size="18" text-anchor="end" class="t-id ink">t</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="396" font-size="18" text-anchor="end" class="t-id ink">u</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="444" font-size="18" text-anchor="end" class="t-id ink">v</text>
+    <text id="VIZ-B-03" data-el="B-03" x="546" y="492" font-size="18" text-anchor="end" class="t-id ink">w</text>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="126" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="174" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="222" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="270" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="318" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="366" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="414" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="560" y="462" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="608" y="462" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="656" y="462" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="704" y="462" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="752" y="462" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="800" y="462" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="848" y="462" width="48" height="48"/>
+    <rect id="VIZ-B-04" data-el="B-04" class="cell-plain f-card s-border w-hair" x="896" y="462" width="48" height="48"/>
+    <path id="VIZ-B-06" data-el="B-06" class="f-none s-muted w-hair divider" d="M560,126 L944,510"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="620" y="138" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="668" y="138" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="572" y="186" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="668" y="186" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="716" y="186" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="764" y="186" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="572" y="234" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="620" y="234" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="716" y="234" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="620" y="282" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="668" y="282" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="764" y="282" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="620" y="330" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="716" y="330" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="860" y="378" width="24" height="24"/>
+    <rect id="VIZ-B-05" data-el="B-05" class="cell-marked f-none s-ink w-line" x="812" y="426" width="24" height="24"/>
+    <text id="VIZ-B-07" data-el="B-07" x="482" y="542" font-size="15" class="t-label ink">16 filled, 48 empty</text>
+    <text id="VIZ-B-08" data-el="B-08" x="700" y="542" font-size="14" class="t-note note muted">one edge, two cells</text>
+  </g>
+
+  <g data-view="C">
+    <path id="VIZ-C-01" data-el="C-01" class="f-none s-border w-hair" d="M32,612 L968,612"/>
+    <rect id="VIZ-C-03" data-el="C-03" class="f-soft" x="236" y="640" width="188" height="86"/>
+    <text id="VIZ-C-15" data-el="C-15" x="56" y="632" font-size="14" class="t-note muted">sample graph, 8 vertices</text>
+    <text id="VIZ-C-04" data-el="C-04" x="250" y="632" font-size="14" class="t-note accent-ink">space</text>
+    <text id="VIZ-C-05" data-el="C-05" x="470" y="632" font-size="14" class="t-note ink">asymptote</text>
+    <text id="VIZ-C-06" data-el="C-06" x="660" y="632" font-size="14" class="t-note ink">query</text>
+    <text id="VIZ-C-16" data-el="C-16" x="940" y="632" font-size="14" text-anchor="end" class="t-note muted">9.1.1</text>
+    <path id="VIZ-C-17" data-el="C-17" class="f-none s-muted w-line" d="M222,628 L236,654"/>
+    <path id="VIZ-C-02" data-el="C-02" class="f-none s-border w-hair" d="M32,690 L968,690"/>
+    <text id="VIZ-C-07" data-el="C-07" x="56" y="666" font-size="15" class="t-label ink">list</text>
+    <text id="VIZ-C-08" data-el="C-08" x="56" y="710" font-size="15" class="t-label ink">matrix</text>
+    <text id="VIZ-C-09" data-el="C-09" x="250" y="666" font-size="15" class="t-label accent-ink">16 entries</text>
+    <text id="VIZ-C-10" data-el="C-10" x="250" y="710" font-size="15" class="t-label accent-ink">64 cells</text>
+    <text id="VIZ-C-11" data-el="C-11" x="470" y="666" font-size="15" class="t-label asym ink">O(V+E)</text>
+    <text id="VIZ-C-12" data-el="C-12" x="470" y="710" font-size="15" class="t-label asym ink">O(V<tspan dy="-6" font-size="14">2</tspan><tspan dy="6" font-size="14">)</tspan></text>
+    <text id="VIZ-C-13" data-el="C-13" x="660" y="666" font-size="15" class="t-label ink">scan one row, O(degree)</text>
+    <text id="VIZ-C-14" data-el="C-14" x="660" y="710" font-size="15" class="t-label ink">one cell, O(1)</text>
+  </g>
+</svg>

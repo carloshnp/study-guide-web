@@ -1,0 +1,192 @@
+# FIG-09-07: BFS in layers
+
+status: draft   rev: 1   date: 2026-10-22   author: illustration spec agent
+
+## 1. Summary
+
+Two views on one sheet. View A draws the connected piece once, inside three distance bands, each of the five vertices carrying a chip that prints its distance. View B is the queue strip: six rows, one per frame of the trace, showing what the queue holds while A's chips settle. Read together, the invariant becomes a picture: the queue holds one layer, then two consecutive layers, never three values, and a vertex's distance becomes final at the moment that vertex leaves the front. MESSAGE = the queue holds at most two consecutive layers, and a distance is final the moment its vertex is dequeued.
+
+## 2. Communicative intent
+
+- AUDIENCE: a student revising for an exam, who can read Listing 9.1 and has met queues in chapter 5; believes BFS is a recipe whose distance array fills in some order the code decides.
+- INTENDED CHANGE: believe that the layer structure is forced by the queue discipline, and that "already final" is a property of the dequeue event, not of the assignment inside the loop.
+- READING CONTEXT: inside chapter section 9.3.2, after the sentence "The invariant explains the layer structure: when a vertex is dequeued, its distance is final, so the first time any vertex is reached is already by a shortest path." Column cap 1120 px, light and dark, phone read in the lightbox at 2x.
+- REPRODUCTION: viewBox 0 0 1000 880, aspect 1.14:1, unit scale 1 unit = 1 CSS px at the 1000 unit reference width; displayed up to 1050 x 924 px in the article column; on a 390 px phone the sheet is read at 2x in the lightbox.
+- LIFETIME: illustration system for the chapter, so palette, line grammar and node geometry are shared with FIG-09-01 to FIG-09-10.
+- ASSUMPTIONS: 1. sample graph and distances from BRIEFING section 2 (confirmed). 2. canonical node coordinates with the single translation y + 70 (confirmed, BRIEFING section 3). 3. only the connected piece {`s`,`a`,`b`,`c`,`t`} is drawn; `u`, `v`, `w` are named in the caption as unreachable (confirmed by the figure brief, "the connected piece"). 4. the queue trace is recomputed by replaying Listing 9.1 on the chapter's adjacency lists, which moves `t` into the queue at step 1 and gives six frames `s`, `a b`, `b c t`, `c t`, `t`, empty; the frame list in PLAN.md (`s`, `a b`, `b c`, `c`, `t`, empty) cannot be produced from these lists (corrected, collected as Q1). 5. two views, one sheet, floors 30 and 26 from the roster (confirmed).
+
+## 3. Goals and non-goals
+
+- GOAL-1: the reader can name the band of any vertex from the chip, without reading a legend.
+- GOAL-2: the reader can point at the step where a given chip changes role and say which dequeue caused it.
+- GOAL-3: the reader can read the queue's contents at all six steps without stepping anything.
+- GOAL-4: the reader can state the two-layer bound after one pass, because the note says it and step 2 shows it.
+- GOAL-5: the reader sees that the empty queue at step 5 is the postcondition frame, not a failure.
+- NON-GOAL-1: no shortest path tree, no parent pointers, no route highlight (FIG-09-05 and FIG-09-06 carry those).
+- NON-GOAL-2: no discovery and finish times (FIG-09-08).
+- NON-GOAL-3: no edge weights and no cost arithmetic (FIG-09-05).
+- NON-GOAL-4: no second start vertex, so no second component (FIG-09-03).
+- NON-GOAL-5: no code listing inside the SVG; the loop is in the chapter.
+
+## 4. Constraints
+
+- canvas: viewBox 0 0 1000 880, aspect 1.14:1, height declared here and in section 2; 1 unit = 1 CSS px at the 1000 unit reference width.
+- node budget: 380 live marks, the two-view ceiling of BRIEFING section 4; the inventory reaches 83.
+- palette budget: the nine role rows of the section 5 table, no hue added, no raw hex inside the drawing.
+- typography: Montserrat, self-hosted. Canvas units: vertex id 18, chip value and step note 15, panel label 16 semibold, layer note 14. Nothing below 14.
+- text split: prose in the chapter markdown. In-SVG labels are vertex ids, single distance digits, `dist 0` to `dist 2`, `step 0` to `step 5`, `dequeue s` style notes at most 12 characters, and one two-line note of 19 and 22 characters.
+- convention: flat schematic, one projection, declared once in section 5.
+- time appetite: the strip is the mechanism and gets the build time; the graph above is a static backdrop and is placed, not computed.
+- detail: full
+- element floor: view A 30, view B 26, per the roster; the inventory reaches 40 and 43 live marks.
+- boundaries: Always state distances from BRIEFING section 2 and the trace from the replay of Listing 9.1; Ask first before dropping a band, a chip or a frame; Never a number with no ledger row, nor an em dash or en dash.
+- claim status: distances (verified, BRIEFING section 2). six frames and dequeue order `s`,`a`,`b`,`c`,`t` (derived, Listing 9.1 replayed on the chapter's adjacency lists). two consecutive layers at most (chapter, section 9.3.2 loop invariant, confirmed on all six frames). seven edges in the connected piece (verified: degree sum 14 over 7 edges, BRIEFING section 2).
+
+## 5. Visual system lock
+
+- projection: flat schematic, one per sheet, no perspective, no isometric.
+- line grammar: outline 3.2, edge and annotation 1.6, hairline 1.0, ratio 2:1 between outline and edge. No dashed line in this figure, because no hidden part exists. Arrowhead: filled triangle 14 long, 10 wide, on the dequeue arrow only.
+
+| NAME | HEX (light) | HEX (dark) | ROLE | USED FOR |
+|---|---|---|---|---|
+| ink | #15181e | #e8eaef | structure and primary text | vertex ids, chip digits, panel labels |
+| muted | #5c6470 | #a3abba | meaningful secondary | edges, step labels, step notes, pending chip outline |
+| border | #e7eaf0 | #262b36 | decorative separation | plate frame, band edges, row separators, trough |
+| card | #ffffff | #15181e | panel fill | chips, cells, plate and band base |
+| wash | #f5f7fa | #111522 | grouping only | the two inactive bands |
+| accent | #1d4ed8 | #7aa2ff | active, current, examined | dequeue ring, head cell outline, current row rule, arrow |
+| accent-soft | #eef3fe | #16213c | active wash | current row fill, active band fill, head cell fill |
+| accent-ink | #14357f | #c7d6ff | text on accent-soft | the active band's label |
+| success | #157347 | #4ade80 | final, settled | settled chip outline and dot |
+
+- value plan: three foundation values, card, wash and accent-soft, plus ink as the darkest text. The strongest junction on the sheet is the accent-soft current row against card, and it sits on the queue strip, the dominant element of section 8.
+- contrast, from BRIEFING section 5, quoted so a builder cannot substitute a guess: ink on card 17.78 light and 14.77 dark; muted on card 5.98 and 7.7; accent on card 6.7 and 7.14; accent-ink on accent-soft 10.23 and 11.0; success on card 5.87 and 10.2; border on card 1.21 and 1.25. Two pairs were recomputed for the surfaces this sheet adds: ink on accent-soft 11.38 and 12.27, muted on accent-soft 5.38 and 6.9, so step labels and step notes stay on muted while they sit inside the current row. Consequence applied here: border and wash carry separation and grouping only, never a state, and no text sits on either.
+- light: flat, no light source, no shadow, no gradient. Depth on this sheet is temporal, not spatial.
+- detail floor: no mark below 1.0 units, no text below 14 units, no dot below radius 4.
+- style reference: no frame rendered yet in this phase; the palette, line grammar and node geometry above are the style source, and FIG-09-01 will be the first rendered frame of the system.
+
+## 6. Content inventory
+
+| view | job in the argument | depends on | element floor |
+|---|---|---|---|
+| A | the three distance bands with one chip per vertex, and the dequeued vertex taking the final role while it leaves | none | 30 |
+| B | the queue at each of the six steps, which is the mechanism that produces the bands | A, shares the trace | 26 |
+
+The inventory lists one row per element class, with the count for that class in the budget column.
+
+| ID | element | job in the argument | must show | budget | label | convention |
+|---|---|---|---|---|---|---|
+| A-01 | band slabs | separate the three layers | rounded rects, wash, border hairline, y 76 to 436, x 44 to 200, 230 to 340, 380 to 700 | 3 | none | flat |
+| A-02 | band labels | name each layer | 15 units, baseline y 100, 12 units inside the band's left edge | 3 | dist 0, dist 1, dist 2 | flat |
+| A-03 | edges | the seven edges of the connected piece | 1.6 muted, straight, no head | 7 | none | flat |
+| A-04 | node circles | the five vertices | radius 22, outline 3.2 ink, card fill | 5 | none | flat |
+| A-05 | vertex ids | identify the vertex | 18 units ink, centred | 5 | s, a, b, c, t | flat |
+| A-06 | chips | carry band membership per vertex | 34 by 26 rounded rect, 8 units from the node edge, anchored left of `s`, above `a`, below `b`, `c`, `t` | 5 | none | flat |
+| A-07 | chip values | the distance number | 15 units, centred in the chip | 5 | 0, 1, 1, 2, 2 | flat |
+| A-08 | chip dots | second carrier of the settled role | radius 4, success fill, 9 units left of the chip centre | 5 | none | flat |
+| A-09 | dequeue ring | mark the vertex leaving the queue now | radius 28, accent stroke 3.2, no fill | 1 | none | flat |
+| A-10 | panel label | name the view | 16 units semibold ink, x 40, baseline y 54 | 1 | A bands and chips | flat |
+| B-01 | plate | hold the six frames as one mechanism | rounded rect x 40 to 960, y 512 to 864, card fill, border hairline | 1 | none | flat |
+| B-02 | row separators | keep the six frames apart | 1.0 border, x 52 to 948, between rows | 5 | none | flat |
+| B-03 | step labels | index the trace | 15 units muted, x 68, baseline at the row centre plus 5 | 6 | step 0 to step 5 | flat |
+| B-04 | cells | hold the vertices in queue order | 64 by 40 rounded rect, x 190 + 76j, accent 3.2 on the head of the current row | 9 | none | flat |
+| B-05 | cell labels | name the vertex in its cell | 18 units ink, centred in the cell | 9 | s, a, b, c, t | flat |
+| B-06 | trough | show the empty queue as a shape, not a gap | rect x 190 to 406, height 40, hairline border, card fill | 1 | none | flat |
+| B-07 | row marker | say which step is current | height 52, x 52 to 948, accent-soft fill, accent rule 1.6 at x 52 | 2 | none | flat |
+| B-08 | dequeue arrow | the leaving edge of the mechanism | 1.6 accent line x 180 to 144 with a filled head 14 by 10 | 1 | none | flat |
+| B-09 | step notes | name each dequeue in words | 15 units muted, right aligned at x 940, baseline at the row centre plus 5 | 6 | dequeue s, dequeue a, dequeue b, dequeue c, dequeue t, queue empty | flat |
+| B-10 | layer note | state the bound inside the sheet | 14 units muted, right aligned at x 960, baselines 482 and 498 | 2 | queue holds at most, two consecutive layers | flat |
+| B-11 | panel label | name the view | 16 units semibold ink, x 40, baseline y 490 | 1 | B queue strip | flat |
+
+View A reaches 40 live marks, view B reaches 43, and the sheet reaches 83 against a budget of 380.
+
+## 7. Requirements
+
+- REQ-FIG0907-01 [MUST-STANDARD] The sheet draws three distance bands, labelled `dist 0`, `dist 1`, `dist 2` at 15 units, and every vertex sits inside the band whose number equals its chip value. (source: BRIEFING section 2 distances; WCAG 1.4.1)
+- REQ-FIG0907-02 [MUST-STANDARD] Vertex ids are 18 units, chip values and step notes 15, panel labels 16 semibold, the layer note 14, and no text is below 14. (source: BRIEFING section 4)
+- REQ-FIG0907-03 [MUST-LOCAL] Each of the five vertices carries one chip holding a single distance digit, and no chip is blank or carries a range. (why: the chip is the per-vertex readout of band membership)
+- REQ-FIG0907-04 [MUST-STANDARD] The strip shows six rows in trace order, `s`, `a b`, `b c t`, `c t`, `t`, empty, and no seventh row. (source: chapter section 9.3.2 Listing 9.1 replayed on the adjacency lists of BRIEFING section 2)
+- REQ-FIG0907-05 [MUST-LOCAL] At step k the dequeued vertex carries the accent ring and its chip carries the success role at that same step, so ring and settled chip coexist on the dequeue frame. (why: finality happens at dequeue)
+- REQ-FIG0907-06 [MUST-LOCAL] The note `queue holds at most` and `two consecutive layers` sits in the strip header at 14 units, two lines, with no leader. (why: the brief requires the bound stated inside the figure)
+- REQ-FIG0907-07 [MUST-STANDARD] Settled chips carry a success outline at 3.2 and a filled dot; pending chips carry a muted outline at 1.6 and no dot, so no role is carried by hue alone. (source: WCAG 1.4.1)
+- REQ-FIG0907-08 [MUST-STANDARD] Text reaches 4.5:1 and meaningful strokes 3:1 against their surface in both themes at the values quoted in section 5. (source: WCAG 1.4.3 and 1.4.11, BRIEFING section 5)
+- REQ-FIG0907-09 [MUST-LOCAL] The five nodes sit at the canonical coordinates with the single translation y + 70 and radius 22, and no other offset. (source: BRIEFING section 3)
+- REQ-FIG0907-10 [MUST-LOCAL] View A holds at least 30 live marks and view B at least 26, counted with `querySelectorAll("*").length` on each panel group. (why: roster floors, BRIEFING section 4)
+- REQ-FIG0907-11 [MUST-LOCAL] The only arrowhead on the sheet is the dequeue arrow of the current row, a filled triangle 14 long and 10 wide; edges, leaders and rules carry no head. (source: BRIEFING section 5 line grammar)
+- REQ-FIG0907-12 [MUST-LOCAL] The sheet shows no edge weight, no priority queue and no stack. (why: forbidden list of the figure brief, those belong to FIG-09-05 and FIG-09-08)
+
+## 8. Composition plan
+
+- DOMINANT: the queue strip in view B, because the queue is the mechanism and the bands are its shadow.
+- FOCAL MECHANISM: three of six. Isolation, the strip alone under a plate with 76 units of empty space above it. Value contrast, accent-soft current row on card. Detail density, six rows of cells against five nodes above.
+- HIERARCHY: level 1 the current strip row, level 2 the band labels and step labels, level 3 chip values and step notes.
+- READING PATH: entry at band 0, x 110, the start vertex; second, down into the strip at the cells x 190 to 406; third, down the six rows to the trough at row 5; payoff, back up to the five chips that are all settled by then.
+- BALANCE: asymmetric by mass. The graph occupies x 44 to 700 in the upper third, the strip spans x 40 to 960 below it, and the right side of rows 0 to 4 is carried by the step note at x 940 so the strip does not read as left-heavy.
+- FRAMING: no crop, 40 units of margin left, 40 right, 76 above the bands, 16 below the plate.
+- NEGATIVE SPACE: the 30 and 40 unit gaps between bands mark the layer boundaries without a rule, and the empty right half of rows 0 to 4 keeps the eye on the cells.
+- GROUPING: node radius 22 with chip gap 8 inside a band, against 30 and 40 between bands; rows 56 apart with 12 between cells.
+
+## 9. Build contract
+
+- steps: 6. 0: bands, nodes, edges, five pending chips. 1: plate, six rows, all cells and labels. 2: dequeue ring, row marker and arrow wired to `step`. 3: frame 0, the datum. 4: frames 1 to 4 by sweep. 5: frame 5, the trough, ring and arrow hidden.
+- interaction: a six position step control, no autoplay. Justified because the reader must compare one chip's role change with one cell leaving the same row.
+- animation: none. The enabling test fails: two adjacent static frames carry the transition, so a timeline would add cost without new information.
+- ids and classes: DOM ids equal inventory IDs, suffixed by index (`A-06-3`). Classes `ch-pending`, `ch-settled`, `head-cell`, `cur-row`, `band-active`.
+- verification hooks: `index.html?fig=FIG-09-07&step=4&audit=1` renders frame 4 with the audit assertions on.
+- commands: `python3 pipeline/build.py --fig FIG-09-07`; `python3 pipeline/verify.py --fig FIG-09-07 --audit`; `python3 pipeline/verify.py --fig FIG-09-07 --sweep step=0:5 --assert-invariants`.
+
+## 9b. Mechanism and state model
+
+- STATE: `step`, index into the trace, integer 0 to 5, step 1, default 2. This is the only state variable, and it fixes every derived part of the sheet.
+- DATUM: step 0 is the frame whose queue holds `s` alone. No vertex has been dequeued, so no chip is settled, the ring sits on `s` as the vertex about to leave, and the strip's row 0 is current. Step 0 is not the empty frame; step 5 is.
+- `Q(k)`, the queue at step k, from the frame table: `[s]`, `[a b]`, `[b c t]`, `[c t]`, `[t]`, `[]`, for k = 0 to 5.
+- `head(k)` = `Q(k)[0]` for k = 0 to 4, undefined at k = 5.
+- `deq(v)`, the step at which v leaves: `s` 0, `a` 1, `b` 2, `c` 3, `t` 4, read from the head of each frame.
+- DERIVED:
+  - `A-06-*` and `A-08-*`: settled if `deq(v) <= k`, else pending; the dot exists only in the settled case, which gives 3 settled chips at the default.
+  - `A-09`: centre on node `head(k)`, radius 28; hidden at k = 5.
+  - `A-01-*` and `A-02-*`: the slab of band `dist(head(k))` takes accent-soft and its label takes accent-ink; the other two keep wash and ink; none is active at k = 5.
+  - `B-04-*`: cell j of row i holds `Q(i)[j]`, at x 190 + 76j, height 40; a cell exists only where a vertex fills it, which gives 9 cells total.
+  - `B-07`: top at 518 + 56k, height 52.
+  - `B-08`: y at 544 + 56k, x 144 to 180, head pointing left; hidden at k = 5.
+- PLACED: band slabs, band labels, node circles, vertex ids, edges, plate, row separators, step labels, trough and both panel labels never move; only the chip roles, the dot, the ring, the active band fill, the cell existence, the row marker and the arrow depend on `step`.
+- CHAIN: `step` -> `Q(k)` -> `head(k)` -> ring, arrow, head cell, active band; `step` -> settled set -> chip role and dot.
+- INVARIANTS:
+  - INV-01 Each vertex enters the strip exactly once; the entering sequence is `s`, `a`, `b`, `c`, `t`, with no repeat and no omission.
+  - INV-02 At every step the queue holds at most two distinct values of `dist`, and when it holds two they are consecutive.
+  - INV-03 `dist` does not change with `step`: `s` 0, `a` 1, `b` 1, `c` 2, `t` 2 at all six steps.
+  - INV-04 The settled set equals `{v : deq(v) <= k}`, its size is min(k + 1, 5), and the chip roles match it exactly.
+  - INV-05 The ring sits on a vertex that is in `Q(k)` at every step 0 to 4, and is absent at step 5.
+  - INV-06 Every chip value equals its band number at every step, and no label exceeds 24 characters or leaves the canvas.
+  - INV-07 The head of `Q(k)` is the vertex that becomes settled at step k, and `Q(k+1)` is `Q(k)` without its head plus the vertices discovered from it.
+- SAMPLED STATES: step 0, the datum, where a pending chip must read as pending rather than as empty. step 2, the default and the only frame holding two layers, which is the note's worst case. step 4, five settled chips while one cell remains, the frame where the last dequeue and the last settled chip coincide. step 5, the trough with ring and arrow hidden, the postcondition frame.
+- SWEEP: every value 0 to 5, no declared sample, by `verify.py --sweep step=0:5 --assert-invariants`, which asserts INV-01 to INV-07 at each step and reports the first violation with its step number.
+
+## 10. Acceptance criteria
+
+| REQ | test | pass condition | method |
+|---|---|---|---|
+| REQ-FIG0907-01 | count band labels and match each chip digit to its band | 3 labels present, 5 of 5 chips agree | DOM assertion on `A-01`, `A-02`, `A-07` |
+| REQ-FIG0907-02 | read computed font sizes | 18 for vertex ids and cell labels, 15, 16, 14 all present, minimum 14 | computed style dump |
+| REQ-FIG0907-03 | count chips against vertices | 5 chips, 5 single digits, 0 blanks | DOM assertion |
+| REQ-FIG0907-04 | compare the six rows with the replay | rows equal `s`, `a b`, `b c t`, `c t`, `t`, empty | python replay of Listing 9.1 |
+| REQ-FIG0907-05 | step to each k and read ring plus chip role | ring vertex equals head(k), chip settled at the same k | state sweep, 5 steps |
+| REQ-FIG0907-06 | read the header note | two lines, 14 units, 19 and 22 characters, no leader node | DOM assertion |
+| REQ-FIG0907-07 | inspect a settled and a pending chip | dot present plus 3.2 success outline against muted 1.6 and no dot | screenshot at 1:1, both themes |
+| REQ-FIG0907-08 | compute each pair from the section 5 hexes | ink 17.78, muted 5.98, accent 6.7, accent-ink on accent-soft 10.23, success 5.87, all above threshold | contrast computation, both themes |
+| REQ-FIG0907-09 | compare node centres with the canonical table plus 70 | 5 of 5 agree within 0.5 units | geometry assertion |
+| REQ-FIG0907-10 | count descendants per panel group | A at least 30, B at least 26 | `querySelectorAll("*").length` |
+| REQ-FIG0907-11 | count arrowheads on the sheet | exactly 1, at the current row, 14 by 10 | DOM assertion on marker nodes |
+| REQ-FIG0907-12 | scan for weights, queue kinds and stack marks | 0 weights, 0 priority queue, 0 stack | non-author read plus DOM scan |
+
+## 11. Open questions
+
+- Q1: PLAN.md lists the trace as `s`, `a b`, `b c`, `c`, `t`, empty, but Listing 9.1 on the chapter's adjacency lists puts `t` in the queue at step 1, because `t` is a neighbour of `a` and is still unvisited when `a` leaves. The replay gives `s`, `a b`, `b c t`, `c t`, `t`, empty, and this spec follows the replay. Settled by the chapter author confirming the adjacency order, or by correcting the plan row; the distance values are the same either way.
+- Q2: at 1050 px display width the sheet is 924 px tall. Whether the page owner wants a shorter strip, three rows of two frames, is a layout decision. Evidence: the article measure and the sheet height of FIG-09-08.
+- Q3: the ring and the accent-soft head cell are both accent at the same moment. If review finds them competing, the head cell keeps accent and the ring drops to 2.4 units. Owner: the figure reviewer, at G4.
+
+## 12. Revision history
+
+| rev | date | change | why |
+|---|---|---|---|
+| 1 | 2026-10-22 | first draft, two views, step model 0 to 5 | spec phase of the chapter 9 illustration plan |

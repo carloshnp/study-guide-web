@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">FIG-09-03: One graph, three pieces</title>
+  <desc id="fig-desc">A component is a maximal connected set: five vertices share one boundary and cannot grow, the pair u v cannot grow either, the single vertex w is a component with no edge, and the subset s a b is connected yet fails because c would join it.</desc>
+  <!-- Canonical geometry of the sample graph, inherited verbatim from BRIEFING section 3, radius 22:
+       s 110/210, a 280/100, b 280/300, c 450/210, t 620/210, u 800/100, v 800/300, w 930/210.
+       Eight edges, each trimmed 22 at both ends: s a, s b, a b, a c, b c, c t, a t, u v.
+       Every drawn element carries data-el and id of its inventory row (spec section 6); repeated copies
+       of one row share the id, per SVG-INTERFACE. Draw order: boundaries, subset ring, edges, ticks,
+       circles, labels. -->
+  <style>
+    /* palette, literal hex only, light theme, four roles: ink, muted, border, card */
+    .ink { fill: #15181e; } .muted { fill: #5c6470; }
+    .f-card { fill: #ffffff; } .f-none { fill: none; }
+    .s-ink { stroke: #15181e; } .s-muted { stroke: #5c6470; } .s-border { stroke: #e7eaf0; }
+    .w-out { stroke-width: 3.2; } .w-line { stroke-width: 1.6; } .w-hair { stroke-width: 1.0; }
+    .dash { stroke-dasharray: 6 4; }
+    text { font-family: "Montserrat", sans-serif; }
+    .mono { font-family: "DejaVu Sans Mono", monospace; }
+    .t-id { font-size: 18px; font-weight: 400; }
+    .t-panel { font-size: 16px; font-weight: 600; }
+    .t-note { font-size: 14px; font-weight: 400; }
+  </style>
+  <rect x="0" y="0" width="1000" height="640" class="f-card"/>
+
+  <g data-view="A">
+    <!-- three disjoint component boundaries: 55 units of clearance, no shared point -->
+    <rect id="VIZ-A-04" data-el="A-04" x="55" y="45" width="620" height="310" rx="28" class="f-none s-ink w-out"/>
+    <rect id="VIZ-A-05" data-el="A-05" x="745" y="45" width="110" height="310" rx="28" class="f-none s-muted w-out dash"/>
+    <circle id="VIZ-A-05" data-el="A-05" cx="930" cy="210" r="44" class="f-none s-muted w-out dash" stroke-dashoffset="3"/>
+
+    <!-- inset: the subset {s, a, b}, connected and still not a component -->
+    <rect id="VIZ-A-11" data-el="A-11" x="84" y="74" width="222" height="252" rx="20" class="f-none s-muted w-line dash"/>
+
+    <line id="VIZ-A-14" data-el="A-14" x1="306" y1="117" x2="326" y2="101" class="s-muted w-line"/>
+
+    <line id="VIZ-A-03" data-el="A-03" x1="128.47" y1="198.05" x2="261.53" y2="111.95" class="s-muted w-line"/>
+    <line id="VIZ-A-03" data-el="A-03" x1="129.44" y1="220.29" x2="260.56" y2="289.71" class="s-muted w-line"/>
+    <line id="VIZ-A-03" data-el="A-03" x1="280.00" y1="122.00" x2="280.00" y2="278.00" class="s-muted w-line"/>
+    <line id="VIZ-A-03" data-el="A-03" x1="298.47" y1="111.95" x2="431.53" y2="198.05" class="s-muted w-line"/>
+    <line id="VIZ-A-03" data-el="A-03" x1="299.44" y1="289.71" x2="430.56" y2="220.29" class="s-muted w-line"/>
+    <line id="VIZ-A-03" data-el="A-03" x1="472.00" y1="210.00" x2="598.00" y2="210.00" class="s-muted w-line"/>
+    <line id="VIZ-A-03" data-el="A-03" x1="300.93" y1="106.77" x2="599.07" y2="203.23" class="s-muted w-line"/>
+    <line id="VIZ-A-03" data-el="A-03" x1="800.00" y1="122.00" x2="800.00" y2="278.00" class="s-muted w-line"/>
+
+    <!-- where the edges to c leave the subset, crossed and ticked -->
+    <line id="VIZ-A-12" data-el="A-12" x1="308.72" y1="112.63" x2="303.28" y2="121.02" class="s-ink w-line" stroke-linecap="round"/>
+    <line id="VIZ-A-12" data-el="A-12" x1="303.66" y1="281.82" x2="308.34" y2="290.65" class="s-ink w-line" stroke-linecap="round"/>
+
+    <circle id="VIZ-A-01" data-el="A-01" cx="110" cy="210" r="22" class="f-none s-ink w-out"/>
+    <circle id="VIZ-A-01" data-el="A-01" cx="280" cy="100" r="22" class="f-none s-ink w-out"/>
+    <circle id="VIZ-A-01" data-el="A-01" cx="280" cy="300" r="22" class="f-none s-ink w-out"/>
+    <circle id="VIZ-A-01" data-el="A-01" cx="450" cy="210" r="22" class="f-none s-ink w-out"/>
+    <circle id="VIZ-A-01" data-el="A-01" cx="620" cy="210" r="22" class="f-none s-ink w-out"/>
+    <circle id="VIZ-A-01" data-el="A-01" cx="800" cy="100" r="22" class="f-none s-ink w-out"/>
+    <circle id="VIZ-A-01" data-el="A-01" cx="800" cy="300" r="22" class="f-none s-ink w-out"/>
+    <circle id="VIZ-A-01" data-el="A-01" cx="930" cy="210" r="22" class="f-none s-ink w-out"/>
+
+    <text id="VIZ-A-02" data-el="A-02" x="110" y="215" font-size="18" text-anchor="middle" class="t-id ink mono">s</text>
+    <text id="VIZ-A-02" data-el="A-02" x="280" y="105" font-size="18" text-anchor="middle" class="t-id ink mono">a</text>
+    <text id="VIZ-A-02" data-el="A-02" x="280" y="305" font-size="18" text-anchor="middle" class="t-id ink mono">b</text>
+    <text id="VIZ-A-02" data-el="A-02" x="450" y="215" font-size="18" text-anchor="middle" class="t-id ink mono">c</text>
+    <text id="VIZ-A-02" data-el="A-02" x="620" y="215" font-size="18" text-anchor="middle" class="t-id ink mono">t</text>
+    <text id="VIZ-A-02" data-el="A-02" x="800" y="105" font-size="18" text-anchor="middle" class="t-id ink mono">u</text>
+    <text id="VIZ-A-02" data-el="A-02" x="800" y="305" font-size="18" text-anchor="middle" class="t-id ink mono">v</text>
+    <text id="VIZ-A-02" data-el="A-02" x="930" y="215" font-size="18" text-anchor="middle" class="t-id ink mono">w</text>
+
+    <text id="VIZ-A-06" data-el="A-06" x="365" y="33" font-size="16" text-anchor="middle" class="t-panel ink">C1</text>
+    <text id="VIZ-A-06" data-el="A-06" x="800" y="33" font-size="16" text-anchor="middle" class="t-panel ink">C2</text>
+    <text id="VIZ-A-06" data-el="A-06" x="930" y="154" font-size="16" text-anchor="middle" class="t-panel ink">C3</text>
+
+    <text id="VIZ-A-13" data-el="A-13" x="330" y="66" font-size="14" class="t-note muted">not a component</text>
+    <text id="VIZ-A-14" data-el="A-14" x="330" y="96" font-size="14" class="t-note muted">c joins it</text>
+
+    <text id="VIZ-A-07" data-el="A-07" x="20" y="386" font-size="16" class="t-panel ink">A</text>
+    <text id="VIZ-A-08" data-el="A-08" x="44" y="386" font-size="16" class="t-panel ink">one graph, three pieces</text>
+    <text id="VIZ-A-09" data-el="A-09" x="980" y="386" font-size="14" text-anchor="end" class="t-note muted">8 vertices, 8 edges</text>
+    <line id="VIZ-A-10" data-el="A-10" x1="20" y1="404" x2="980" y2="404" class="s-border w-hair"/>
+  </g>
+
+  <g data-view="B">
+    <text id="VIZ-B-01" data-el="B-01" x="20" y="440" font-size="16" class="t-panel ink">B</text>
+    <text id="VIZ-B-02" data-el="B-02" x="44" y="440" font-size="16" class="t-panel ink">why a piece cannot grow</text>
+
+    <line id="VIZ-B-04" data-el="B-04" x1="20" y1="456" x2="980" y2="456" class="s-border w-hair"/>
+    <text id="VIZ-B-03" data-el="B-03" x="20" y="470" font-size="14" class="t-note muted">piece</text>
+    <text id="VIZ-B-03" data-el="B-03" x="110" y="470" font-size="14" class="t-note muted">members</text>
+    <text id="VIZ-B-03" data-el="B-03" x="360" y="470" font-size="14" class="t-note muted">reason it stops</text>
+    <line id="VIZ-B-04" data-el="B-04" x1="20" y1="482" x2="980" y2="482" class="s-border w-hair"/>
+
+    <text id="VIZ-B-05" data-el="B-05" x="20" y="505" font-size="14" class="t-note ink">C1</text>
+    <text id="VIZ-B-06" data-el="B-06" x="110" y="505" font-size="14" class="t-note ink mono">s a b c t</text>
+    <text id="VIZ-B-07" data-el="B-07" x="360" y="505" font-size="14" class="t-note muted">all edges stay inside</text>
+
+    <text id="VIZ-B-05" data-el="B-05" x="20" y="545" font-size="14" class="t-note ink">C2</text>
+    <text id="VIZ-B-06" data-el="B-06" x="110" y="545" font-size="14" class="t-note ink mono">u v</text>
+    <text id="VIZ-B-07" data-el="B-07" x="360" y="545" font-size="14" class="t-note muted">no edge leaves the pair</text>
+
+    <text id="VIZ-B-05" data-el="B-05" x="20" y="585" font-size="14" class="t-note ink">C3</text>
+    <text id="VIZ-B-06" data-el="B-06" x="110" y="585" font-size="14" class="t-note ink mono">w</text>
+    <text id="VIZ-B-07" data-el="B-07" x="360" y="585" font-size="14" class="t-note muted">no edge touches w</text>
+
+    <line id="VIZ-B-04" data-el="B-04" x1="20" y1="606" x2="980" y2="606" class="s-border w-hair"/>
+    <line id="VIZ-B-08" data-el="B-08" x1="12" y1="424" x2="12" y2="606" class="s-border w-hair"/>
+    <line id="VIZ-B-08" data-el="B-08" x1="988" y1="424" x2="988" y2="606" class="s-border w-hair"/>
+  </g>
+</svg>

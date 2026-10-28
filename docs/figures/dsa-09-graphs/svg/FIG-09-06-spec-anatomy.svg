@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="1000" height="620" role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">FIG-09-06: Anatomy of a specification</title>
+  <desc id="fig-desc">A precondition holds on entry, the loop body keeps the invariant true on every pass, and the exit reads the loop condition with the invariant to yield the postcondition and its cost.</desc>
+  <!-- inventory ids are carried as id="VIZ-<ID>" data-el="<ID>" per spec section 9; svg_audit.py parses only numeric
+       ids (A-01), so an element-id attribute on this sheet would read as stray. Mapping, in draw order:
+       A: A-PANEL A-LETTER A-SUB A-PRE A-PRE-NAME A-PRE-NOTE A-ENTRY A-ENTRY-L A-RING A-INV-NAME
+          A-INV-NOTE A-PASS A-PASS-H A-PASS-L1 A-PASS-L2 A-CYCLE-H A-EXIT A-EXIT-L1 A-EXIT-L2 A-POST
+          A-POST-NAME A-POST-NOTE A-COST A-COST-L1 A-COST-L2 A-COST-L3 A-COST-A A-COST-L
+       B: B-PANEL B-LETTER B-SUB B-RULE1 B-RULE2 B-RULE3 B-CHIP-PRE B-PRE-LINE B-CHIP-INV B-INV-H1
+          B-INV-H2 B-INV-LINE B-CHIP-POST B-POST-LINE B-ENTRY B-EXIT -->
+  <style>
+    .ink { fill: #15181e; } .muted { fill: #5c6470; } .faint { fill: #8a92a0; }
+    .accent { fill: #1d4ed8; } .accent-ink { fill: #14357f; }
+    .success { fill: #157347; } .warning { fill: #b42318; }
+    .f-card { fill: #ffffff; } .f-wash { fill: #f5f7fa; } .f-soft { fill: #eef3fe; } .f-none { fill: none; }
+    .s-ink { stroke: #15181e; } .s-muted { stroke: #5c6470; } .s-faint { stroke: #8a92a0; }
+    .s-border { stroke: #e7eaf0; } .s-accent { stroke: #1d4ed8; } .s-success { stroke: #157347; }
+    .w-out { stroke-width: 3.2; } .w-line { stroke-width: 1.6; } .w-hair { stroke-width: 1.0; }
+    .dash { stroke-dasharray: 6 4; }
+    text { font-family: "Montserrat", sans-serif; }
+    .mono { font-family: "DejaVu Sans Mono", monospace; }
+    .t-id { font-size: 18px; font-weight: 400; }
+    .t-label { font-size: 15px; font-weight: 400; }
+    .t-panel { font-size: 16px; font-weight: 600; }
+    .t-note { font-size: 14px; font-weight: 400; }
+  </style>
+  <defs>
+    <marker id="head-muted" viewBox="0 0 14 10" refX="13" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" orient="auto-start-reverse"><path d="M0,0 L14,5 L0,10 z" fill="#5c6470"/></marker>
+    <marker id="head-accent" viewBox="0 0 14 10" refX="13" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" orient="auto-start-reverse"><path d="M0,0 L14,5 L0,10 z" fill="#1d4ed8"/></marker>
+    <marker id="head-warning" viewBox="0 0 14 10" refX="13" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" orient="auto-start-reverse"><path d="M0,0 L14,5 L0,10 z" fill="#b42318"/></marker>
+    <marker id="head-success" viewBox="0 0 14 10" refX="13" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" orient="auto-start-reverse"><path d="M0,0 L14,5 L0,10 z" fill="#157347"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="620" class="f-card"/>
+
+  <g data-view="A">
+    <rect id="VIZ-A-PANEL" data-el="A-PANEL" x="30" y="70" width="550" height="495" class="f-card s-border w-hair"/>
+    <text id="VIZ-A-LETTER" data-el="A-LETTER" x="48" y="98" font-size="16" class="t-panel ink">A</text>
+    <text id="VIZ-A-SUB" data-el="A-SUB" x="68" y="98" font-size="14" class="t-note muted">generic shape</text>
+
+    <rect id="VIZ-A-PRE" data-el="A-PRE" x="150" y="112" width="200" height="58" rx="10" class="f-card s-ink w-out"/>
+    <text id="VIZ-A-PRE-NAME" data-el="A-PRE-NAME" x="250" y="141" font-size="16" text-anchor="middle" class="t-panel ink">precondition</text>
+    <text id="VIZ-A-PRE-NOTE" data-el="A-PRE-NOTE" x="250" y="161" font-size="14" text-anchor="middle" class="t-note muted">the caller supplies it</text>
+
+    <path id="VIZ-A-ENTRY" data-el="A-ENTRY" d="M250,170 L250,223" class="s-muted w-line" marker-end="url(#head-muted)"/>
+    <text id="VIZ-A-ENTRY-L" data-el="A-ENTRY-L" x="262" y="192" font-size="15" class="t-label muted">true at entry</text>
+
+    <ellipse id="VIZ-A-RING" data-el="A-RING" cx="250" cy="305" rx="108" ry="80" class="f-soft s-ink w-out"/>
+    <text id="VIZ-A-INV-NAME" data-el="A-INV-NAME" x="250" y="296" font-size="16" text-anchor="middle" class="t-panel accent-ink">loop invariant</text>
+    <text id="VIZ-A-INV-NOTE" data-el="A-INV-NOTE" x="250" y="318" font-size="14" text-anchor="middle" class="t-note accent-ink">true after each pass</text>
+
+    <path id="VIZ-A-PASS" data-el="A-PASS" d="M250,225 A108,80 0 0 1 358,305" class="f-none s-accent w-line"/>
+    <path id="VIZ-A-PASS-H" data-el="A-PASS-H" d="M358,297 L358,305" class="f-none s-accent w-line" marker-end="url(#head-accent)"/>
+    <text id="VIZ-A-PASS-L1" data-el="A-PASS-L1" x="374" y="262" font-size="15" class="t-label muted">preserved by</text>
+    <text id="VIZ-A-PASS-L2" data-el="A-PASS-L2" x="374" y="282" font-size="15" class="t-label muted">each iteration</text>
+    <path id="VIZ-A-CYCLE-H" data-el="A-CYCLE-H" d="M142,315 L142,305" class="f-none s-accent w-line" marker-end="url(#head-accent)"/>
+
+    <path id="VIZ-A-EXIT" data-el="A-EXIT" d="M250,385 L250,448" class="f-none s-success w-line" marker-end="url(#head-success)"/>
+    <text id="VIZ-A-EXIT-L1" data-el="A-EXIT-L1" x="264" y="404" font-size="15" class="t-label ink">loop condition false</text>
+    <text id="VIZ-A-EXIT-L2" data-el="A-EXIT-L2" x="264" y="424" font-size="15" class="t-label ink">and invariant held</text>
+
+    <rect id="VIZ-A-POST" data-el="A-POST" x="150" y="448" width="200" height="58" class="f-card s-success w-out"/>
+    <text id="VIZ-A-POST-NAME" data-el="A-POST-NAME" x="250" y="477" font-size="16" text-anchor="middle" class="t-panel ink">postcondition</text>
+    <text id="VIZ-A-POST-NOTE" data-el="A-POST-NOTE" x="250" y="497" font-size="14" text-anchor="middle" class="t-note muted">the guarantee on return</text>
+
+    <rect id="VIZ-A-COST" data-el="A-COST" x="410" y="440" width="160" height="70" rx="10" class="f-card s-muted w-line"/>
+    <text id="VIZ-A-COST-L1" data-el="A-COST-L1" x="490" y="462" font-size="14" text-anchor="middle" class="t-note muted mono">O(V+E)</text>
+    <text id="VIZ-A-COST-L2" data-el="A-COST-L2" x="490" y="482" font-size="14" text-anchor="middle" class="t-note muted mono">O(V+E)</text>
+    <text id="VIZ-A-COST-L3" data-el="A-COST-L3" x="490" y="502" font-size="14" text-anchor="middle" class="t-note muted mono">O((V+E) log V)</text>
+    <path id="VIZ-A-COST-A" data-el="A-COST-A" d="M350,474 L410,474" class="f-none s-muted w-line" marker-end="url(#head-muted)"/>
+    <text id="VIZ-A-COST-L" data-el="A-COST-L" x="490" y="428" font-size="15" text-anchor="middle" class="t-label muted">the work it costs</text>
+  </g>
+
+  <g data-view="B">
+    <rect id="VIZ-B-PANEL" data-el="B-PANEL" x="610" y="70" width="360" height="495" class="f-card s-border w-hair"/>
+    <text id="VIZ-B-LETTER" data-el="B-LETTER" x="628" y="98" font-size="16" class="t-panel ink">B</text>
+    <text id="VIZ-B-SUB" data-el="B-SUB" x="648" y="98" font-size="14" class="t-note muted">BFS instance</text>
+
+    <path id="VIZ-B-RULE1" data-el="B-RULE1" d="M636,250 L944,250" class="f-none s-faint w-hair"/>
+    <path id="VIZ-B-RULE2" data-el="B-RULE2" d="M636,370 L944,370" class="f-none s-faint w-hair"/>
+    <path id="VIZ-B-RULE3" data-el="B-RULE3" d="M636,490 L944,490" class="f-none s-faint w-hair"/>
+
+    <rect id="VIZ-B-CHIP-PRE" data-el="B-CHIP-PRE" x="646" y="187" width="26" height="26" rx="6" class="f-card s-ink w-line"/>
+    <text id="VIZ-B-PRE-LINE" data-el="B-PRE-LINE" x="688" y="204" font-size="15" class="t-label muted">adjacency lists, s in G</text>
+
+    <ellipse id="VIZ-B-CHIP-INV" data-el="B-CHIP-INV" cx="659" cy="320" rx="20" ry="20" class="f-none s-accent w-line"/>
+    <path id="VIZ-B-INV-H1" data-el="B-INV-H1" d="M649,300 L659,300" class="f-none s-accent w-line" marker-end="url(#head-accent)"/>
+    <path id="VIZ-B-INV-H2" data-el="B-INV-H2" d="M669,340 L659,340" class="f-none s-accent w-line" marker-end="url(#head-accent)"/>
+    <text id="VIZ-B-INV-LINE" data-el="B-INV-LINE" x="688" y="324" font-size="15" class="t-label muted">queue holds d then d+1</text>
+
+    <rect id="VIZ-B-CHIP-POST" data-el="B-CHIP-POST" x="646" y="427" width="26" height="26" class="f-card s-success w-line"/>
+    <text id="VIZ-B-POST-LINE" data-el="B-POST-LINE" x="688" y="444" font-size="15" class="t-label muted">dist final, parent set</text>
+
+    <path id="VIZ-B-ENTRY" data-el="B-ENTRY" d="M659,216 L659,299" class="f-none s-muted w-line dash" marker-end="url(#head-muted)"/>
+    <path id="VIZ-B-EXIT" data-el="B-EXIT" d="M659,346 L659,427" class="f-none s-muted w-line dash" marker-end="url(#head-muted)"/>
+  </g>
+</svg>

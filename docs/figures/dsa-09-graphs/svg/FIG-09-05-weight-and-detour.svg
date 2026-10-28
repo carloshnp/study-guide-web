@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" width="1000" height="560" role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">FIG-09-05: The cheaper route is not the shorter one</title>
+  <desc id="fig-desc">The route s b a c t costs 2 + 1 + 5 + 3 = 11 while the single edge a t costs 3 + 10 = 13, so the three edge route from a is the cheaper one and the direct edge is rejected.</desc>
+  <!-- Inventory ids are carried as id="VIZ-<ID>" data-el="<ID>", per spec section 9. Draw order in view A:
+       seven edges, the route rail, the five nodes, the five ids, then weights, distances, running sums,
+       the 13 callout and the tag. View B: labels, two bars, separators, terms, end rules, totals. -->
+  <style>
+    .ink { fill: #15181e; } .muted { fill: #5c6470; }
+    .accent { fill: #1d4ed8; } .accent-ink { fill: #14357f; }
+    .success { fill: #157347; } .warning { fill: #b42318; }
+    .f-card { fill: #ffffff; } .f-soft { fill: #eef3fe; } .f-none { fill: none; }
+    .s-ink { stroke: #15181e; } .s-muted { stroke: #5c6470; } .s-border { stroke: #e7eaf0; }
+    .s-accent { stroke: #1d4ed8; } .s-success { stroke: #157347; } .s-warning { stroke: #b42318; }
+    .w-out { stroke-width: 3.2; } .w-line { stroke-width: 1.6; } .w-hair { stroke-width: 1.0; }
+    .join { stroke-linejoin: round; }
+    text { font-family: "Montserrat", sans-serif; }
+    .halo { paint-order: stroke; stroke: #ffffff; stroke-width: 4; stroke-linejoin: round; }
+    .t-id { font-size: 18px; font-weight: 400; }
+    .t-label { font-size: 15px; font-weight: 400; }
+    .t-panel { font-size: 16px; font-weight: 600; }
+    .t-note { font-size: 14px; font-weight: 400; }
+  </style>
+  <defs>
+    <marker id="head-accent" viewBox="0 0 14 10" refX="13" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" orient="auto-start-reverse"><path d="M0,0 L14,5 L0,10 z" fill="#1d4ed8"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="560" class="f-card"/>
+
+  <g data-view="A">
+    <path id="VIZ-A-06" data-el="A-06" d="M128.5,198.1 L261.5,112" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-07" data-el="A-07" d="M129.4,220.3 L260.6,289.7" class="f-none s-success w-line"/>
+    <path id="VIZ-A-08" data-el="A-08" d="M280,122 L280,278" class="f-none s-success w-line"/>
+    <path id="VIZ-A-09" data-el="A-09" d="M298.5,112 L431.5,198.1" class="f-none s-success w-line"/>
+    <path id="VIZ-A-10" data-el="A-10" d="M299.4,289.7 L430.6,220.3" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-11" data-el="A-11" d="M472,210 L598,210" class="f-none s-success w-line"/>
+    <path id="VIZ-A-12" data-el="A-12" d="M300.9,106.8 L599.1,203.2" class="f-none s-warning w-line"/>
+
+    <path id="VIZ-A-30" data-el="A-30" d="M131.8,230.6 L272,304.8 L272,85.3 L452.4,202 L591,202" class="f-none s-accent w-line join" marker-end="url(#head-accent)"/>
+
+    <circle id="VIZ-A-01" data-el="A-01" cx="110" cy="210" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-02" data-el="A-02" cx="280" cy="100" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-03" data-el="A-03" cx="280" cy="300" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-04" data-el="A-04" cx="450" cy="210" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-05" data-el="A-05" cx="620" cy="210" r="22" class="f-card s-ink w-out"/>
+
+    <text id="VIZ-A-20" data-el="A-20" x="110" y="216" font-size="18" text-anchor="middle" class="t-id ink">s</text>
+    <text id="VIZ-A-21" data-el="A-21" x="280" y="106" font-size="18" text-anchor="middle" class="t-id ink">a</text>
+    <text id="VIZ-A-22" data-el="A-22" x="280" y="306" font-size="18" text-anchor="middle" class="t-id ink">b</text>
+    <text id="VIZ-A-23" data-el="A-23" x="450" y="216" font-size="18" text-anchor="middle" class="t-id ink">c</text>
+    <text id="VIZ-A-24" data-el="A-24" x="620" y="216" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+
+    <text id="VIZ-A-13" data-el="A-13" x="186" y="147" font-size="15" text-anchor="middle" class="t-label ink halo">4</text>
+    <text id="VIZ-A-14" data-el="A-14" x="203" y="246" font-size="15" text-anchor="middle" class="t-label ink halo">2</text>
+    <text id="VIZ-A-15" data-el="A-15" x="296" y="205" font-size="15" text-anchor="middle" class="t-label ink halo">1</text>
+    <text id="VIZ-A-16" data-el="A-16" x="356" y="174" font-size="15" text-anchor="middle" class="t-label ink halo">5</text>
+    <text id="VIZ-A-17" data-el="A-17" x="372" y="275" font-size="15" text-anchor="middle" class="t-label ink halo">8</text>
+    <text id="VIZ-A-18" data-el="A-18" x="535" y="231" font-size="15" text-anchor="middle" class="t-label ink halo">3</text>
+    <text id="VIZ-A-19" data-el="A-19" x="445" y="176" font-size="15" text-anchor="middle" class="t-label ink halo">10</text>
+
+    <text id="VIZ-A-25" data-el="A-25" x="140" y="208" font-size="15" class="t-label ink halo">d=0</text>
+    <text id="VIZ-A-26" data-el="A-26" x="308" y="306" font-size="15" class="t-label ink halo">d=2</text>
+    <text id="VIZ-A-27" data-el="A-27" x="308" y="72" font-size="15" class="t-label ink halo">d=3</text>
+    <text id="VIZ-A-28" data-el="A-28" x="450" y="249" font-size="15" text-anchor="middle" class="t-label ink halo">d=8</text>
+    <text id="VIZ-A-29" data-el="A-29" x="620" y="180" font-size="15" text-anchor="middle" class="t-label ink halo">d=11</text>
+
+    <text id="VIZ-A-35" data-el="A-35" x="208" y="306" font-size="15" text-anchor="middle" class="t-label ink halo">2</text>
+    <text id="VIZ-A-36" data-el="A-36" x="215" y="80" font-size="15" text-anchor="middle" class="t-label ink halo">2+1=3</text>
+    <text id="VIZ-A-37" data-el="A-37" x="365" y="139" font-size="15" text-anchor="middle" class="t-label ink halo">+5</text>
+    <text id="VIZ-A-38" data-el="A-38" x="535" y="186" font-size="15" text-anchor="middle" class="t-label ink halo">+3</text>
+
+    <text id="VIZ-A-31" data-el="A-31" x="450" y="131" font-size="15" text-anchor="middle" class="t-label warning halo">= 13</text>
+    <text id="VIZ-A-34" data-el="A-34" x="482" y="131" font-size="14" class="t-note warning halo">rejected</text>
+
+    <text id="VIZ-A-32" data-el="A-32" x="110" y="40" font-size="16" class="t-panel ink">A  the tree from s</text>
+    <text id="VIZ-A-33" data-el="A-33" x="110" y="60" font-size="14" class="t-note ink">d = cost from s</text>
+  </g>
+
+  <g data-view="B">
+    <text id="VIZ-B-01" data-el="B-01" x="110" y="372" font-size="16" class="t-panel ink">B  from a, two costs</text>
+    <text id="VIZ-B-02" data-el="B-02" x="110" y="394" font-size="15" class="t-label muted">direct edge a to t</text>
+
+    <rect id="VIZ-B-04" data-el="B-04" x="110" y="404" width="468" height="32" class="f-soft s-warning w-line"/>
+    <line id="VIZ-B-05" data-el="B-05" x1="218" y1="404" x2="218" y2="436" class="s-border w-hair"/>
+    <text id="VIZ-B-06" data-el="B-06" x="164" y="425" font-size="15" text-anchor="middle" class="t-label accent-ink">3</text>
+    <text id="VIZ-B-07" data-el="B-07" x="398" y="425" font-size="15" text-anchor="middle" class="t-label accent-ink">10</text>
+    <line id="VIZ-B-09" data-el="B-09" x1="578" y1="400" x2="578" y2="440" class="s-muted w-hair"/>
+    <text id="VIZ-B-08" data-el="B-08" x="588" y="425" font-size="15" class="t-label warning">= 13</text>
+
+    <text id="VIZ-B-03" data-el="B-03" x="110" y="456" font-size="15" class="t-label success">through c to t</text>
+
+    <rect id="VIZ-B-10" data-el="B-10" x="110" y="466" width="396" height="32" class="f-soft s-success w-line"/>
+    <line id="VIZ-B-11" data-el="B-11" x1="218" y1="466" x2="218" y2="498" class="s-border w-hair"/>
+    <line id="VIZ-B-12" data-el="B-12" x1="398" y1="466" x2="398" y2="498" class="s-border w-hair"/>
+    <text id="VIZ-B-13" data-el="B-13" x="164" y="487" font-size="15" text-anchor="middle" class="t-label accent-ink">3</text>
+    <text id="VIZ-B-14" data-el="B-14" x="308" y="487" font-size="15" text-anchor="middle" class="t-label accent-ink">5</text>
+    <text id="VIZ-B-15" data-el="B-15" x="452" y="487" font-size="15" text-anchor="middle" class="t-label accent-ink">3</text>
+    <line id="VIZ-B-17" data-el="B-17" x1="506" y1="462" x2="506" y2="502" class="s-muted w-hair"/>
+    <text id="VIZ-B-16" data-el="B-16" x="516" y="487" font-size="15" class="t-label success">= 11</text>
+  </g>
+</svg>

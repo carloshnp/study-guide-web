@@ -1,0 +1,208 @@
+# FIG-09-03: One graph, three pieces
+status: draft   rev: 1   date: 2026-10-22   author: illustration-spec subagent
+
+## 1. Summary
+
+One sheet, two views, one sample graph. This is the canonical drawing of the sample graph: every later figure that shows it inherits these coordinates from BRIEFING section 3, so a reader who has seen this sheet can navigate FIG-09-05 and FIG-09-09. View A draws all eight vertices at those coordinates with the eight edges, inside three closed boundaries that share no point: the five vertex piece, the pair, and the single vertex. Inside the five vertex piece sits one inset of six elements: a ring around the subset `{s, a, b}`, crossed by the two edges that leave it, tagged `not a component` and `c joins it`. View B is a membership block, one row per piece, naming the piece and the reason it cannot grow.
+
+MESSAGE = component means maximal connected set, not connected set: the ring around `{s, a, b}` is connected and still fails, because `c` is reachable from it and would enlarge it, while `w` is maximal with no edge at all.
+
+## 2. Communicative intent
+
+- AUDIENCE: a student revising for an exam, who has read 9.2.1 and can name a component but has not tested maximality against a drawing.
+- INTENDED CHANGE: before, "component" is a definition to recite with the word maximal unexplained; after, the reader sees the boundary that cannot be enlarged and sees that `w` needs no edge to qualify.
+- READING CONTEXT: chapter 9.2.1, anchor section `921-components-the-first-decomposition`, after "Decomposing this way costs one traversal of the whole graph, and every later question about the graph can be asked one component at a time.", in the article column, light and dark themes, on a phone through the site lightbox at pinch zoom.
+- REPRODUCTION: the sheet is rebuilt from the coordinate and geometry tables here, so a second renderer lands on the same pixels without a new layout decision.
+- LIFETIME: illustration system for the chapter, so the geometry outlives this figure.
+- ASSUMPTIONS:
+  1. The eight coordinate pairs are inherited verbatim from BRIEFING section 3 at radius 22, with no offset needed on this sheet.
+  2. This figure is the canonical drawing of the sample graph, so it is the reference later figures copy, with the coordinates of BRIEFING section 3 and no offset, and it therefore shows the whole graph, not only the five vertex piece.
+  3. The third boundary encloses `w` alone; "outside every boundary" is read as outside the two boundaries that hold more than one vertex, since a component of one vertex still bounds itself (Q1).
+  4. Maximality is shown twice: as a reason line per piece in view B, and as a failed subset in the inset, where the two edges leaving `{s, a, b}` are the existing edges `{a,c}` and `{b,c}`. No witness edge is invented for the drawing.
+  5. No fill is used, so every label sits on card, where the verified ratios apply.
+
+## 3. Goals and non-goals
+
+- GOAL-1 the reader names the three pieces and their members after one pass over view A.
+- GOAL-2 the reader states why `{s, a, b, c, t}` cannot be enlarged, and why `w` is a component with no edge.
+- GOAL-3 the reader locates `w` outside the other two boundaries without reading a caption.
+- GOAL-4 the reader rejects `{s, a, b}` in view A, naming `c` as the vertex that would enlarge it, so maximality is tested on the sheet and not recited from a definition.
+- NON-GOAL-1 does not teach traversal, so no queue, stack, visit order, or frontier appears.
+- NON-GOAL-2 does not compare representations, which FIG-09-02 owns.
+- NON-GOAL-3 does not draw strongly connected components in a directed graph; 9.2.1 names them and stops.
+- NON-GOAL-4 does not show an edge that crosses a boundary, even dashed, because the sample graph has none.
+
+## 4. Constraints
+
+- canvas: viewBox `0 0 1000 640`, aspect 25:16, one sheet, two views stacked, view A on top.
+- node budget: 380 live elements for a two panel sheet; the inventory stays far below it.
+- palette budget: the chapter role table, no hue added; four roles are used here (card, ink, muted, border).
+- typography: Montserrat, self hosted by the site; vertex id 18, panel tag and component tag 16 semibold, note and reason 14.
+- text split: prose stays in the chapter; in the SVG, labels are vertex ids, tags `C1` to `C3`, and one reason per piece of at most 24 characters.
+- convention: flat schematic, one projection, no depth, no shadow, no gradient.
+- time appetite: about two hours for build and acceptance.
+- detail: full
+- element floor: view A 40, view B 19, against roster floors of 32 and 12, both met by the inventory qty column in section 6.
+- boundaries: this file only, inside `docs/figures/dsa-09-graphs/`; no edit under `content/`, `web/`, or another spec.
+
+Claim status for every number the figure asserts:
+
+| claim | value | status | source |
+|---|---|---|---|
+| vertex set | `s a b c t u v w` | verified | BRIEFING 2 |
+| edge set | seven edges on the five vertex piece, one edge `u v` | verified | BRIEFING 2, chapter 9.2.1 |
+| pieces | `{s, a, b, c, t}`, `{u, v}`, `{w}` | verified | BRIEFING 2 |
+| degree of `w` | 0 | verified | BRIEFING 2 |
+| coordinates, radius 22 | the table in BRIEFING 3 | verified | BRIEFING 3 |
+| reason per piece | every edge at a member has both ends inside | derived | edge list, BRIEFING 2 |
+
+## 5. Visual system lock
+
+- projection: flat schematic, one sheet, one projection, declared once and not varied inside the sheet.
+- line grammar: outline 3.2 on vertex circles and component boundaries, edge 1.6 (ratio 2:1 to outline), hairline 1.0 on the table rules and the view divider, long dash `6 4` on the two secondary boundaries and on the subset ring of the inset. No arrowhead on this sheet, no centreline, and one leader only, 1.6 with no head, in the inset.
+- boundary grammar: a component boundary is a closed path at 55 units clearance from the vertex centres it holds, so clearance is a constant and not an eyeballed value. The subset ring is not a boundary: it is dashed, it holds 26 units of clearance from the three centres it encloses, and the two edges that leave the subset cross it, which no component boundary allows.
+
+| NAME | HEX (light) | HEX (dark) | ROLE | USED FOR |
+|---|---|---|---|---|
+| card | #ffffff | #15181e | panel fill | the only surface, behind every label |
+| ink | #15181e | #e8eaef | structure and primary text | vertex circles, ids, the five vertex boundary, tags, headers |
+| muted | #5c6470 | #a3abba | meaningful secondary | the eight edges, the pair and single vertex boundaries |
+| border | #e7eaf0 | #262b36 | decorative separation | header rule, block rule, view divider |
+
+- value plan: card is the only surface and ink is the darkest value, so the strongest junction sits on the boundary of the five vertex piece, at 17.78 light and 14.77 dark. `wash` and `accent-soft` are not used, because no row here is active and no row is settled, and an unused wash cannot mislead a reader in the other theme.
+- light: flat, no source, no shadow, no gradient; depth on this sheet is not spatial at all.
+- detail floor: nothing is dropped, so the reduced figure policy does not apply.
+- style reference: the chapter's shared system in BRIEFING sections 3 to 5, plus the FIG-09-01 sheet for line weight rhythm.
+
+## 6. Content inventory
+
+| view | content | element floor | dominant |
+|---|---|---|---|
+| A | the sample graph with three disjoint boundaries, three tags, and one inset rejecting the subset `{s, a, b}` | 40 | the five vertex piece |
+| B | three membership rows: tag, members, reason the piece cannot grow | 19 | row `C1` |
+
+| ID | view | element | qty | style |
+|---|---|---|---|---|
+| A-01 | A | vertex circle, r 22 | 8 | stroke ink 3.2, fill none |
+| A-02 | A | vertex id label, 18, centred on its circle | 8 | ink, monospace |
+| A-03 | A | edge line, trimmed 22 at each end | 8 | muted 1.6 |
+| A-04 | A | boundary of `{s, a, b, c, t}` | 1 | ink 3.2, rounded rect, radius 28 |
+| A-05 | A | boundary of `{u, v}`, boundary of `{w}` | 2 | muted 3.2, long dash 6 4 |
+| A-06 | A | tag `C1`, tag `C2`, tag `C3` | 3 | ink 16 semibold |
+| A-07 | A | panel label `A` | 1 | ink 16 semibold |
+| A-08 | A | view title `one graph, three pieces` | 1 | ink 16 semibold |
+| A-09 | A | note `8 vertices, 8 edges` | 1 | muted 14, right aligned |
+| A-10 | A | divider rule between the views | 1 | border hairline 1.0 |
+| A-11 | A | inset subset ring around `{s, a, b}` | 1 | muted 1.6, long dash 6 4, rounded rect x 84 to 306, y 74 to 326, corner radius 20, 26 units of clearance from s, a and b, no fourth vertex inside |
+| A-12 | A | crossing ticks where `{a,c}` and `{b,c}` leave the ring | 2 | ink 1.6, 10 long, perpendicular to the edge, centred at (306, 116.8) and (306, 286.2) |
+| A-13 | A | inset label `not a component` | 1 | muted 14, start anchor at (330, 66), inside the five vertex boundary |
+| A-14 | A | inset label `c joins it`, with its leader | 2 | muted 14 at (330, 96); leader muted 1.6 from (306, 117) to (326, 101), no head |
+| B-01 | B | panel label `B` | 1 | ink 16 semibold |
+| B-02 | B | view title `why a piece cannot grow` | 1 | ink 16 semibold |
+| B-03 | B | header `piece`, `members`, `reason it stops` | 3 | muted 14 |
+| B-04 | B | header rule, block rule, closing rule | 3 | border hairline 1.0 |
+| B-05 | B | tag cell `C1`, `C2`, `C3` | 3 | ink 14 |
+| B-06 | B | member cell `s a b c t`, `u v`, `w` | 3 | ink 14, monospace |
+| B-07 | B | reason cell `all edges stay inside`, `no edge leaves the pair`, `no edge touches w` | 3 | muted 14 |
+| B-08 | B | fence post left of the tag column, right of the reason column | 2 | border hairline 1.0 |
+
+## 7. Requirements
+
+- REQ-FIG0903-01 [MUST-STANDARD] The eight vertices are drawn at the coordinates of BRIEFING section 3, radius 22, id label centred and set in monospace. (source: BRIEFING 3)
+- REQ-FIG0903-02 [MUST-STANDARD] The eight edges are drawn exactly as the edge set gives them, one 1.6 muted line each, trimmed 22 units at both ends so no line enters a circle. (source: chapter 9.2.1, BRIEFING 2)
+- REQ-FIG0903-03 [MUST-STANDARD] The sheet carries three component boundaries, pairwise non intersecting, and each of the eight vertices lies inside exactly one of them; the subset ring of REQ-FIG0903-14 is not a component boundary and is not counted as one. (source: BRIEFING 2, definition of a partition)
+- REQ-FIG0903-04 [MUST-LOCAL] The boundary of the five vertex piece is 3.2 ink, rounded rect from x 55 to 675 and y 45 to 355 at corner radius 28; the other two are 3.2 muted with long dash 6 4, at x 745 to 855 and y 45 to 355, and a circle of radius 44 at (930, 210). (source: BRIEFING 5, muted on card 5.98)
+- REQ-FIG0903-05 [MUST-STANDARD] The vertex `w` lies outside the two boundaries that hold more than one vertex; the third boundary encloses `w` alone and no edge crosses it. (source: BRIEFING 2, degree of `w` is 0)
+- REQ-FIG0903-06 [MUST-STANDARD] View B carries one row per piece, with the tag, the member ids, and one reason of at most 24 characters stating why the set cannot be enlarged. (source: brief, chapter 9.2.1 on maximal)
+- REQ-FIG0903-07 [MUST-STANDARD] Tags `C1`, `C2`, `C3` appear in both views, and the members listed in view B match the circles inside each boundary. (source: WCAG 1.4.1)
+- REQ-FIG0903-08 [MUST-STANDARD] Type is Montserrat at 18 for ids, 16 for panel tags and component tags, 14 for notes and reasons; no text falls below 14 units. (source: BRIEFING 4)
+- REQ-FIG0903-09 [MUST-STANDARD] No in SVG label exceeds 24 characters and none wraps beyond two lines; no sentence of prose is drawn inside the sheet. (source: BRIEFING 4)
+- REQ-FIG0903-10 [MUST-STANDARD] Every stroke and glyph takes a role from the palette table, with no raw hex inside the drawing and no hue beyond the four roles declared in section 5. (source: BRIEFING 5)
+- REQ-FIG0903-11 [MUST-STANDARD] Neither view carries an edge weight, a directed arc, a distance value, or a degree value. (source: brief forbidden list)
+- REQ-FIG0903-12 [MUST-LOCAL] The sheet is 1000 by 640, view A above view B, divider hairline at y 404, and every label sits on card so the verified ratios apply without a new computation. (source: BRIEFING 4, BRIEFING 5)
+- REQ-FIG0903-13 [SHOULD] The five vertex piece holds the largest enclosed area, 620 by 310 units against 110 by 310, is the only piece with an ink boundary, and opens the block as row `C1`. (source: plan, dominant element)
+- REQ-FIG0903-14 [MUST-LOCAL] View A carries one inset inside the five vertex boundary: a dashed ring around `{s, a, b}` at 26 units of clearance, crossed by exactly the two edges `{a,c}` and `{b,c}`, with a tick at each crossing and the labels `not a component` and `c joins it`, so a connected subset that fails maximality is visible on the same drawing and is not a fourth boundary. (source: BRIEFING 2, edge set; chapter 9.2.1, maximal)
+
+## 8. Composition plan
+
+- dominant: the five vertex piece. It encloses 620 by 310 units, carries the only ink boundary, and its five circles are the piece every later figure reuses.
+- focal mechanism: the three closed paths and the two empty gaps between them, 70 units at x 675 to 745 and 31 units at x 855 to 886, which are the visual form of "no edge crosses"; and inside the five vertex piece, the dashed ring crossed at two points, which is where maximality is tested rather than stated.
+- hierarchy: boundary weight first (ink against muted), vertex ids second, tags third, the inset aside fourth in view A, block reasons last.
+- reading path: left to right across the five vertex piece, further right to the pair, then to `w` at the edge of the sheet, then down into the block that names what the eye just crossed.
+- balance: the sheet is deliberately heavier on the left, so the eye starts at `s` and the right edge reads as the remainder.
+- framing: view A occupies y 20 to 392, view B y 420 to 610, with a hairline divider at y 404 across x 20 to 980.
+- negative space: the inside of the `{u, v}` boundary stays open apart from one edge, and the space above `w` stays empty except its tag, so the single vertex reads as unconnected before its reason is read.
+- grouping: three boundaries, three tags, three rows, in the same left to right order, so the block is a legend the reader can trust without matching colours. The inset is grouped by proximity and by its own two labels, both inside the five vertex boundary, so it reads as one aside and not as a fourth membership row.
+
+## 9. Build contract
+
+Steps:
+
+1. Place the eight circles from the coordinate table, radius 22, ids at 18 on the centre.
+2. Draw the eight edges as 1.6 muted lines, each trimmed 22 units at both ends.
+3. Draw A-04 as a rounded rect path, x 55 to 675, y 45 to 355, corner radius 28, ink 3.2, fill none.
+4. Draw A-05 as a rounded rect path, x 745 to 855, y 45 to 355, radius 28, then a circle at (930, 210) radius 44; both muted 3.2, dash 6 4, the circle with dash offset 3 so the two do not start on the same phase.
+5. Draw the inset, A-11 to A-14: the ring as a rounded rect x 84 to 306, y 74 to 326, radius 20, muted 1.6, dash 6 4; two 10 unit ink ticks perpendicular to `{a,c}` and `{b,c}` centred at (306, 116.8) and (306, 286.2); the label `not a component` at (330, 66); the label `c joins it` at (330, 96) with a headless 1.6 leader from (306, 117) to (326, 101). Every one of the six sits inside A-04.
+6. Place each tag centred on its boundary, baseline 12 units above the top of that boundary: `C1` at (365, 33), `C2` at (800, 33), `C3` at (930, 154).
+7. Set the view A caption row on baseline 386, panel label at x 20, view title at x 44, note right aligned at x 980.
+8. Rule the divider at y 404, x 20 to 980, border 1.0.
+9. Set view B on baseline 440 for the panel label and title, 470 for the header row, and 505, 545, 585 for the three rows, columns at x 20 (tag), x 110 (members), x 360 (reason).
+10. Close the block with the rule at y 606 and the two fence posts at x 12 and x 988, border 1.0.
+
+Interaction: none, the sheet is static. Animation: none.
+
+Ids and classes: `#fig09-03`, `.node`, `.node-id`, `.edge`, `.boundary`, `.boundary-main`, `.boundary-secondary`, `.tag`, `.panel-label`, `.note`, `.rule`, `.row`, `.cell`, `.subset-ring`, `.crossing-tick`, `.inset-label`, `.leader`. Views carry `data-view="A"` and `data-view="B"`.
+
+Verification hooks: count `.node` (8), `.edge` (8), `.boundary` (3), `.tag` (3), `.row` (3), `.subset-ring` (1), `.crossing-tick` (2); assert the ring's box holds s, a and b and not c, that exactly two `.edge` segments cross it, that no text node is longer than 24 characters, that no element carries `marker-end`, and that no hex literal sits outside the theme blocks.
+
+```bash
+python3 ~/.hermes/skills/svg/illustration-spec/scripts/check_spec.py \
+  docs/figures/dsa-09-graphs/FIG-09-03-components.md
+```
+
+## 9b. Mechanism and state model
+
+- STATE: none: every coordinate is placed, nothing is derived
+- DATUM: not applicable, no derived coordinate
+- DERIVED: none: the eight pairs, the three boundary extents, and the three reasons come from BRIEFING sections 2 and 3 and from the edge list
+- CHAIN: none: one sheet, no frames, no step order
+- INV-01: each of the eight vertices falls inside exactly one of the three boundaries
+- INV-02: the three boundary paths share no point, so no vertex is enclosed twice
+- INV-03: no edge segment has one end inside a boundary and the other end outside it
+- INV-04: the two secondary boundaries keep the dash phase and the vertex count that separate them from the main boundary
+- INV-05: the subset ring encloses s, a and b and no fourth vertex, and at least two edges cross it, so it cannot be read as a component boundary. With this edge set three edges leave the ring ({a,c} and {b,c} at the marked c-crossings, plus {a,t} leaving a); the sheet ticks the two c-crossings and leaves the third uncalled so the count in the drawing stays honest to the geometry.
+- SAMPLED STATES: none: nothing varies across the sheet
+- SWEEP: none: static
+- FUTURE STATE: if the chapter later animates the component search, the boundaries become run time output and INV-01 to INV-03 become the test for each frame instead of a drawing rule.
+
+## 10. Acceptance criteria
+
+| REQ | test | pass condition | method |
+|---|---|---|---|
+| REQ-FIG0903-01 | read the eight circle centres | coordinates equal BRIEFING section 3, radius 22, ids centred | coordinate diff |
+| REQ-FIG0903-02 | count edge elements and measure trims | eight edges, every trim 22, no marker | DOM assertion |
+| REQ-FIG0903-03 | point in path test per vertex | each vertex in exactly one boundary, paths disjoint | geometry assertion |
+| REQ-FIG0903-04 | read the three boundary styles | ink 3.2 against muted 3.2 dash 6 4, extents as stated | style diff |
+| REQ-FIG0903-05 | point in path test for `w` and the `u v` edge | `w` outside A-04 and A-05, inside its own circle, no edge in it | geometry assertion |
+| REQ-FIG0903-06 | count rows and measure reason strings | three rows, three reasons, each 24 characters or fewer | string length scan |
+| REQ-FIG0903-07 | compare tags and members across views | tags match, member lists match the circles per boundary | DOM assertion |
+| REQ-FIG0903-08 | read font sizes | 18, 16, 14 only, nothing below 14 | computed style diff |
+| REQ-FIG0903-09 | scan text nodes | longest label 24 or fewer, no label above two lines | string length scan |
+| REQ-FIG0903-10 | scan the drawing for literals | no hex outside theme blocks, four roles used | token scan |
+| REQ-FIG0903-11 | search labels and attributes | no weight, no arrow marker, no distance, no degree | token scan |
+| REQ-FIG0903-12 | read viewBox and divider | 1000 by 640, divider at y 404, all labels on card | DOM assertion |
+| REQ-FIG0903-13 | compare enclosed areas and boundary weights | A-04 largest, only 3.2 ink boundary, row `C1` first | area computation |
+| REQ-FIG0903-14 | read the four inset rows and the marked crossings | ring holds s, a, b only, at least two edges cross it, both labels 24 characters or fewer, inset inside A-04 | geometry assertion and string length scan |
+
+## 11. Open questions
+
+- Q1: the brief says `w` sits "outside every boundary" while three boundaries are required and the third must hold `w`. This spec reads it as outside the two multi vertex boundaries and inside its own, which keeps the count at three. Evidence that settles it: the plan's view A floor of 32 came from an inventory that includes three boundaries, and 9.2.1 calls `w` a component by itself.
+- Q2: whether the `{w}` boundary should be a circle of radius 44 or a tighter outline at the 55 unit clearance used by the other two. This spec keeps 44 so the circle clears its tag and the right edge; a reviewer may prefer the constant clearance rule.
+- Q3 closed: the reason column keeps three distinct lines rather than the phrase "cannot grow" repeated. The inset in view A now carries the test itself, with `c` named as the vertex that would enlarge the subset, so the reasons name the property and the drawing proves it.
+
+## 12. Revision history
+
+| rev | date | change | why |
+|---|---|---|---|
+| 1 | 2026-10-22 | First spec: canonical coordinates inherited, three boundaries, membership block | Intake for FIG-09-03 |
+| 2 | 2026-10-22 | Inset added inside the five vertex piece: ring around `{s, a, b}`, two crossing ticks, two labels, floor 34 to 40, REQ-14 and its acceptance row; `C1` and `C2` tags moved to baseline 33 so all three sit 12 above their boundary top; anchor section id added; MESSAGE names maximality | Audit: a reader could not tell a component from a connected subset, and two tag baselines were 11 where the spec said 12 |

@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 880" width="1000" height="880" role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">FIG-09-07: BFS in layers</title>
+  <desc id="fig-desc">The queue holds at most two consecutive layers, and a distance is fixed at enqueue, so the ring marks a value that is already final.</desc>
+  <style>
+    .ink { fill: #15181e; } .muted { fill: #5c6470; }
+    .accent { fill: #1d4ed8; } .accent-ink { fill: #14357f; } .success { fill: #157347; }
+    .f-card { fill: #ffffff; } .f-wash { fill: #f5f7fa; } .f-soft { fill: #eef3fe; } .f-none { fill: none; }
+    .s-ink { stroke: #15181e; } .s-muted { stroke: #5c6470; } .s-border { stroke: #e7eaf0; }
+    .s-accent { stroke: #1d4ed8; } .s-success { stroke: #157347; }
+    .w-out { stroke-width: 3.2; } .w-line { stroke-width: 1.6; } .w-hair { stroke-width: 1.0; }
+    text { font-family: "Montserrat", sans-serif; }
+    .t-id { font-size: 18px; font-weight: 400; }
+    .t-label { font-size: 15px; font-weight: 400; }
+    .t-panel { font-size: 16px; font-weight: 600; }
+    .t-note { font-size: 14px; font-weight: 400; }
+  </style>
+  <defs>
+    <marker id="head-accent" viewBox="0 0 14 10" refX="13" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="10" orient="auto-start-reverse"><path d="M0,0 L14,5 L0,10 z" fill="#1d4ed8"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="880" class="f-card"/>
+
+  <g data-view="A">
+    <rect id="VIZ-A-01" data-el="A-01" x="44" y="76" width="156" height="360" rx="10" class="f-wash s-border w-hair"/>
+    <rect id="VIZ-A-01" data-el="A-01" x="230" y="76" width="110" height="360" rx="10" class="f-soft s-border w-hair"/>
+    <rect id="VIZ-A-01" data-el="A-01" x="380" y="76" width="320" height="360" rx="10" class="f-wash s-border w-hair"/>
+
+    <text id="VIZ-A-02" data-el="A-02" x="56" y="100" font-size="15" class="t-label ink">dist 0</text>
+    <text id="VIZ-A-02" data-el="A-02" x="242" y="100" font-size="15" class="t-label accent-ink">dist 1</text>
+    <text id="VIZ-A-02" data-el="A-02" x="392" y="100" font-size="15" class="t-label ink">dist 2</text>
+
+    <path id="VIZ-A-03" data-el="A-03" d="M128.5,268 L261.5,182" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-03" data-el="A-03" d="M129.4,290.3 L260.6,359.7" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-03" data-el="A-03" d="M280,192 L280,348" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-03" data-el="A-03" d="M298.5,182 L431.5,268" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-03" data-el="A-03" d="M300.9,176.8 L599.1,283.2" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-03" data-el="A-03" d="M299.4,359.7 L430.6,290.3" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-03" data-el="A-03" d="M472,280 L598,280" class="f-none s-muted w-line"/>
+
+    <circle id="VIZ-A-04" data-el="A-04" cx="110" cy="280" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-04" data-el="A-04" cx="280" cy="170" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-04" data-el="A-04" cx="280" cy="370" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-04" data-el="A-04" cx="450" cy="280" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-04" data-el="A-04" cx="620" cy="280" r="22" class="f-card s-ink w-out"/>
+
+    <text id="VIZ-A-05" data-el="A-05" x="110" y="286" font-size="18" text-anchor="middle" class="t-id ink">s</text>
+    <text id="VIZ-A-05" data-el="A-05" x="280" y="176" font-size="18" text-anchor="middle" class="t-id ink">a</text>
+    <text id="VIZ-A-05" data-el="A-05" x="280" y="376" font-size="18" text-anchor="middle" class="t-id ink">b</text>
+    <text id="VIZ-A-05" data-el="A-05" x="450" y="286" font-size="18" text-anchor="middle" class="t-id ink">c</text>
+    <text id="VIZ-A-05" data-el="A-05" x="620" y="286" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+
+    <circle id="VIZ-A-09" data-el="A-09" cx="280" cy="370" r="28" class="f-none s-accent w-out"/>
+
+    <rect id="VIZ-A-06" data-el="A-06" x="46" y="267" width="34" height="26" rx="6" class="f-card s-success w-out"/>
+    <rect id="VIZ-A-06" data-el="A-06" x="263" y="114" width="34" height="26" rx="6" class="f-card s-success w-out"/>
+    <rect id="VIZ-A-06" data-el="A-06" x="263" y="400" width="34" height="26" rx="6" class="f-card s-success w-out"/>
+    <rect id="VIZ-A-06" data-el="A-06" x="433" y="310" width="34" height="26" rx="6" class="f-card s-success w-out"/>
+    <rect id="VIZ-A-06" data-el="A-06" x="603" y="310" width="34" height="26" rx="6" class="f-card s-success w-out"/>
+
+    <text id="VIZ-A-07" data-el="A-07" x="63" y="285" font-size="15" text-anchor="middle" class="t-label ink">0</text>
+    <text id="VIZ-A-07" data-el="A-07" x="280" y="132" font-size="15" text-anchor="middle" class="t-label ink">1</text>
+    <text id="VIZ-A-07" data-el="A-07" x="280" y="418" font-size="15" text-anchor="middle" class="t-label ink">1</text>
+    <text id="VIZ-A-07" data-el="A-07" x="450" y="328" font-size="15" text-anchor="middle" class="t-label ink">2</text>
+    <text id="VIZ-A-07" data-el="A-07" x="620" y="328" font-size="15" text-anchor="middle" class="t-label ink">2</text>
+
+    <circle id="VIZ-A-08" data-el="A-08" cx="54" cy="280" r="4" class="success"/>
+    <circle id="VIZ-A-08" data-el="A-08" cx="271" cy="127" r="4" class="success"/>
+    <circle id="VIZ-A-08" data-el="A-08" cx="271" cy="413" r="4" class="success"/>
+    <circle id="VIZ-A-08" data-el="A-08" cx="441" cy="323" r="4" class="success"/>
+    <circle id="VIZ-A-08" data-el="A-08" cx="611" cy="323" r="4" class="success"/>
+
+    <text id="VIZ-A-10" data-el="A-10" x="40" y="54" font-size="16" class="t-panel ink">A bands and chips</text>
+  </g>
+
+  <g data-view="B">
+    <rect id="VIZ-B-01" data-el="B-01" x="40" y="512" width="920" height="352" rx="12" class="f-card s-border w-hair"/>
+
+    <path id="VIZ-B-02" data-el="B-02" d="M52,572 L948,572" class="f-none s-border w-hair"/>
+    <path id="VIZ-B-02" data-el="B-02" d="M52,628 L948,628" class="f-none s-border w-hair"/>
+    <path id="VIZ-B-02" data-el="B-02" d="M52,684 L948,684" class="f-none s-border w-hair"/>
+    <path id="VIZ-B-02" data-el="B-02" d="M52,740 L948,740" class="f-none s-border w-hair"/>
+    <path id="VIZ-B-02" data-el="B-02" d="M52,796 L948,796" class="f-none s-border w-hair"/>
+
+    <rect id="VIZ-B-07" data-el="B-07" x="52" y="630" width="896" height="52" rx="8" class="f-soft"/>
+    <path id="VIZ-B-07" data-el="B-07" d="M52,630 L52,682" class="f-none s-accent w-line"/>
+
+    <rect id="VIZ-B-04" data-el="B-04" x="190" y="524" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="190" y="580" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="266" y="580" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="190" y="636" width="64" height="40" rx="6" class="f-card s-accent w-out"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="266" y="636" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="342" y="636" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="190" y="692" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="266" y="692" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+    <rect id="VIZ-B-04" data-el="B-04" x="190" y="748" width="64" height="40" rx="6" class="f-card s-muted w-line"/>
+
+    <text id="VIZ-B-05" data-el="B-05" x="222" y="550" font-size="18" text-anchor="middle" class="t-id ink">s</text>
+    <text id="VIZ-B-05" data-el="B-05" x="222" y="606" font-size="18" text-anchor="middle" class="t-id ink">a</text>
+    <text id="VIZ-B-05" data-el="B-05" x="298" y="606" font-size="18" text-anchor="middle" class="t-id ink">b</text>
+    <text id="VIZ-B-05" data-el="B-05" x="222" y="662" font-size="18" text-anchor="middle" class="t-id ink">b</text>
+    <text id="VIZ-B-05" data-el="B-05" x="298" y="662" font-size="18" text-anchor="middle" class="t-id ink">c</text>
+    <text id="VIZ-B-05" data-el="B-05" x="374" y="662" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+    <text id="VIZ-B-05" data-el="B-05" x="222" y="718" font-size="18" text-anchor="middle" class="t-id ink">c</text>
+    <text id="VIZ-B-05" data-el="B-05" x="298" y="718" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+    <text id="VIZ-B-05" data-el="B-05" x="222" y="774" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+
+    <path id="VIZ-B-08" data-el="B-08" d="M180,656 L144,656" class="f-none s-accent w-line" marker-end="url(#head-accent)"/>
+
+    <text id="VIZ-B-03" data-el="B-03" x="68" y="549" font-size="15" class="t-label muted">step 0</text>
+    <text id="VIZ-B-03" data-el="B-03" x="68" y="605" font-size="15" class="t-label muted">step 1</text>
+    <text id="VIZ-B-03" data-el="B-03" x="68" y="661" font-size="15" class="t-label muted">step 2</text>
+    <text id="VIZ-B-03" data-el="B-03" x="68" y="717" font-size="15" class="t-label muted">step 3</text>
+    <text id="VIZ-B-03" data-el="B-03" x="68" y="773" font-size="15" class="t-label muted">step 4</text>
+    <text id="VIZ-B-03" data-el="B-03" x="68" y="829" font-size="15" class="t-label muted">step 5</text>
+
+    <text id="VIZ-B-09" data-el="B-09" x="940" y="549" font-size="15" text-anchor="end" class="t-label muted">dequeue s</text>
+    <text id="VIZ-B-09" data-el="B-09" x="940" y="605" font-size="15" text-anchor="end" class="t-label muted">dequeue a</text>
+    <text id="VIZ-B-09" data-el="B-09" x="940" y="661" font-size="15" text-anchor="end" class="t-label muted">dequeue b</text>
+    <text id="VIZ-B-09" data-el="B-09" x="940" y="717" font-size="15" text-anchor="end" class="t-label muted">dequeue c</text>
+    <text id="VIZ-B-09" data-el="B-09" x="940" y="773" font-size="15" text-anchor="end" class="t-label muted">dequeue t</text>
+    <text id="VIZ-B-09" data-el="B-09" x="940" y="829" font-size="15" text-anchor="end" class="t-label muted">queue empty</text>
+
+    <rect id="VIZ-B-06" data-el="B-06" x="190" y="804" width="216" height="40" rx="6" class="f-card s-border w-hair"/>
+
+    <text id="VIZ-B-12" data-el="B-12" x="320" y="482" font-size="14" class="t-note muted">dist fixed at enqueue</text>
+    <text id="VIZ-B-12" data-el="B-12" x="320" y="498" font-size="14" class="t-note muted">ring at dequeue</text>
+
+    <text id="VIZ-B-10" data-el="B-10" x="960" y="482" font-size="14" text-anchor="end" class="t-note muted">queue holds at most</text>
+    <text id="VIZ-B-10" data-el="B-10" x="960" y="498" font-size="14" text-anchor="end" class="t-note muted">two consecutive layers</text>
+
+    <text id="VIZ-B-11" data-el="B-11" x="40" y="490" font-size="16" class="t-panel ink">B queue strip</text>
+  </g>
+</svg>

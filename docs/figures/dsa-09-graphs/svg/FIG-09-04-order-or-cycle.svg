@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 940" width="1000" height="940" role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">FIG-09-04: Order or cycle</title>
+  <desc id="fig-desc">Two views of one five vertex graph. In A the five arcs admit two listings, s b a c t and s a b c t, and both pass all five per arc checks. In B one added arc from t to s closes the loop s a c t s, so no listing survives.</desc>
+  <style>
+    .ink { fill: #15181e; } .muted { fill: #5c6470; }
+    .accent-ink { fill: #14357f; } .success { fill: #157347; } .warning { fill: #b42318; }
+    .f-card { fill: #ffffff; } .f-soft { fill: #eef3fe; } .f-none { fill: none; }
+    .s-ink { stroke: #15181e; } .s-muted { stroke: #5c6470; } .s-border { stroke: #e7eaf0; }
+    .s-success { stroke: #157347; } .s-warning { stroke: #b42318; }
+    .w-out { stroke-width: 3.2; } .w-line { stroke-width: 1.6; } .w-hair { stroke-width: 1.0; }
+    .dash { stroke-dasharray: 6 4; }
+    text { font-family: "Montserrat", sans-serif; }
+    .t-id { font-size: 18px; font-weight: 400; }
+    .t-label { font-size: 15px; font-weight: 400; }
+    .t-panel { font-size: 16px; font-weight: 600; }
+    .t-note { font-size: 14px; font-weight: 400; }
+  </style>
+  <rect x="0" y="0" width="1000" height="940" class="f-card"/>
+
+  <g data-view="A">
+    <rect id="VIZ-A-01" data-el="A-01" x="30" y="20" width="940" height="540" class="f-card s-border w-hair"/>
+    <text id="VIZ-A-02" data-el="A-02" x="56" y="60" font-size="16" class="t-panel ink">A  two valid orders</text>
+    <circle id="VIZ-A-03-1" data-el="A-03" cx="150" cy="260" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-03-2" data-el="A-03" cx="320" cy="150" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-03-3" data-el="A-03" cx="320" cy="350" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-03-4" data-el="A-03" cx="490" cy="260" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-A-03-5" data-el="A-03" cx="660" cy="260" r="22" class="f-card s-ink w-out"/>
+    <text id="VIZ-A-04-1" data-el="A-04" x="150" y="266" font-size="18" text-anchor="middle" class="t-id ink">s</text>
+    <text id="VIZ-A-04-2" data-el="A-04" x="320" y="156" font-size="18" text-anchor="middle" class="t-id ink">a</text>
+    <text id="VIZ-A-04-3" data-el="A-04" x="320" y="356" font-size="18" text-anchor="middle" class="t-id ink">b</text>
+    <text id="VIZ-A-04-4" data-el="A-04" x="490" y="266" font-size="18" text-anchor="middle" class="t-id ink">c</text>
+    <text id="VIZ-A-04-5" data-el="A-04" x="660" y="266" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+    <path id="VIZ-A-05-1" data-el="A-05" d="M170.1,247 L299.9,163" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-05-2" data-el="A-05" d="M171.2,271.2 L298.8,338.8" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-05-3" data-el="A-05" d="M341.2,338.8 L468.8,271.2" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-05-4" data-el="A-05" d="M340.1,163 L469.9,247" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-05-5" data-el="A-05" d="M514,260 L636,260" class="f-none s-muted w-line"/>
+    <path id="VIZ-A-06-1" data-el="A-06" d="M299.9,163 L290.9,174.8 L285.4,166.4 z" class="muted"/>
+    <path id="VIZ-A-06-2" data-el="A-06" d="M298.8,338.8 L284.1,336.7 L288.8,327.8 z" class="muted"/>
+    <path id="VIZ-A-06-3" data-el="A-06" d="M468.8,271.2 L458.8,282.2 L454.1,273.3 z" class="muted"/>
+    <path id="VIZ-A-06-4" data-el="A-06" d="M469.9,247 L455.4,243.6 L460.9,235.2 z" class="muted"/>
+    <path id="VIZ-A-06-5" data-el="A-06" d="M636,260 L622,265 L622,255 z" class="muted"/>
+    <text id="VIZ-A-07" data-el="A-07" x="150" y="404" font-size="14" class="t-note muted">no arc joins a and b</text>
+    <text id="VIZ-A-08-1" data-el="A-08" x="730" y="150" font-size="15" class="t-label ink">arc</text>
+    <text id="VIZ-A-08-2" data-el="A-08" x="858" y="150" font-size="15" text-anchor="middle" class="t-label ink">order 1</text>
+    <text id="VIZ-A-08-3" data-el="A-08" x="926" y="150" font-size="15" text-anchor="middle" class="t-label ink">order 2</text>
+    <path id="VIZ-A-09" data-el="A-09" d="M720,162 L950,162" class="f-none s-border w-hair"/>
+    <text id="VIZ-A-10-1" data-el="A-10" x="730" y="196" font-size="15" class="t-label ink">s to a</text>
+    <text id="VIZ-A-10-2" data-el="A-10" x="730" y="230" font-size="15" class="t-label ink">s to b</text>
+    <text id="VIZ-A-10-3" data-el="A-10" x="730" y="264" font-size="15" class="t-label ink">b to c</text>
+    <text id="VIZ-A-10-4" data-el="A-10" x="730" y="298" font-size="15" class="t-label ink">a to c</text>
+    <text id="VIZ-A-10-5" data-el="A-10" x="730" y="332" font-size="15" class="t-label ink">c to t</text>
+    <path id="VIZ-A-11-1" data-el="A-11" d="M851,191 L856,196 L865,186" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-2" data-el="A-11" d="M919,191 L924,196 L933,186" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-3" data-el="A-11" d="M851,225 L856,230 L865,220" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-4" data-el="A-11" d="M919,225 L924,230 L933,220" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-5" data-el="A-11" d="M851,259 L856,264 L865,254" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-6" data-el="A-11" d="M919,259 L924,264 L933,254" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-7" data-el="A-11" d="M851,293 L856,298 L865,288" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-8" data-el="A-11" d="M919,293 L924,298 L933,288" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-9" data-el="A-11" d="M851,327 L856,332 L865,322" class="f-none s-success w-line"/>
+    <path id="VIZ-A-11-10" data-el="A-11" d="M919,327 L924,332 L933,322" class="f-none s-success w-line"/>
+    <text id="VIZ-A-12-1" data-el="A-12" x="60" y="444" font-size="15" class="t-label ink">order 1</text>
+    <text id="VIZ-A-12-2" data-el="A-12" x="60" y="510" font-size="15" class="t-label ink">order 2</text>
+    <rect id="VIZ-A-13-1-1" data-el="A-13" x="190" y="416" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-1-1" data-el="A-14" x="200" y="433" font-size="14" class="t-note accent-ink">1</text>
+    <text id="VIZ-A-15-1-1" data-el="A-15" x="234" y="444" font-size="18" text-anchor="middle" class="t-id accent-ink">s</text>
+    <rect id="VIZ-A-13-1-2" data-el="A-13" x="290" y="416" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-1-2" data-el="A-14" x="300" y="433" font-size="14" class="t-note accent-ink">2</text>
+    <text id="VIZ-A-15-1-2" data-el="A-15" x="334" y="444" font-size="18" text-anchor="middle" class="t-id accent-ink">b</text>
+    <rect id="VIZ-A-13-1-3" data-el="A-13" x="390" y="416" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-1-3" data-el="A-14" x="400" y="433" font-size="14" class="t-note accent-ink">3</text>
+    <text id="VIZ-A-15-1-3" data-el="A-15" x="434" y="444" font-size="18" text-anchor="middle" class="t-id accent-ink">a</text>
+    <rect id="VIZ-A-13-1-4" data-el="A-13" x="490" y="416" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-1-4" data-el="A-14" x="500" y="433" font-size="14" class="t-note accent-ink">4</text>
+    <text id="VIZ-A-15-1-4" data-el="A-15" x="534" y="444" font-size="18" text-anchor="middle" class="t-id accent-ink">c</text>
+    <rect id="VIZ-A-13-1-5" data-el="A-13" x="590" y="416" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-1-5" data-el="A-14" x="600" y="433" font-size="14" class="t-note accent-ink">5</text>
+    <text id="VIZ-A-15-1-5" data-el="A-15" x="634" y="444" font-size="18" text-anchor="middle" class="t-id accent-ink">t</text>
+    <rect id="VIZ-A-13-2-1" data-el="A-13" x="190" y="482" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-2-1" data-el="A-14" x="200" y="499" font-size="14" class="t-note accent-ink">1</text>
+    <text id="VIZ-A-15-2-1" data-el="A-15" x="234" y="510" font-size="18" text-anchor="middle" class="t-id accent-ink">s</text>
+    <rect id="VIZ-A-13-2-2" data-el="A-13" x="290" y="482" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-2-2" data-el="A-14" x="300" y="499" font-size="14" class="t-note accent-ink">2</text>
+    <text id="VIZ-A-15-2-2" data-el="A-15" x="334" y="510" font-size="18" text-anchor="middle" class="t-id accent-ink">a</text>
+    <rect id="VIZ-A-13-2-3" data-el="A-13" x="390" y="482" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-2-3" data-el="A-14" x="400" y="499" font-size="14" class="t-note accent-ink">3</text>
+    <text id="VIZ-A-15-2-3" data-el="A-15" x="434" y="510" font-size="18" text-anchor="middle" class="t-id accent-ink">b</text>
+    <rect id="VIZ-A-13-2-4" data-el="A-13" x="490" y="482" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-2-4" data-el="A-14" x="500" y="499" font-size="14" class="t-note accent-ink">4</text>
+    <text id="VIZ-A-15-2-4" data-el="A-15" x="534" y="510" font-size="18" text-anchor="middle" class="t-id accent-ink">c</text>
+    <rect id="VIZ-A-13-2-5" data-el="A-13" x="590" y="482" width="88" height="44" rx="10" class="f-soft s-muted w-line"/>
+    <text id="VIZ-A-14-2-5" data-el="A-14" x="600" y="499" font-size="14" class="t-note accent-ink">5</text>
+    <text id="VIZ-A-15-2-5" data-el="A-15" x="634" y="510" font-size="18" text-anchor="middle" class="t-id accent-ink">t</text>
+    <path id="VIZ-A-16-1" data-el="A-16" d="M850,370 L855,376 L866,364" class="f-none s-success w-line"/>
+    <path id="VIZ-A-16-2" data-el="A-16" d="M918,370 L923,376 L934,364" class="f-none s-success w-line"/>
+    <text id="VIZ-A-17-1" data-el="A-17" x="858" y="396" font-size="15" text-anchor="middle" class="t-label success">passes</text>
+    <text id="VIZ-A-17-2" data-el="A-17" x="926" y="396" font-size="15" text-anchor="middle" class="t-label success">passes</text>
+    <path id="VIZ-A-18-1" data-el="A-18" d="M434,461 L334,481" class="f-none s-muted w-line dash"/>
+    <path id="VIZ-A-18-2" data-el="A-18" d="M334,461 L434,481" class="f-none s-muted w-line dash"/>
+  </g>
+
+  <g data-view="B">
+    <rect id="VIZ-B-01" data-el="B-01" x="30" y="590" width="940" height="330" class="f-card s-border w-hair"/>
+    <text id="VIZ-B-02" data-el="B-02" x="56" y="618" font-size="16" class="t-panel ink">B  the arc t to s</text>
+    <text id="VIZ-B-14" data-el="B-14" x="760" y="618" font-size="14" class="t-note muted">neighbour order s:[a,b]</text>
+    <circle id="VIZ-B-11" data-el="B-11" cx="714" cy="636" r="12" class="f-none s-warning w-out"/>
+    <path id="VIZ-B-12" data-el="B-12" d="M705.5,644.5 L722.5,627.5" class="f-none s-warning w-line"/>
+    <text id="VIZ-B-13" data-el="B-13" x="736" y="642" font-size="15" class="t-label ink">no order exists</text>
+    <text id="VIZ-B-09" data-el="B-09" x="734" y="676" font-size="15" class="t-label warning">cycle s a c t s</text>
+    <circle id="VIZ-B-03-1" data-el="B-03" cx="150" cy="765" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-B-03-2" data-el="B-03" cx="320" cy="655" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-B-03-3" data-el="B-03" cx="320" cy="855" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-B-03-4" data-el="B-03" cx="490" cy="765" r="22" class="f-card s-ink w-out"/>
+    <circle id="VIZ-B-03-5" data-el="B-03" cx="660" cy="765" r="22" class="f-card s-ink w-out"/>
+    <text id="VIZ-B-04-1" data-el="B-04" x="150" y="771" font-size="18" text-anchor="middle" class="t-id ink">s</text>
+    <text id="VIZ-B-04-2" data-el="B-04" x="320" y="661" font-size="18" text-anchor="middle" class="t-id ink">a</text>
+    <text id="VIZ-B-04-3" data-el="B-04" x="320" y="861" font-size="18" text-anchor="middle" class="t-id ink">b</text>
+    <text id="VIZ-B-04-4" data-el="B-04" x="490" y="771" font-size="18" text-anchor="middle" class="t-id ink">c</text>
+    <text id="VIZ-B-04-5" data-el="B-04" x="660" y="771" font-size="18" text-anchor="middle" class="t-id ink">t</text>
+    <path id="VIZ-B-05-1" data-el="B-05" d="M170.1,752 L299.9,668" class="f-none s-warning w-line"/>
+    <path id="VIZ-B-06-2" data-el="B-06" d="M171.2,776.2 L298.8,843.8" class="f-none s-muted w-line"/>
+    <path id="VIZ-B-06-3" data-el="B-06" d="M341.2,843.8 L468.8,776.2" class="f-none s-muted w-line"/>
+    <path id="VIZ-B-05-4" data-el="B-05" d="M340.1,668 L469.9,752" class="f-none s-warning w-line"/>
+    <path id="VIZ-B-05-5" data-el="B-05" d="M514,765 L636,765" class="f-none s-warning w-line"/>
+    <path id="VIZ-B-07-1" data-el="B-07" d="M299.9,668 L290.9,679.8 L285.4,671.4 z" class="warning"/>
+    <path id="VIZ-B-07-2" data-el="B-07" d="M298.8,843.8 L284.1,841.7 L288.8,832.8 z" class="muted"/>
+    <path id="VIZ-B-07-3" data-el="B-07" d="M468.8,776.2 L458.8,787.2 L454.1,778.3 z" class="muted"/>
+    <path id="VIZ-B-07-4" data-el="B-07" d="M469.9,752 L455.4,748.6 L460.9,740.2 z" class="warning"/>
+    <path id="VIZ-B-07-5" data-el="B-07" d="M636,765 L622,770 L622,760 z" class="warning"/>
+    <path id="VIZ-B-08" data-el="B-08" d="M660,789 L660,878 Q660,890 648,890 L162,890 Q150,890 150,878 L150,789" class="f-none s-warning w-line"/>
+    <path id="VIZ-B-07-6" data-el="B-07" d="M150,789 L155,803 L145,803 z" class="warning"/>
+    <text id="VIZ-B-10" data-el="B-10" x="700" y="812" font-size="15" class="t-label warning">new arc t to s</text>
+  </g>
+</svg>
