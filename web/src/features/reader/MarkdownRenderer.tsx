@@ -43,6 +43,7 @@ import {
   ChapterTableRow,
 } from "./nodes/DataTable"
 import { ChapterFigure } from "./nodes/Figure"
+import { PinnedAnchor } from "./nodes/PinnedAnchor"
 import {
   Callout,
   CodeSpan,
@@ -64,6 +65,11 @@ export type MarkdownRendererProps = {
   guideId?: string
   chapterSlug?: string
   className?: string
+  /**
+   * "Imagem fixa" view: each picture becomes a zero-height marker at its place in
+   * the text, and the pinned pane shows the picture there.
+   */
+  pinnedAnchors?: boolean
 }
 
 type ElementProps = {
@@ -114,6 +120,7 @@ export function MarkdownRenderer({
   guideId,
   chapterSlug,
   className,
+  pinnedAnchors = false,
 }: MarkdownRendererProps) {
   // A fresh resolver on every render: it hands sections out in document order,
   // so repeated headings (`Resposta`) keep distinct ids, and a re-render after a
@@ -149,7 +156,8 @@ export function MarkdownRenderer({
       h5: heading(5),
       h6: heading(6),
       hr: Rule,
-      img: (props) => <ChapterFigure {...props} images={images} />,
+      img: (props) =>
+        pinnedAnchors ? <PinnedAnchor {...props} /> : <ChapterFigure {...props} images={images} />,
       input: TaskCheckbox,
       li: ListItem,
       ol: OrderedList,

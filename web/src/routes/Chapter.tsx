@@ -159,11 +159,12 @@ export function Chapter() {
   )
 
   // The "imagem fixa" view is a reading setting; it only applies to a chapter
-  // that actually carries pictures pinned to its sections. Any other chapter
-  // keeps the continuous text whatever the setting says.
+  // that carries pictures for the pane: pictures pinned to its sections (the
+  // per-section sidecar) or pictures placed in its text. Any other chapter keeps
+  // the continuous text whatever the setting says.
   const layout = useLayout()
   const sectionImages = data?.sectionImages ?? {}
-  const pinned = layout.isPinnedView && Object.keys(sectionImages).length > 0
+  const pinned = layout.isPinnedView && (Object.keys(sectionImages).length > 0 || images.length > 0)
   // The pinned pane already shows each section's picture, so the text drops its
   // inline copy (same alt text) while the view is on. Continuous text is untouched.
   const pinnedAlts = pinned ? Object.values(sectionImages).flat().map((image) => image.alt) : []
@@ -341,6 +342,7 @@ export function Chapter() {
               guideId={guideId}
               images={images}
               markdown={textBody}
+              pinnedAnchors={pinned}
               sections={sections}
             />
           </Suspense>
@@ -396,6 +398,7 @@ export function Chapter() {
           }
           notice={savedNotice}
           anchor={decodeURIComponent(location.hash.slice(1))}
+          images={images}
           sectionImages={sectionImages}
           sections={sections}
         >

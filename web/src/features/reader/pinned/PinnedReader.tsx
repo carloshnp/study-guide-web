@@ -4,9 +4,9 @@
  * Two panes under a compact header. The text pane is the scroller (the page
  * itself never scrolls): the whole chapter, exactly as the classic view renders
  * it, so progress checks, anchors, selection cards and `?snippet=` deep links
- * keep working untouched. The image pane holds the picture of the section the
- * reader is in; it changes as the text scrolls. From `xl` up the image sits on
- * the left and the text on the right; below that the image sits above the text.
+ * keep working untouched. The image pane holds one picture of the section the
+ * reader is in. From `xl` up the image sits on the left and the text on the
+ * right; below that the image sits above the text.
  *
  * "Which section" is decided by `pickActiveSection`: the last top-level heading
  * that has risen to the reading line. The intro before the first heading and any
@@ -14,6 +14,14 @@
  * text takes the full width. Hiding only ever moves the boundary heading further
  * from the reading line (the text above it gets shorter when it widens and
  * taller when it narrows), so the switch cannot oscillate.
+ *
+ * "Which picture" follows the text. A picture placed in the text is a zero-height
+ * marker (`PinnedAnchor`) at the spot where it would sit in the normal flow. The
+ * pane shows the last picture of the section whose marker has reached the reading
+ * line, and the first picture of a section until one has. The arrows step through
+ * the section's pictures by hand; the reader's own scrolling takes over again at
+ * the next marker. A section without markers falls back to `sectionImages`, the
+ * per-section sidecar of older guides.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
@@ -21,12 +29,20 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import type { ChapterImage, ChapterSection, SectionImages } from "@/lib/content"
 import { topLevelSections } from "@/lib/content"
 import { cn } from "@/lib/utils"
-import { pickActiveSection, readingLineOffset, type SectionTop } from "./active-section"
+import {
+  pickActiveSection,
+  pickImageIndex,
+  readingLineOffset,
+  type SectionTop,
+} from "./active-section"
 import { PINNED_IMAGE_SIZES, PinnedImagePane } from "./PinnedImagePane"
 
 export type PinnedReaderProps = {
   sections: readonly ChapterSection[]
+  /** Per-section pictures of older guides (the sidecar), keyed by section id. */
   sectionImages: SectionImages
+  /** The chapter's picture manifest; a marker in the text is matched against it. */
+  images?: readonly ChapterImage[]
   /** Compact chapter header (back link, kicker, title). */
   header: ReactNode
   /** Optional status line between the header and the panes. */
@@ -50,6 +66,10 @@ const NO_IMAGES: readonly ChapterImage[] = []
 const ANCHOR_SETTLE_MS = 5000
 const ANCHOR_RELEASE_EVENTS = ["wheel", "touchstart", "keydown", "mousedown"] as const
 
+type Heading = { id: string; el: Element }
+type Placed = { top: number; image: ChapterImage }
+type PaneState = { id: string | null; images: ChapterImage[]; auto: number }
+
 /** Warm the cache for the picture of the next section so the swap is instant. */
 function prefetch(image: ChapterImage | undefined): void {
   if (!image || typeof Image === "undefined") return
@@ -59,9 +79,54 @@ function prefetch(image: ChapterImage | undefined): void {
   probe.src = image.src
 }
 
+/** The section a marker belongs to: the last heading before it in document order. */
+function ownerOf(marker: Element, headings: readonly Heading[]): string | null {
+  let owner: string | null = null
+  for (const heading of headings) {
+    if (heading.el.compareDocumentPosition(marker) & Node.DOCUMENT_POSITION_FOLLOWING) {
+      owner = heading.id
+    } else {
+      break
+    }
+  }
+  return owner
+}
+
+/** The pictures placed in the text, grouped by the section they sit in. */
+function placedPictures(
+  pane: HTMLElement,
+  headings: readonly Heading[],
+  images: readonly ChapterImage[],
+  paneTop: number,
+): Map<string, Placed[]> {
+  const grouped = new Map<string, Placed[]>()
+  pane.querySelectorAll<HTMLElement>("[data-pinned-anchor]").forEach((marker) => {
+    const owner = ownerOf(marker, headings)
+    if (!owner) return
+    const src = marker.dataset.src ?? ""
+    const image: ChapterImage = images.find((item) => item.src === src) ?? {
+      src,
+      srcset: null,
+      width: null,
+      height: null,
+      alt: marker.dataset.alt ?? "",
+      original: null,
+    }
+    const list = grouped.get(owner) ?? []
+    list.push({ top: marker.getBoundingClientRect().top - paneTop, image })
+    grouped.set(owner, list)
+  })
+  return grouped
+}
+
+function sameImages(a: readonly ChapterImage[], b: readonly ChapterImage[]): boolean {
+  return a.length === b.length && a.every((item, i) => item.src === b[i].src)
+}
+
 export function PinnedReader({
   sections,
   sectionImages,
+  images = NO_IMAGES,
   header,
   notice,
   anchor,
@@ -71,7 +136,8 @@ export function PinnedReader({
   const contentRef = useRef<HTMLDivElement>(null)
   const units = useMemo(() => topLevelSections(sections), [sections])
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [step, setStep] = useState<{ id: string | null; index: number }>({ id: null, index: 0 })
+  const [pane, setPane] = useState<PaneState>({ id: null, images: [], auto: 0 })
+  const [manual, setManual] = useState<{ id: string | null; index: number } | null>(null)
   const [collapsed, setCollapsed] = useState<boolean>(
     () =>
       typeof window !== "undefined" &&
@@ -80,24 +146,44 @@ export function PinnedReader({
   )
 
   const measure = useCallback(() => {
-    const pane = scrollRef.current
-    if (!pane) return
-    const paneTop = pane.getBoundingClientRect().top
+    const scroller = scrollRef.current
+    if (!scroller) return
+    const paneTop = scroller.getBoundingClientRect().top
+    const line = readingLineOffset(scroller.clientHeight)
     const tops: SectionTop[] = []
+    const headings: Heading[] = []
     for (const unit of units) {
       const heading = document.getElementById(unit.id)
-      if (heading && pane.contains(heading)) {
+      if (heading && scroller.contains(heading)) {
         tops.push({ id: unit.id, top: heading.getBoundingClientRect().top - paneTop })
+        headings.push({ id: unit.id, el: heading })
       }
     }
     const atBottom =
-      pane.scrollTop > 0 && pane.scrollTop + pane.clientHeight >= pane.scrollHeight - 2
-    setActiveId(pickActiveSection(tops, readingLineOffset(pane.clientHeight), atBottom))
-  }, [units])
+      scroller.scrollTop > 0 &&
+      scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2
+    const id = pickActiveSection(tops, line, atBottom)
+    const grouped = placedPictures(scroller, headings, images, paneTop)
+    const own = id ? (grouped.get(id) ?? []) : []
+    const next: PaneState = {
+      id,
+      images: own.map((placed) => placed.image),
+      auto: pickImageIndex(
+        own.map((placed) => placed.top),
+        line,
+      ),
+    }
+    setActiveId(id)
+    setPane((prev) =>
+      prev.id === next.id && prev.auto === next.auto && sameImages(prev.images, next.images)
+        ? prev
+        : next,
+    )
+  }, [images, units])
 
   useEffect(() => {
-    const pane = scrollRef.current
-    if (!pane) return
+    const scroller = scrollRef.current
+    if (!scroller) return
     let frame = 0
     const schedule = () => {
       if (frame !== 0) return
@@ -106,16 +192,16 @@ export function PinnedReader({
         measure()
       })
     }
-    pane.addEventListener("scroll", schedule, { passive: true })
+    scroller.addEventListener("scroll", schedule, { passive: true })
     window.addEventListener("resize", schedule)
     // The markdown renderer is lazy and figures load late: any change of the
-    // text's height can move a heading across the reading line.
+    // text's height can move a heading or a picture across the reading line.
     const observer =
       typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule)
     if (observer && contentRef.current) observer.observe(contentRef.current)
     measure()
     return () => {
-      pane.removeEventListener("scroll", schedule)
+      scroller.removeEventListener("scroll", schedule)
       window.removeEventListener("resize", schedule)
       observer?.disconnect()
       if (frame !== 0) window.cancelAnimationFrame(frame)
@@ -126,17 +212,17 @@ export function PinnedReader({
   // lazily, so the heading keeps moving down as figures load: re-place it on
   // every layout change until the reader scrolls or the layout has settled.
   useEffect(() => {
-    const pane = scrollRef.current
+    const scroller = scrollRef.current
     const content = contentRef.current
-    if (!pane || !content || !anchor) return
+    if (!scroller || !content || !anchor) return
     let released = false
     const place = () => {
       if (released) return
       const heading = document.getElementById(anchor)
-      if (!heading || !pane.contains(heading)) return
-      const offset = heading.getBoundingClientRect().top - pane.getBoundingClientRect().top
+      if (!heading || !scroller.contains(heading)) return
+      const offset = heading.getBoundingClientRect().top - scroller.getBoundingClientRect().top
       if (Math.abs(offset) > 0.5) {
-        pane.scrollTop += offset
+        scroller.scrollTop += offset
         measure()
       }
     }
@@ -147,20 +233,35 @@ export function PinnedReader({
       released = true
       window.clearTimeout(timer)
       observer?.disconnect()
-      for (const name of ANCHOR_RELEASE_EVENTS) pane.removeEventListener(name, release)
+      for (const name of ANCHOR_RELEASE_EVENTS) scroller.removeEventListener(name, release)
     }
     timer = window.setTimeout(release, ANCHOR_SETTLE_MS)
-    for (const name of ANCHOR_RELEASE_EVENTS) pane.addEventListener(name, release, { passive: true })
+    for (const name of ANCHOR_RELEASE_EVENTS) scroller.addEventListener(name, release, { passive: true })
     place()
     return release
   }, [anchor, measure])
 
-  const images = (activeId ? sectionImages[activeId] : undefined) ?? NO_IMAGES
+  // A hand-picked picture lasts until the reader's scrolling changes the picture
+  // of the section again, or the reader leaves the section.
+  useEffect(() => {
+    setManual(null)
+  }, [pane.id, pane.auto])
+
+  // The pictures of the section being read: the ones placed in its text, or the
+  // sidecar's for an older guide. Pane state only counts for the section it was
+  // measured in, so a section change never shows the previous one's picture.
+  const measured = pane.id === activeId ? pane.images : NO_IMAGES
+  const paneImages =
+    measured.length > 0
+      ? measured
+      : ((activeId ? sectionImages[activeId] : undefined) ?? NO_IMAGES)
+  const automatic = measured.length > 0 && pane.id === activeId ? pane.auto : 0
+  const index =
+    manual && manual.id === activeId
+      ? Math.min(manual.index, paneImages.length - 1)
+      : automatic
   const activeUnit = units.find((unit) => unit.id === activeId)
-  // The picture counter starts over whenever the reader moves to another section.
-  if (step.id !== activeId) setStep({ id: activeId, index: 0 })
-  const index = step.id === activeId ? step.index : 0
-  const showImage = images.length > 0
+  const showImage = paneImages.length > 0
 
   useEffect(() => {
     if (!activeId) return
@@ -190,10 +291,10 @@ export function PinnedReader({
           >
             <PinnedImagePane
               collapsed={collapsed}
-              images={images}
+              images={paneImages}
               index={index}
               onCollapsedChange={setCollapsed}
-              onIndexChange={(next) => setStep({ id: activeId, index: next })}
+              onIndexChange={(next) => setManual({ id: activeId, index: next })}
               title={activeUnit?.title ?? ""}
             />
 

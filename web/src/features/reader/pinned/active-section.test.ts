@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { pickActiveSection, readingLineOffset } from "./active-section"
+import { pickActiveSection, pickImageIndex, readingLineOffset } from "./active-section"
 
 const TOPS = [
   { id: "a", top: -400 },
@@ -26,6 +26,23 @@ describe("pickActiveSection", () => {
 
   it("makes the last section active once the pane is scrolled to its end", () => {
     expect(pickActiveSection(TOPS, 200, true)).toBe("c")
+  })
+})
+
+describe("pickImageIndex", () => {
+  const PLACES = [120, 540, 980]
+
+  it("shows the first picture before any picture has reached the reading line", () => {
+    expect(pickImageIndex(PLACES, 100)).toBe(0)
+    expect(pickImageIndex([], 100)).toBe(0)
+  })
+
+  it("switches to a picture when its place in the text reaches the reading line", () => {
+    expect(pickImageIndex(PLACES, 120)).toBe(0)
+    expect(pickImageIndex(PLACES, 121)).toBe(0)
+    expect(pickImageIndex(PLACES, 540)).toBe(1)
+    expect(pickImageIndex(PLACES, 700)).toBe(1)
+    expect(pickImageIndex(PLACES, 5000)).toBe(2)
   })
 })
 

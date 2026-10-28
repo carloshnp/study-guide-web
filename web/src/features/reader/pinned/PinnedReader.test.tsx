@@ -28,6 +28,8 @@ const IMAGES: SectionImages = {
 
 // jsdom has no layout: every measurement comes from this table (px from the viewport top).
 let tops: Record<string, number> = {}
+// The same for pictures placed in the text, by caption (the marker's `data-alt`).
+let anchorTops: Record<string, number> = {}
 
 function renderReader() {
   return render(
@@ -51,10 +53,16 @@ function scrollTo(next: Record<string, number>, container: HTMLElement) {
 
 beforeEach(() => {
   tops = { s1: 500, s2: 1500, "termos-introduzidos": 2500 }
+  anchorTops = {}
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
     this: HTMLElement,
   ) {
-    const top = this.dataset.slot === "pinned-text" ? 0 : (tops[this.id] ?? 0)
+    const top =
+      this.dataset.slot === "pinned-text"
+        ? 0
+        : this.hasAttribute("data-pinned-anchor")
+          ? (anchorTops[this.dataset.alt ?? ""] ?? 0)
+          : (tops[this.id] ?? 0)
     return { bottom: top, height: 0, left: 0, right: 0, toJSON: () => ({}), top, width: 0, x: 0, y: top }
   })
 })
@@ -166,6 +174,90 @@ describe("PinnedReader", () => {
     const pane = container.querySelector('[data-slot="pinned-text"]')
     expect(pane?.className).toContain("overflow-y-auto")
     expect(pane?.querySelector('[data-slot="chapter-body"] article')).not.toBeNull()
+  })
+})
+
+const PLACED_SECTIONS: ChapterSection[] = [
+  { id: "s1", level: 2, parentId: null, title: "3.1 Primeira" },
+  { id: "s2", level: 2, parentId: null, title: "3.2 Segunda" },
+]
+
+/** A marker as `PinnedAnchor` renders it: the picture stays in the text as a zero-height place. */
+function marker(alt: string) {
+  return (
+    <span
+      aria-hidden="true"
+      data-alt={alt}
+      data-pinned-anchor=""
+      data-src={`/media/${alt}/1280.webp`}
+    />
+  )
+}
+
+function placedReader() {
+  return render(
+    <PinnedReader
+      header={<header>cabeçalho</header>}
+      images={[image("fig-a"), image("fig-b"), image("fig-d"), image("fig-c")]}
+      sectionImages={{}}
+      sections={PLACED_SECTIONS}
+    >
+      <article>
+        <h2 id="s1">3.1 Primeira</h2>
+        {marker("fig-a")}
+        <p>texto</p>
+        {marker("fig-b")}
+        <p>texto</p>
+        {marker("fig-d")}
+        <h2 id="s2">3.2 Segunda</h2>
+        {marker("fig-c")}
+      </article>
+    </PinnedReader>,
+  )
+}
+
+describe("PinnedReader pictures placed in the text", () => {
+  it("shows the picture of the last place the reader has reached in the section", async () => {
+    const { container } = placedReader()
+
+    anchorTops = { "fig-a": 50, "fig-b": 600, "fig-d": 700, "fig-c": 1600 }
+    scrollTo({ s1: 10, s2: 1500 }, container)
+    expect(await screen.findByRole("img", { name: "fig-a" })).toBeInTheDocument()
+
+    anchorTops = { "fig-a": 50, "fig-b": 40, "fig-d": 700, "fig-c": 1600 }
+    scrollTo({ s1: 10, s2: 1500 }, container)
+    expect(await screen.findByRole("img", { name: "fig-b" })).toBeInTheDocument()
+    expect(screen.queryByRole("img", { name: "fig-a" })).toBeNull()
+  })
+
+  it("starts the next section with its first picture", async () => {
+    const { container } = placedReader()
+
+    anchorTops = { "fig-a": 50, "fig-b": 40, "fig-d": 60, "fig-c": 900 }
+    scrollTo({ s1: 10, s2: 20 }, container)
+
+    expect(await screen.findByRole("img", { name: "fig-c" })).toBeInTheDocument()
+    expect(screen.queryByRole("img", { name: "fig-d" })).toBeNull()
+  })
+
+  it("lets the arrows pick a picture until the reader reaches the next one", async () => {
+    const { container } = placedReader()
+
+    anchorTops = { "fig-a": 50, "fig-b": 600, "fig-d": 700, "fig-c": 1600 }
+    scrollTo({ s1: 10, s2: 1500 }, container)
+    expect(await screen.findByRole("img", { name: "fig-a" })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "Próxima imagem" }))
+    expect(screen.getByRole("img", { name: "fig-b" })).toBeInTheDocument()
+
+    // Scrolling that does not reach the next place keeps the chosen picture.
+    scrollTo({ s1: 10, s2: 1500 }, container)
+    expect(screen.getByRole("img", { name: "fig-b" })).toBeInTheDocument()
+
+    // Reaching the next place hands the pane back to the text.
+    anchorTops = { "fig-a": 50, "fig-b": 40, "fig-d": 60, "fig-c": 1600 }
+    scrollTo({ s1: 10, s2: 1500 }, container)
+    expect(await screen.findByRole("img", { name: "fig-d" })).toBeInTheDocument()
   })
 })
 
