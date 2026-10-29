@@ -182,7 +182,7 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
 
     measured = {
         "aluminio": (2, 29),
-        "titanio": (2, 16),
+        "titanio": (2, 14),
         # 5 theory chapters + 2 promoted appendices (banco, glossário).
         "magnesio": (2, 7),
         "dsa": (1, 12),
