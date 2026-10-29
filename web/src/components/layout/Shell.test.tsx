@@ -85,6 +85,14 @@ describe("Shell", () => {
     expect(within(drawer).getByRole("link", { name: /início/i })).toBeInTheDocument()
   })
 
+  it("has no permanent wide sidebar: the icon rail and the menu button do the navigation", () => {
+    renderAt("/")
+
+    expect(screen.queryByRole("complementary", { name: "Estantes" })).toBeNull()
+    expect(screen.getByRole("navigation", { name: "Estantes (atalhos)" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /abrir navegação/i })).toBeInTheDocument()
+  })
+
   it("renders the settings entry in the top bar, with the theme inside it", () => {
     renderAt("/")
     const topbar = screen.getByRole("banner")

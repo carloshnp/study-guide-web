@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import { pickActiveSection, pickImageIndex, readingLineOffset } from "./active-section"
+import {
+  pickActiveSection,
+  pickImageIndex,
+  pickPictureSection,
+  readingLineOffset,
+} from "./active-section"
 
 const TOPS = [
   { id: "a", top: -400 },
@@ -43,6 +48,34 @@ describe("pickImageIndex", () => {
     expect(pickImageIndex(PLACES, 540)).toBe(1)
     expect(pickImageIndex(PLACES, 700)).toBe(1)
     expect(pickImageIndex(PLACES, 5000)).toBe(2)
+  })
+})
+
+describe("pickPictureSection", () => {
+  // Sections 1 and 3 carry pictures; 2 is a section without one, 4 is `Termos`.
+  const ORDER = ["s1", "s2", "s3", "s4", "termos"]
+  const WITH = new Set(["s1", "s3"])
+
+  it("shows the section's own pictures while it is being read", () => {
+    expect(pickPictureSection(ORDER, WITH, "s1")).toBe("s1")
+    expect(pickPictureSection(ORDER, WITH, "s3")).toBe("s3")
+  })
+
+  it("keeps the nearest earlier picture in a section without one", () => {
+    expect(pickPictureSection(ORDER, WITH, "s2")).toBe("s1")
+    expect(pickPictureSection(ORDER, WITH, "termos")).toBe("s3")
+  })
+
+  it("shows the chapter's first picture in the intro", () => {
+    expect(pickPictureSection(ORDER, WITH, null)).toBe("s1")
+  })
+
+  it("shows the first picture later in the chapter when no earlier section has one", () => {
+    expect(pickPictureSection(["s1", "s2", "s3"], new Set(["s3"]), "s1")).toBe("s3")
+  })
+
+  it("is null when no section has pictures", () => {
+    expect(pickPictureSection(ORDER, new Set(), "s1")).toBeNull()
   })
 })
 

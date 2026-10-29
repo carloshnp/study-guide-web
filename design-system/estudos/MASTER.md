@@ -62,9 +62,10 @@ the work. `--shadow-pop: 0 12px 32px rgb(21 24 30 / 0.12)`.
 
 ## Layout
 
-- Desktop `>= 1024px`: fixed sidebar 280px, reading column centered at 66ch with 32px gutters,
-  sticky top bar 64px with breadcrumb, progress meter and theme toggle.
-- Tablet `768–1023px`: sidebar collapses to a 64px rail with icons plus a drawer on demand.
+- Desktop `>= 1024px`: 64px icon rail (no permanent sidebar), reading column centered at 66ch with
+  32px gutters, sticky top bar 64px with breadcrumb, progress meter and theme toggle.
+- Tablet `768–1023px`: the same 64px icon rail. The top bar's menu button opens the drawer at every
+  width, desktop included.
 - Phone `< 768px`: no rail; top bar 56px with back, title and overflow menu; drawer via
   coss `Sheet`; reading column 100% minus 20px gutters; bottom safe area respected
   (`viewport-units`, `fixed-element-offset`).

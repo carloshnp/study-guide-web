@@ -9,11 +9,10 @@
  * right; below that the image sits above the text.
  *
  * "Which section" is decided by `pickActiveSection`: the last top-level heading
- * that has risen to the reading line. The intro before the first heading and any
- * section without a picture (`Termos introduzidos`) hide the image pane and the
- * text takes the full width. Hiding only ever moves the boundary heading further
- * from the reading line (the text above it gets shorter when it widens and
- * taller when it narrows), so the switch cannot oscillate.
+ * that has risen to the reading line. The image pane never leaves the screen: a
+ * section without pictures (`Termos introduzidos`) keeps the last picture of the
+ * section before it, and the intro before the first heading shows the chapter's
+ * first picture (`pickPictureSection`).
  *
  * "Which picture" follows the text. A picture placed in the text is a zero-height
  * marker (`PinnedAnchor`) at the spot where it would sit in the normal flow. The
@@ -24,7 +23,15 @@
  * per-section sidecar of older guides.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react"
 
 import type { ChapterImage, ChapterSection, SectionImages } from "@/lib/content"
 import { topLevelSections } from "@/lib/content"
@@ -32,6 +39,7 @@ import { cn } from "@/lib/utils"
 import {
   pickActiveSection,
   pickImageIndex,
+  pickPictureSection,
   readingLineOffset,
   type SectionTop,
 } from "./active-section"
@@ -68,6 +76,7 @@ const ANCHOR_RELEASE_EVENTS = ["wheel", "touchstart", "keydown", "mousedown"] as
 
 type Heading = { id: string; el: Element }
 type Placed = { top: number; image: ChapterImage }
+/** `id` is the section whose pictures are shown; it is not always the one being read. */
 type PaneState = { id: string | null; images: ChapterImage[]; auto: number }
 
 /** Warm the cache for the picture of the next section so the swap is instant. */
@@ -164,24 +173,33 @@ export function PinnedReader({
       scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2
     const id = pickActiveSection(tops, line, atBottom)
     const grouped = placedPictures(scroller, headings, images, paneTop)
-    const own = id ? (grouped.get(id) ?? []) : []
-    const next: PaneState = {
-      id,
-      images: own.map((placed) => placed.image),
-      auto: pickImageIndex(
-        own.map((placed) => placed.top),
-        line,
-      ),
+    // A section's pictures are the ones placed in its text, or the sidecar's for an older guide.
+    const picturesOf = (sectionId: string): ChapterImage[] =>
+      grouped.get(sectionId)?.map((placed) => placed.image) ?? sectionImages[sectionId] ?? []
+    const order = units.map((unit) => unit.id)
+    const withPictures = new Set(order.filter((sectionId) => picturesOf(sectionId).length > 0))
+    const shown = pickPictureSection(order, withPictures, id)
+    const own = shown ? picturesOf(shown) : []
+    // The section being read shows the picture its text has reached. A section read
+    // before it keeps its last picture; the intro shows the first.
+    let auto = 0
+    if (shown !== null && shown === id) {
+      auto = pickImageIndex((grouped.get(shown) ?? []).map((placed) => placed.top), line)
+    } else if (shown !== null && id !== null && order.indexOf(shown) < order.indexOf(id)) {
+      auto = own.length - 1
     }
+    const next: PaneState = { id: shown, images: own, auto }
     setActiveId(id)
     setPane((prev) =>
       prev.id === next.id && prev.auto === next.auto && sameImages(prev.images, next.images)
         ? prev
         : next,
     )
-  }, [images, units])
+  }, [images, sectionImages, units])
 
-  useEffect(() => {
+  // Measured before the first paint, so the chapter opens with its picture in place
+  // instead of the text jumping when the picture arrives a frame later.
+  useLayoutEffect(() => {
     const scroller = scrollRef.current
     if (!scroller) return
     let frame = 0
@@ -247,21 +265,12 @@ export function PinnedReader({
     setManual(null)
   }, [pane.id, pane.auto])
 
-  // The pictures of the section being read: the ones placed in its text, or the
-  // sidecar's for an older guide. Pane state only counts for the section it was
-  // measured in, so a section change never shows the previous one's picture.
-  const measured = pane.id === activeId ? pane.images : NO_IMAGES
-  const paneImages =
-    measured.length > 0
-      ? measured
-      : ((activeId ? sectionImages[activeId] : undefined) ?? NO_IMAGES)
-  const automatic = measured.length > 0 && pane.id === activeId ? pane.auto : 0
+  // The pane shows the pictures measured above. A hand-picked picture is kept only
+  // for the section it was picked in.
   const index =
-    manual && manual.id === activeId
-      ? Math.min(manual.index, paneImages.length - 1)
-      : automatic
-  const activeUnit = units.find((unit) => unit.id === activeId)
-  const showImage = paneImages.length > 0
+    manual && manual.id === pane.id ? Math.min(manual.index, pane.images.length - 1) : pane.auto
+  const shownUnit = units.find((unit) => unit.id === pane.id)
+  const showImage = pane.images.length > 0
 
   useEffect(() => {
     if (!activeId) return
@@ -286,45 +295,17 @@ export function PinnedReader({
       >
         {showImage ? (
           <aside
-            className="flex shrink-0 flex-col gap-5 xl:min-h-0 xl:overflow-y-auto xl:pe-1 no-scrollbar"
+            className="flex shrink-0 flex-col gap-5 xl:min-h-0 xl:justify-center xl:overflow-y-auto xl:pe-1 no-scrollbar"
             data-slot="pinned-left"
           >
             <PinnedImagePane
               collapsed={collapsed}
-              images={paneImages}
+              images={pane.images}
               index={index}
               onCollapsedChange={setCollapsed}
-              onIndexChange={(next) => setManual({ id: activeId, index: next })}
-              title={activeUnit?.title ?? ""}
+              onIndexChange={(next) => setManual({ id: pane.id, index: next })}
+              title={shownUnit?.title ?? ""}
             />
-
-            {units.length > 1 ? (
-              <nav
-                aria-label="Subcapítulos deste capítulo"
-                className="hidden flex-col gap-0.5 xl:flex"
-                data-slot="pinned-units"
-              >
-                <p className="text-kicker uppercase text-muted-foreground">Neste capítulo</p>
-                <ol className="flex flex-col gap-0.5">
-                  {units.map((unit) => (
-                    <li key={unit.id}>
-                      <a
-                        aria-current={unit.id === activeId ? "location" : undefined}
-                        className={cn(
-                          "flex min-h-8 items-start rounded-md px-2 py-1 text-meta hover:text-brand",
-                          unit.id === activeId
-                            ? "bg-accent font-semibold text-foreground"
-                            : "text-muted-foreground",
-                        )}
-                        href={`#${unit.id}`}
-                      >
-                        {unit.title}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            ) : null}
           </aside>
         ) : null}
 

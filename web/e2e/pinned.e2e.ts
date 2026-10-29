@@ -11,7 +11,7 @@ import { main } from "./helpers"
 const CHAPTER = "/g/titanio/c/03-elementos-intersticiais-e-o-ti-comercialmente-puro"
 const SECTION_32 = "32-os-quatro-diagramas-de-fase-e-o-destino-do-excesso"
 const SECTION_33 = "33-hidrogenio-endurecimento-em-solucao-e-fragilizacao-por-hidreto"
-const SECTION_COUNT = 8
+const SECTION_TERMOS = "termos-introduzidos"
 
 async function usePinnedView(page: Page, on = true): Promise<void> {
   await page.addInitScript((value) => {
@@ -67,8 +67,8 @@ test.describe("pinned image view", () => {
     await page.goto(CHAPTER)
     await expect(page.locator('[data-slot="pinned-reader"]')).toBeVisible()
 
-    // The intro before 3.1 has no picture: the pane is hidden and the text is wide.
-    await expect(page.locator('[data-slot="pinned-image-pane"]')).toHaveCount(0)
+    // The intro shows the chapter's first picture, so the pane is never empty.
+    await expect(pinnedImage(page).first()).toBeVisible()
 
     // The page itself never scrolls: only the text pane does.
     const spare = await page.evaluate(
@@ -116,22 +116,22 @@ test.describe("pinned image view", () => {
     }
   })
 
-  test("lists the subchapters on desktop and jumps to one", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== "desktop", "the list sits beside the picture only on wide screens")
+  test("keeps the subchapter list out of the pinned view on every screen", async ({ page }) => {
     await usePinnedView(page)
     await page.goto(`${CHAPTER}#${SECTION_33}`)
+    await expect(pinnedImage(page).first()).toBeVisible()
 
-    const nav = page.getByRole("navigation", { name: /subcapítulos deste capítulo/i })
-    await expect(nav).toBeVisible()
-    await expect(nav.getByRole("link")).toHaveCount(SECTION_COUNT + 1)
-    await expect(nav.getByRole("link", { name: /^3\.3 / })).toHaveAttribute(
-      "aria-current",
-      "location",
-    )
-    await expect(pinnedImage(page).first()).toHaveAttribute("alt", /^Infográfico 3\.3/)
+    await expect(page.getByRole("navigation", { name: /subcapítulos deste capítulo/i })).toHaveCount(0)
+  })
 
-    await nav.getByRole("link", { name: /^3\.5 / }).click()
-    await expect(pinnedImage(page).first()).toHaveAttribute("alt", /^Infográfico 3\.5/)
+  test("keeps the last picture on screen through the sections without one", async ({ page }) => {
+    await usePinnedView(page)
+    await page.goto(CHAPTER)
+    await scrollTextTo(page, SECTION_TERMOS)
+
+    // `Termos introduzidos` has no picture: the pane keeps the chapter's last one.
+    await expect(pinnedImage(page).first()).toBeVisible()
+    await expect(pinnedImage(page).first()).toHaveAttribute("alt", /^Resumo visual da fórmula/)
   })
 
   test("a tap on the picture opens the lightbox with the original file", async ({ page }) => {

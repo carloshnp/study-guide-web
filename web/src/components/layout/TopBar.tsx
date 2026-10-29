@@ -5,12 +5,12 @@ import { SettingsMenu } from "@/components/layout/SettingsMenu"
 import { Button } from "@/components/ui/button"
 
 type TopBarProps = {
-  /** Opens the navigation drawer on viewports below the fixed sidebar. */
+  /** Opens the navigation drawer. The menu button is shown at every width. */
   onOpenNav: () => void
 }
 
 /**
- * Sticky top bar: navigation trigger under `lg`, brand, search entry point and the
+ * Sticky top bar: the navigation menu button, brand, search entry point and the
  * settings menu (theme, panel width, side margin). 56px on phones, 64px from `md` (`viewport-units`, `fixed-element-offset`).
  */
 export function TopBar({ onOpenNav }: TopBarProps) {
@@ -21,7 +21,6 @@ export function TopBar({ onOpenNav }: TopBarProps) {
           type="button"
           variant="ghost"
           size="icon-xl"
-          className="lg:hidden"
           aria-label="Abrir navegação"
           aria-controls="navegacao"
           onClick={onOpenNav}

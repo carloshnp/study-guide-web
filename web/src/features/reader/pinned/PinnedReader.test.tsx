@@ -72,10 +72,10 @@ afterEach(() => {
 })
 
 describe("PinnedReader", () => {
-  it("hides the image pane in the intro, before the first section", () => {
+  it("shows the chapter's first picture in the intro, before the first section", async () => {
     const { container } = renderReader()
 
-    expect(container.querySelector('[data-slot="pinned-image-pane"]')).toBeNull()
+    expect(await screen.findByRole("img", { name: "figura-3-1" })).toBeInTheDocument()
     expect(container.querySelector('[data-slot="pinned-reader"]')).toHaveAttribute(
       "data-active-section",
       "",
@@ -113,20 +113,16 @@ describe("PinnedReader", () => {
     expect(text).not.toHaveClass("md:ps-8")
   })
 
-  it("lists the subchapters beside the picture and marks the current one", async () => {
+  it("keeps no subchapter list beside the picture", async () => {
     const { container } = renderReader()
     scrollTo({ s1: -900, s2: 20, "termos-introduzidos": 1000 }, container)
+    await screen.findByRole("img", { name: "figura-3-2a" })
 
-    const nav = await screen.findByRole("navigation", { name: /subcapítulos deste capítulo/i })
-    expect(nav.querySelectorAll("a")).toHaveLength(3)
-    expect(screen.getByRole("link", { name: "3.2 Segunda" })).toHaveAttribute(
-      "aria-current",
-      "location",
-    )
-    expect(screen.getByRole("link", { name: "3.1 Primeira" })).not.toHaveAttribute("aria-current")
+    expect(screen.queryByRole("navigation", { name: /subcapítulos deste capítulo/i })).toBeNull()
+    expect(screen.queryByText("Neste capítulo")).toBeNull()
   })
 
-  it("hides the picture again on a section without one", async () => {
+  it("keeps the last picture of the section before a section without one", async () => {
     const { container } = renderReader()
     scrollTo({ s1: 10, s2: 1000, "termos-introduzidos": 2000 }, container)
     await screen.findByRole("img", { name: "figura-3-1" })
@@ -138,7 +134,20 @@ describe("PinnedReader", () => {
         "termos-introduzidos",
       )
     })
-    expect(container.querySelector('[data-slot="pinned-image-pane"]')).toBeNull()
+    expect(await screen.findByRole("img", { name: "figura-3-2b" })).toBeInTheDocument()
+    expect(screen.getByText("2 / 2")).toBeInTheDocument()
+    expect(container.querySelector('[data-slot="pinned-image-pane"]')).not.toBeNull()
+  })
+
+  it("titles the picture with the section it belongs to", async () => {
+    const { container } = renderReader()
+    scrollTo({ s1: -2000, s2: -900, "termos-introduzidos": 30 }, container)
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-slot="pinned-image-bar"]')).toHaveTextContent(
+        "3.2 Segunda",
+      )
+    })
   })
 
   it("offers previous/next buttons only for a section with several pictures", async () => {
@@ -228,6 +237,18 @@ describe("PinnedReader pictures placed in the text", () => {
     scrollTo({ s1: 10, s2: 1500 }, container)
     expect(await screen.findByRole("img", { name: "fig-b" })).toBeInTheDocument()
     expect(screen.queryByRole("img", { name: "fig-a" })).toBeNull()
+  })
+
+  it("shows the chapter's first placed picture in the intro", async () => {
+    const { container } = placedReader()
+
+    scrollTo({ s1: 300, s2: 1500 }, container)
+
+    expect(await screen.findByRole("img", { name: "fig-a" })).toBeInTheDocument()
+    expect(container.querySelector('[data-slot="pinned-reader"]')).toHaveAttribute(
+      "data-active-section",
+      "",
+    )
   })
 
   it("starts the next section with its first picture", async () => {

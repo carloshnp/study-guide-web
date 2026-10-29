@@ -34,8 +34,10 @@ const RAIL_LINKS: { to: string; label: string; icon: LucideIcon }[] = [
 ]
 
 /**
- * Application shell: skip link, sticky top bar, fixed sidebar from `lg`, icon rail
- * from `md`, drawer below `md` (coss `Sheet`), and the routed page in `main#conteudo`.
+ * Application shell: skip link, sticky top bar, icon rail from `md`, the drawer
+ * (coss `Sheet`) opened from the top bar's menu button at every width, and the routed
+ * page in `main#conteudo`. There is no permanent wide sidebar: the rail is the
+ * desktop navigation too, so the reading column keeps its room.
  * Route changes move focus to the main region (`focus-on-route-change`) and close
  * the drawer.
  *
@@ -73,16 +75,9 @@ export function Shell() {
       <TopBar onOpenNav={() => setNavOpen(true)} />
 
       <div className="flex w-full">
-        <aside
-          aria-label="Estantes"
-          className="sticky top-[var(--bar-h)] hidden h-[calc(100dvh-var(--bar-h))] w-[var(--sidebar-w)] shrink-0 overflow-y-auto border-e border-border bg-card px-3 py-6 lg:block"
-        >
-          <SidebarTree nodes={PLACEHOLDER_NODES} label="Navegação principal" />
-        </aside>
-
         <nav
           aria-label="Estantes (atalhos)"
-          className="sticky top-[var(--bar-h)] hidden h-[calc(100dvh-var(--bar-h))] w-[var(--rail-w)] shrink-0 flex-col items-center gap-2 border-e border-border bg-card py-4 md:flex lg:hidden"
+          className="sticky top-[var(--bar-h)] hidden h-[calc(100dvh-var(--bar-h))] w-[var(--rail-w)] shrink-0 flex-col items-center gap-2 border-e border-border bg-card py-4 md:flex"
         >
           {RAIL_LINKS.map(({ to, label, icon: Icon }) => (
             <Link

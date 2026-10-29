@@ -37,6 +37,30 @@ export function pickActiveSection(
 }
 
 /**
+ * Which section's pictures the pane shows. It is the section being read when that
+ * one has pictures. A section without any (a note, the references, `Termos
+ * introduzidos`) keeps the picture of the nearest section before it, so the last
+ * picture of the chapter stays on screen to the end. Before the first section with
+ * pictures (the intro, or a section that has none yet) it is that first picture.
+ *
+ * @param order        every top-level section id, in document order
+ * @param withPictures the ids of the sections that have pictures
+ * @param activeId     the section being read, or `null` in the intro
+ * @returns the id whose pictures to show, or `null` when the chapter has none
+ */
+export function pickPictureSection(
+  order: readonly string[],
+  withPictures: ReadonlySet<string>,
+  activeId: string | null,
+): string | null {
+  const at = activeId === null ? -1 : order.indexOf(activeId)
+  for (let i = at; i >= 0; i -= 1) {
+    if (withPictures.has(order[i])) return order[i]
+  }
+  return order.find((id) => withPictures.has(id)) ?? null
+}
+
+/**
  * Which picture of a section the pane shows: the last one whose place in the text
  * has reached the reading line, or the first one before any of them has. The
  * pane therefore changes where the picture would sit in the normal text.
