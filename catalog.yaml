@@ -37,7 +37,7 @@ guides:
     group: nao-ferrosos
     type: teoria
     split: 2
-    expected_chapters: 16
+    expected_chapters: 14
     order: 2
     published: true
     updated: 2026-10-22
@@ -52,10 +52,22 @@ guides:
     group: nao-ferrosos
     type: teoria
     split: 2
-    expected_chapters: 9
+    expected_chapters: 7
     order: 3
     published: true
     updated: 2026-10-21
+
+  # 9 chapters: front (Como usar), 6 theory chapters, the question bank and the glossary.
+  - id: ligas-memoria-forma
+    title: Ligas com Efeito de Memória de Forma
+    subject: metalurgia
+    group: nao-ferrosos
+    type: teoria
+    split: 2
+    expected_chapters: 8
+    order: 4
+    published: true
+    updated: 2026-10-28
 
   - id: dsa
     title: Estruturas de Dados e Algoritmos
@@ -163,3 +175,16 @@ guides:
     order: 13
     published: true
     updated: 2026-10-21
+
+  # Integração numérica (pasta 6_integracao): one file holding the theory and both
+  # question banks. 10 chapters = 6 theory chapters + the two banks, the quick
+  # reference and the glossary (each an H1 block, promoted to a chapter).
+  - id: cn-integracao
+    title: "Módulo 6: integração numérica"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 10
+    order: 14
+    published: true
+    updated: 2026-11-04

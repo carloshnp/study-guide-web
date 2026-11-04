@@ -27,6 +27,7 @@ test.describe("published content", () => {
       aluminio: 29,
       "cn-contorno": 25,
       "cn-erros": 18,
+      "cn-integracao": 10,
       "cn-sistemas": 20,
       "cn-taylor": 12,
       dsa: 12,

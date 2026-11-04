@@ -193,12 +193,16 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "tensao-normal": (2, 14),
         "torcao": (2, 9),
         "resmat-p1": (2, 34),
-        # Cálculo Numérico: four modules, each one guide composed of its theory
+        # Cálculo Numérico: one guide per module (1, 2, 3, 4 and 6), each its theory
         # plus the question bank, which closes the module as its last chapter.
         "cn-taylor": (2, 12),
         "cn-erros": (2, 18),
         "cn-sistemas": (2, 20),
         "cn-contorno": (2, 25),
+        # Integração numérica: 6 theory chapters, 2 question banks, quick reference, glossary.
+        "cn-integracao": (2, 10),
+        # Ligas com Efeito de Memória de Forma: 6 theory chapters, the question bank and the glossary.
+        "ligas-memoria-forma": (2, 8),
     }
     assert {g.id: (g.split, g.expected_chapters) for g in catalog.guides} == measured
     assert {g.subject for g in catalog.guides} <= {s.id for s in catalog.subjects}
