@@ -201,8 +201,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-contorno": (2, 25),
         # Integração numérica: 6 theory chapters, 2 question banks, quick reference, glossary.
         "cn-integracao": (2, 10),
-        # Ligas com Efeito de Memória de Forma: 6 theory chapters, the question bank and the glossary.
-        "ligas-memoria-forma": (2, 8),
+        # Ligas com Efeito de Memória de Forma: front (Como usar), 6 theory chapters, the question bank and the glossary.
+        "ligas-memoria-forma": (2, 9),
     }
     assert {g.id: (g.split, g.expected_chapters) for g in catalog.guides} == measured
     assert {g.subject for g in catalog.guides} <= {s.id for s in catalog.subjects}
