@@ -37,7 +37,11 @@ SCHEMA_VERSION = 1
 TOOL = "pipeline.ingest/1"
 
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-IMAGE_RE = re.compile(r"!\[[^\]]*\]\(\s*(?:<(?P<angle>[^>\n]*)>|(?P<url>[^)\s]+))")
+# The alt text may hold balanced brackets, as in "em [0,1]": CommonMark renders those,
+# so the link must be found too, or the image is never copied or rewritten.
+IMAGE_RE = re.compile(
+    r"!\[(?:\\.|[^\[\]\\]|\[(?:\\.|[^\[\]\\])*\])*\]\(\s*(?:<(?P<angle>[^>\n]*)>|(?P<url>[^)\s]+))"
+)
 HTML_IMG_RE = re.compile(
     r"""<img\b[^>]*?\bsrc\s*=\s*(?P<quote>["'])(?P<src>.*?)(?P=quote)""",
     re.IGNORECASE,

@@ -33,7 +33,7 @@ COVER_SIZE: tuple[int, int] = (1280, 720)
 SERVED_PREFIX = "/media"
 
 IMAGE_RE = re.compile(
-    r"!\[(?P<alt>[^\]]*)\]\(\s*(?P<link><[^>]+>|[^)\s]+)(?P<title>\s+\"[^\"]*\")?\s*\)"
+    r"!\[(?P<alt>(?:\\.|[^\[\]\\]|\[(?:\\.|[^\[\]\\])*\])*)\]\(\s*(?P<link><[^>]+>|[^)\s]+)(?P<title>\s+\"[^\"]*\")?\s*\)"
 )
 FENCE_RE = re.compile(r"^(?: {0,3})(`{3,}|~{3,})")
 

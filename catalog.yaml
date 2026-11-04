@@ -57,14 +57,15 @@ guides:
     published: true
     updated: 2026-10-21
 
-  # 9 chapters: front (Como usar), 6 theory chapters, the question bank and the glossary.
+  # 8 chapters: 6 theory chapters, the question bank and the glossary. The "Como usar
+  # este guia" block is cover matter, not a chapter.
   - id: ligas-memoria-forma
     title: Ligas com Efeito de Memória de Forma
     subject: metalurgia
     group: nao-ferrosos
     type: teoria
     split: 2
-    expected_chapters: 9
+    expected_chapters: 8
     order: 4
     published: true
     updated: 2026-11-04
