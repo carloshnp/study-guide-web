@@ -203,6 +203,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-integracao": (2, 10),
         # Ligas com Efeito de Memória de Forma: 6 theory chapters, the question bank and the glossary.
         "ligas-memoria-forma": (2, 8),
+        # Superligas de Níquel I: 4 theory chapters and the closing list of verified recent readings.
+        "superligas-ni": (2, 5),
     }
     assert {g.id: (g.split, g.expected_chapters) for g in catalog.guides} == measured
     assert {g.subject for g in catalog.guides} <= {s.id for s in catalog.subjects}
