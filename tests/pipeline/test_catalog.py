@@ -201,6 +201,9 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-contorno": (2, 25),
         # Integração numérica: 6 theory chapters, 2 question banks, quick reference, glossary.
         "cn-integracao": (2, 10),
+        # SFT: 7 theory chapters plus the quick reference and the glossary as
+        # trailing H1 blocks.
+        "llm-sft": (2, 9),
         # Ligas com Efeito de Memória de Forma: 6 theory chapters, the question bank and the glossary.
         "ligas-memoria-forma": (2, 8),
         # Superligas de Níquel I: 4 theory chapters and the closing list of verified recent readings.

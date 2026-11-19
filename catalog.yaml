@@ -202,3 +202,16 @@ guides:
     order: 14
     published: true
     updated: 2026-11-04
+
+  # SFT: 7 theory chapters, then the quick reference and the glossary, which are
+  # H1 blocks and become chapters of their own. English prose, code in every
+  # section.
+  - id: llm-sft
+    title: "SFT: ajuste fino supervisionado de modelos pequenos"
+    subject: programacao
+    type: teoria
+    split: 2
+    expected_chapters: 9
+    order: 15
+    published: true
+    updated: 2026-11-19
