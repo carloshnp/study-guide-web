@@ -204,6 +204,19 @@ guides:
     published: true
     updated: 2026-11-04
 
+  # Zeros reais de funções (pasta 5_zeros_funcoes): one file with the theory of
+  # the methods, the question bank of list 2 (11 questions), the quick reference
+  # and the glossary. 12 chapters = 9 theory chapters + bank + reference + glossary.
+  - id: cn-zeros
+    title: "Módulo 5: zeros reais de funções"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 12
+    order: 15
+    published: true
+    updated: 2026-11-19
+
   # SFT: 7 theory chapters, then the quick reference and the glossary, which are
   # H1 blocks and become chapters of their own. English prose, code in every
   # section.

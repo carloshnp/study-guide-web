@@ -201,6 +201,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-contorno": (2, 25),
         # Integração numérica: 6 theory chapters, 2 question banks, quick reference, glossary.
         "cn-integracao": (2, 10),
+        # Zeros reais de funções: 9 theory chapters, the question bank, the quick reference, the glossary.
+        "cn-zeros": (2, 12),
         # SFT: 7 theory chapters plus the quick reference and the glossary as
         # trailing H1 blocks.
         "llm-sft": (2, 9),
