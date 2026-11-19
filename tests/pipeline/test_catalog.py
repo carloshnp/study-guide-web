@@ -206,8 +206,9 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "llm-sft": (2, 9),
         # Ligas com Efeito de Memória de Forma: 6 theory chapters, the question bank and the glossary.
         "ligas-memoria-forma": (2, 8),
-        # Superligas de Níquel I: 4 theory chapters and the closing list of verified recent readings.
-        "superligas-ni": (2, 5),
+        # Superligas de Níquel: 8 theory chapters (aulas 20 to 25), the closing list of
+        # verified readings and the estudo dirigido appendix as a trailing H1 block.
+        "superligas-ni": (2, 10),
     }
     assert {g.id: (g.split, g.expected_chapters) for g in catalog.guides} == measured
     assert {g.subject for g in catalog.guides} <= {s.id for s in catalog.subjects}
