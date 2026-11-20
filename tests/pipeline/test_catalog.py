@@ -199,10 +199,14 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-erros": (2, 18),
         "cn-sistemas": (2, 20),
         "cn-contorno": (2, 25),
-        # Integração numérica: 6 theory chapters, 2 question banks, quick reference, glossary.
-        "cn-integracao": (2, 10),
         # Zeros reais de funções: 9 theory chapters, the question bank, the quick reference, the glossary.
         "cn-zeros": (2, 12),
+        # Interpolação polinomial: 9 theory chapters, question bank (Lista 4), quick reference, glossary.
+        "cn-interpolacao": (2, 12),
+        # Integração numérica: 6 theory chapters, 2 question banks, quick reference, glossary.
+        "cn-integracao": (2, 10),
+        # Mínimos quadrados: 6 theory chapters, consolidated question bank, quick reference, glossary.
+        "cn-minimos-quadrados": (2, 9),
         # SFT: 7 theory chapters plus the quick reference and the glossary as
         # trailing H1 blocks.
         "llm-sft": (2, 9),

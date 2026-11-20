@@ -191,19 +191,6 @@ guides:
     published: true
     updated: 2026-10-21
 
-  # Integração numérica (pasta 6_integracao): one file holding the theory and both
-  # question banks. 10 chapters = 6 theory chapters + the two banks, the quick
-  # reference and the glossary (each an H1 block, promoted to a chapter).
-  - id: cn-integracao
-    title: "Módulo 6: integração numérica"
-    subject: calculo-numerico
-    type: teoria
-    split: 2
-    expected_chapters: 10
-    order: 14
-    published: true
-    updated: 2026-11-04
-
   # Zeros reais de funções (pasta 5_zeros_funcoes): one file with the theory of
   # the methods, the question bank of list 2 (11 questions), the quick reference
   # and the glossary. 12 chapters = 9 theory chapters + bank + reference + glossary.
@@ -213,7 +200,45 @@ guides:
     type: teoria
     split: 2
     expected_chapters: 12
+    order: 14
+    published: true
+    updated: 2026-11-19
+
+  # Interpolação polinomial (pasta 6_polinomios): 9 theory chapters plus
+  # question bank (Lista 4), quick reference and glossary (12 H2 chapters).
+  - id: cn-interpolacao
+    title: "Módulo 6: interpolação polinomial"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 12
     order: 15
+    published: true
+    updated: 2026-11-19
+
+  # Integração numérica (pasta 7_integracao): one file holding the theory and both
+  # question banks. 10 chapters = 6 theory chapters + the two banks, the quick
+  # reference and the glossary (each an H1 block, promoted to a chapter).
+  - id: cn-integracao
+    title: "Módulo 7: integração numérica"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 10
+    order: 16
+    published: true
+    updated: 2026-11-04
+
+  # Mínimos quadrados (pasta 8_minimos_quadrados): 6 theory chapters plus the
+  # consolidated question bank (35 questions from 5 lists), quick reference and
+  # glossary (each a trailing H1 block promoted to a chapter).
+  - id: cn-minimos-quadrados
+    title: "Módulo 8: mínimos quadrados"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 9
+    order: 17
     published: true
     updated: 2026-11-19
 
