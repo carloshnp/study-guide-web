@@ -242,6 +242,19 @@ guides:
     published: true
     updated: 2026-11-19
 
+  # Equações diferenciais ordinárias (pasta 9_edo): 6 theory chapters plus the
+  # deduplicated question bank (10 questions from Cap. 7 and Lista 7), quick
+  # reference and glossary (each a trailing H1 block promoted to a chapter).
+  - id: cn-edo
+    title: "Módulo 9: equações diferenciais ordinárias (EDOs)"
+    subject: calculo-numerico
+    type: teoria
+    split: 2
+    expected_chapters: 9
+    order: 18
+    published: true
+    updated: 2026-11-21
+
   # SFT: 7 theory chapters, then the quick reference and the glossary, which are
   # H1 blocks and become chapters of their own. English prose, code in every
   # section.
