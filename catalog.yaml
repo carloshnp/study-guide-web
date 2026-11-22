@@ -217,17 +217,17 @@ guides:
     updated: 2026-11-19
 
   # Integração numérica (pasta 7_integracao): one file holding the theory and both
-  # question banks. 10 chapters = 6 theory chapters + the two banks, the quick
+  # question banks. 9 chapters = 5 theory chapters + the two banks, the quick
   # reference and the glossary (each an H1 block, promoted to a chapter).
   - id: cn-integracao
     title: "Módulo 7: integração numérica"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 10
+    expected_chapters: 9
     order: 16
     published: true
-    updated: 2026-11-04
+    updated: 2026-11-22
 
   # Mínimos quadrados (pasta 8_minimos_quadrados): 6 theory chapters plus the
   # consolidated question bank (35 questions from 5 lists), quick reference and

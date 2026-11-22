@@ -203,8 +203,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-zeros": (2, 12),
         # Interpolação polinomial: 9 theory chapters, question bank (Lista 4), quick reference, glossary.
         "cn-interpolacao": (2, 12),
-        # Integração numérica: 6 theory chapters, 2 question banks, quick reference, glossary.
-        "cn-integracao": (2, 10),
+        # Integração numérica: 5 theory chapters, 2 question banks, quick reference, glossary.
+        "cn-integracao": (2, 9),
         # Mínimos quadrados: 6 theory chapters, consolidated question bank, quick reference, glossary.
         "cn-minimos-quadrados": (2, 9),
         # Equações diferenciais ordinárias: 6 theory chapters, deduplicated question bank (10 questions), quick reference, glossary.
