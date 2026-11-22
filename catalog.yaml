@@ -204,17 +204,17 @@ guides:
     published: true
     updated: 2026-11-19
 
-  # Interpolação polinomial (pasta 6_polinomios): 9 theory chapters plus
-  # question bank (Lista 4), quick reference and glossary (12 H2 chapters).
+  # Interpolação polinomial (pasta 6_polinomios): 5 theory chapters plus
+  # question bank (Lista 4), quick reference and glossary (8 chapters).
   - id: cn-interpolacao
     title: "Módulo 6: interpolação polinomial"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 12
+    expected_chapters: 8
     order: 15
     published: true
-    updated: 2026-11-19
+    updated: 2026-11-22
 
   # Integração numérica (pasta 7_integracao): one file holding the theory and both
   # question banks. 9 chapters = 5 theory chapters + the two banks, the quick
