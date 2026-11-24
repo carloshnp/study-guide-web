@@ -201,8 +201,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-contorno": (2, 25),
         # Zeros reais de funções: 5 theory chapters, question bank (Lista 2), quick reference, glossary.
         "cn-zeros": (2, 8),
-        # Interpolação polinomial: 5 theory chapters, question bank (Lista 4), quick reference, glossary.
-        "cn-interpolacao": (2, 8),
+        # Interpolação polinomial: 5 theory chapters, question bank (Lista 4), quick reference, glossary, visual summary.
+        "cn-interpolacao": (2, 9),
         # Integração numérica: 5 theory chapters, 2 question banks, quick reference, glossary.
         "cn-integracao": (2, 9),
         # Mínimos quadrados: 6 theory chapters, consolidated question bank, quick reference, glossary.
