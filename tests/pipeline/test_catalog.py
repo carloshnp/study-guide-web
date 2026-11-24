@@ -207,8 +207,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "cn-integracao": (2, 10),
         # Mínimos quadrados: 6 theory chapters, consolidated question bank, quick reference, glossary, visual summary.
         "cn-minimos-quadrados": (2, 10),
-        # Equações diferenciais ordinárias: 6 theory chapters, deduplicated question bank (10 questions), quick reference, glossary.
-        "cn-edo": (2, 9),
+        # Equações diferenciais ordinárias: 6 theory chapters, deduplicated question bank (10 questions), quick reference, glossary, visual summary.
+        "cn-edo": (2, 10),
         # SFT: 7 theory chapters plus the quick reference and the glossary as
         # trailing H1 blocks.
         "llm-sft": (2, 9),
