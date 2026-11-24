@@ -192,16 +192,16 @@ guides:
     updated: 2026-10-21
 
   # Zeros reais de funções (pasta 5_zeros_funcoes/guia-zeros): 5 theory chapters,
-  # question bank (Lista 2, 11 questions), quick reference and glossary (8 chapters).
+  # question bank (Lista 2, 11 questions), quick reference, glossary and visual summary (9 chapters).
   - id: cn-zeros
     title: "Módulo 5: zeros reais de funções"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 8
+    expected_chapters: 9
     order: 14
     published: true
-    updated: 2026-11-23
+    updated: 2026-11-24
 
   # Interpolação polinomial (pasta 6_polinomios): 5 theory chapters plus
   # question bank (Lista 4), quick reference, glossary and visual summary (9 chapters).
@@ -213,33 +213,33 @@ guides:
     expected_chapters: 9
     order: 15
     published: true
-    updated: 2026-11-23
+    updated: 2026-11-24
 
   # Integração numérica (pasta 7_integracao): one file holding the theory and both
-  # question banks. 9 chapters = 5 theory chapters + the two banks, the quick
-  # reference and the glossary (each an H1 block, promoted to a chapter).
+  # question banks. 10 chapters = 5 theory chapters + the two banks, the quick
+  # reference, the glossary and the visual summary (each an H1 block, promoted to a chapter).
   - id: cn-integracao
     title: "Módulo 7: integração numérica"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 9
+    expected_chapters: 10
     order: 16
     published: true
-    updated: 2026-11-22
+    updated: 2026-11-24
 
   # Mínimos quadrados (pasta 8_minimos_quadrados): 6 theory chapters plus the
-  # consolidated question bank (35 questions from 5 lists), quick reference and
-  # glossary (each a trailing H1 block promoted to a chapter).
+  # consolidated question bank (35 questions from 5 lists), quick reference,
+  # glossary and visual summary (each a trailing H1 block promoted to a chapter).
   - id: cn-minimos-quadrados
     title: "Módulo 8: mínimos quadrados"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 9
+    expected_chapters: 10
     order: 17
     published: true
-    updated: 2026-11-19
+    updated: 2026-11-24
 
   # Equações diferenciais ordinárias (pasta 9_edo): 6 theory chapters plus the
   # deduplicated question bank (10 questions from Cap. 7 and Lista 7), quick

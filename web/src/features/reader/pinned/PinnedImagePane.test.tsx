@@ -90,4 +90,18 @@ describe("PinnedImagePane", () => {
     await user.click(screen.getByRole("button", { name: /mostrar imagem/i }))
     expect(frame()).not.toHaveClass("max-xl:hidden")
   })
+
+  it("adapts the frame orientation for portrait 9:16 infographics without changing landscape frames", () => {
+    const portrait: ChapterImage = {
+      ...FIRST,
+      alt: "Infográfico vertical 9:16",
+      height: 2293,
+      width: 1280,
+    }
+    const { container, rerender } = render(<Harness images={[FIRST]} />)
+    expect(container.querySelector('[data-orientation="landscape"]')).toBeInTheDocument()
+
+    rerender(<Harness images={[portrait]} />)
+    expect(container.querySelector('[data-orientation="portrait"]')).toBeInTheDocument()
+  })
 })

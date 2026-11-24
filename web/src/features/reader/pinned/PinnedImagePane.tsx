@@ -48,6 +48,7 @@ export function PinnedImagePane({
 
   const position = Math.min(index, count - 1)
   const many = count > 1
+  const portrait = Boolean(current.width && current.height && current.height > current.width)
 
   return (
     <section
@@ -111,7 +112,15 @@ export function PinnedImagePane({
       </div>
 
       <div className={cn(collapsed && "max-xl:hidden")} data-slot="pinned-image-frame">
-        <div className="relative mx-auto aspect-video max-h-[34dvh] w-full overflow-hidden rounded-figure border border-border bg-code xl:max-h-none">
+        <div
+          className={cn(
+            "relative mx-auto overflow-hidden rounded-figure border border-border bg-code",
+            portrait
+              ? "aspect-[9/16] h-[38dvh] max-h-[38dvh] w-auto max-w-full xl:h-[min(78dvh,860px)] xl:max-h-[min(78dvh,860px)]"
+              : "aspect-video max-h-[34dvh] w-full xl:max-h-none",
+          )}
+          data-orientation={portrait ? "portrait" : "landscape"}
+        >
           <button
             aria-label={`Ampliar imagem: ${current.alt}`}
             className="block size-full cursor-zoom-in"
