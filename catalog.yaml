@@ -70,19 +70,18 @@ guides:
     published: true
     updated: 2026-11-04
 
-  # 10 chapters: eight theory chapters (aulas 20 to 25), the closing list of
-  # verified readings promoted to a chapter of its own, and the estudo dirigido
-  # appendix as a trailing H1 block.
+  # 11 chapters: eight theory chapters (aulas 20 to 25), question bank
+  # (Estudo Dirigido, aula 24), quick reference and glossary as trailing H1 blocks.
   - id: superligas-ni
     title: Superligas de Níquel
     subject: metalurgia
     group: nao-ferrosos
     type: teoria
     split: 2
-    expected_chapters: 10
+    expected_chapters: 11
     order: 5
     published: true
-    updated: 2026-11-19
+    updated: 2026-11-24
 
   - id: dsa
     title: Estruturas de Dados e Algoritmos
