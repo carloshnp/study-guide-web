@@ -191,18 +191,17 @@ guides:
     published: true
     updated: 2026-10-21
 
-  # Zeros reais de funções (pasta 5_zeros_funcoes): one file with the theory of
-  # the methods, the question bank of list 2 (11 questions), the quick reference
-  # and the glossary. 12 chapters = 9 theory chapters + bank + reference + glossary.
+  # Zeros reais de funções (pasta 5_zeros_funcoes/guia-zeros): 5 theory chapters,
+  # question bank (Lista 2, 11 questions), quick reference and glossary (8 chapters).
   - id: cn-zeros
     title: "Módulo 5: zeros reais de funções"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 12
+    expected_chapters: 8
     order: 14
     published: true
-    updated: 2026-11-19
+    updated: 2026-11-23
 
   # Interpolação polinomial (pasta 6_polinomios): 5 theory chapters plus
   # question bank (Lista 4), quick reference and glossary (8 chapters).
