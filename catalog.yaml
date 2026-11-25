@@ -81,7 +81,7 @@ guides:
     expected_chapters: 15
     order: 5
     published: true
-    updated: 2026-11-24
+    updated: 2026-11-25
 
   - id: dsa
     title: Estruturas de Dados e Algoritmos
