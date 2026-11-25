@@ -147,18 +147,18 @@ guides:
     published: true
     updated: 2026-10-21
 
-  # Cálculo Numérico: one guide per module, each composed of two source files --
-  # the theory and its question bank, concatenated in that order (the catalog
-  # counts the bank as the last chapter of the module, where it belongs).
+  # Séries de Taylor (pasta 1_taylor/guia-taylor): 5 theory chapters plus
+  # deduplicated official question bank (32 questions), quick reference,
+  # glossary and visual summary (each a trailing H1 block promoted to a chapter).
   - id: cn-taylor
     title: "Módulo 1: séries de Taylor"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 12
+    expected_chapters: 9
     order: 10
     published: true
-    updated: 2026-10-21
+    updated: 2026-11-25
 
   - id: cn-erros
     title: "Módulo 2: erros e ponto flutuante"

@@ -195,7 +195,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         "resmat-p1": (2, 34),
         # Cálculo Numérico: one guide per module (1, 2, 3, 4 and 6), each its theory
         # plus the question bank, which closes the module as its last chapter.
-        "cn-taylor": (2, 12),
+        # Séries de Taylor: 5 theory chapters, deduplicated question bank (32 questions), quick reference, glossary, visual summary.
+        "cn-taylor": (2, 9),
         "cn-erros": (2, 18),
         "cn-sistemas": (2, 20),
         "cn-contorno": (2, 25),
