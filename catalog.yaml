@@ -173,15 +173,18 @@ guides:
     published: true
     updated: 2026-11-25
 
+  # Sistemas lineares (pasta 3_sistemas_lineares/guia-sistemas): 6 theory chapters
+  # plus deduplicated official question bank (32 questions), quick reference,
+  # glossary and visual summary (each a trailing H1 block promoted to a chapter).
   - id: cn-sistemas
     title: "Módulo 3: sistemas lineares"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 20
+    expected_chapters: 10
     order: 12
     published: true
-    updated: 2026-10-21
+    updated: 2026-11-25
 
   - id: cn-contorno
     title: "Módulo 4: problemas de contorno"
