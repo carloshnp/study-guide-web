@@ -197,7 +197,8 @@ def test_real_catalog_publishes_the_measured_guides(repo_root: Path) -> None:
         # plus the question bank, which closes the module as its last chapter.
         # Séries de Taylor: 5 theory chapters, deduplicated question bank (32 questions), quick reference, glossary, visual summary.
         "cn-taylor": (2, 9),
-        "cn-erros": (2, 18),
+        # Erros e ponto flutuante: 6 theory chapters, deduplicated question bank (30 questions), quick reference, glossary, visual summary.
+        "cn-erros": (2, 10),
         "cn-sistemas": (2, 20),
         "cn-contorno": (2, 25),
         # Zeros reais de funções: 5 theory chapters, question bank (Lista 2), quick reference, glossary, visual summary.

@@ -160,15 +160,18 @@ guides:
     published: true
     updated: 2026-11-25
 
+  # Erros e ponto flutuante (pasta 2_erros/guia-erros): 6 theory chapters plus
+  # deduplicated official question bank (30 questions), quick reference,
+  # glossary and visual summary (each a trailing H1 block promoted to a chapter).
   - id: cn-erros
     title: "Módulo 2: erros e ponto flutuante"
     subject: calculo-numerico
     type: teoria
     split: 2
-    expected_chapters: 18
+    expected_chapters: 10
     order: 11
     published: true
-    updated: 2026-10-21
+    updated: 2026-11-25
 
   - id: cn-sistemas
     title: "Módulo 3: sistemas lineares"
