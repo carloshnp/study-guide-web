@@ -58,9 +58,9 @@ def seed_review(
 
 def seed_habit(execute: Callable[..., None], on: str, reviews: int = 1) -> None:
     execute(
-        """INSERT INTO fc_habits (day, new_reviewed, reviews_done, streak_frozen)
-           VALUES (?, 0, ?, 0)
-           ON CONFLICT (day) DO UPDATE SET reviews_done = excluded.reviews_done""",
+        """INSERT INTO fc_habits (user_id, day, new_reviewed, reviews_done, streak_frozen)
+           VALUES (1, ?, 0, ?, 0)
+           ON CONFLICT (user_id, day) DO UPDATE SET reviews_done = excluded.reviews_done""",
         (on, reviews),
     )
 

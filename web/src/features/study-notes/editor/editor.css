@@ -1,0 +1,398 @@
+/* Obsidian-like Live Preview styles for the CodeMirror 6 notes editor. */
+
+.cm-notes-host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.cm-notes-host .cm-editor {
+  height: 100%;
+  min-height: 16rem;
+  font-family: var(--font-sans, inherit);
+  font-size: var(--text-meta, 0.9375rem);
+  line-height: 1.65;
+  color: var(--foreground);
+  background: transparent;
+}
+
+.cm-notes-host .cm-editor.cm-focused {
+  outline: none;
+}
+
+.cm-notes-host .cm-scroller {
+  overflow: auto;
+  padding: 0.75rem 1rem 3rem;
+  font-family: inherit;
+}
+
+.cm-notes-host .cm-content {
+  caret-color: var(--brand, var(--foreground));
+  tab-size: 4;
+}
+
+.cm-notes-host .cm-line {
+  padding: 0.1rem 0;
+}
+
+/* Headings */
+.cm-notes-host .cm-lp-heading {
+  font-family: var(--font-heading, inherit);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--foreground);
+}
+
+.cm-notes-host .cm-lp-h1 {
+  font-size: 1.55em;
+  line-height: 1.3;
+  padding-top: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+
+.cm-notes-host .cm-lp-h2 {
+  font-size: 1.3em;
+  line-height: 1.35;
+  padding-top: 0.65rem;
+  padding-bottom: 0.2rem;
+}
+
+.cm-notes-host .cm-lp-h3 {
+  font-size: 1.12em;
+  line-height: 1.4;
+  padding-top: 0.45rem;
+}
+
+.cm-notes-host .cm-lp-h4,
+.cm-notes-host .cm-lp-h5,
+.cm-notes-host .cm-lp-h6 {
+  font-size: 1em;
+  padding-top: 0.35rem;
+}
+
+/* Inline emphasis & links */
+.cm-notes-host .cm-lp-strong {
+  font-weight: 700;
+}
+
+.cm-notes-host .cm-lp-em {
+  font-style: italic;
+}
+
+.cm-notes-host .cm-lp-strike {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.cm-notes-host .cm-lp-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.88em;
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+  background: var(--code-bg, var(--muted));
+}
+
+.cm-notes-host .cm-lp-link {
+  color: var(--brand, var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.cm-notes-host .cm-lp-bullet {
+  color: var(--muted-foreground);
+  font-weight: 700;
+  padding-inline-end: 0.25rem;
+}
+
+/* Blockquotes & Obsidian callouts */
+.cm-notes-host .cm-lp-blockquote {
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.cm-notes-host .cm-lp-callout-header,
+.cm-notes-host .cm-lp-callout-body {
+  --callout-accent: #3b82f6;
+  background: color-mix(in srgb, var(--callout-accent) 10%, transparent);
+  border-inline-start: 3px solid var(--callout-accent);
+  padding-inline: 0.85rem;
+}
+
+.cm-notes-host .cm-lp-callout-tone-blue {
+  --callout-accent: #2563eb;
+}
+
+.cm-notes-host .cm-lp-callout-tone-teal {
+  --callout-accent: #0891b2;
+}
+
+.cm-notes-host .cm-lp-callout-tone-green {
+  --callout-accent: #059669;
+}
+
+.cm-notes-host .cm-lp-callout-tone-amber {
+  --callout-accent: #d97706;
+}
+
+.cm-notes-host .cm-lp-callout-tone-red {
+  --callout-accent: #e11d48;
+}
+
+.cm-notes-host .cm-lp-callout-tone-purple {
+  --callout-accent: #7c3aed;
+}
+
+.cm-notes-host .cm-lp-callout-tone-neutral {
+  --callout-accent: #64748b;
+}
+
+.dark .cm-notes-host .cm-lp-callout-tone-blue {
+  --callout-accent: #60a5fa;
+}
+
+.dark .cm-notes-host .cm-lp-callout-tone-teal {
+  --callout-accent: #22d3ee;
+}
+
+.dark .cm-notes-host .cm-lp-callout-tone-green {
+  --callout-accent: #34d399;
+}
+
+.dark .cm-notes-host .cm-lp-callout-tone-amber {
+  --callout-accent: #fbbf24;
+}
+
+.dark .cm-notes-host .cm-lp-callout-tone-red {
+  --callout-accent: #fb7185;
+}
+
+.dark .cm-notes-host .cm-lp-callout-tone-purple {
+  --callout-accent: #a78bfa;
+}
+
+.dark .cm-notes-host .cm-lp-callout-tone-neutral {
+  --callout-accent: #94a3b8;
+}
+
+.cm-notes-host .cm-lp-callout-header {
+  border-top-right-radius: 0.5rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.2rem;
+  margin-top: 0.4rem;
+}
+
+.cm-notes-host .cm-lp-callout-body {
+  padding-top: 0.1rem;
+  padding-bottom: 0.15rem;
+}
+
+.cm-notes-host .cm-lp-callout-end {
+  border-bottom-right-radius: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.cm-notes-host .cm-lp-callout-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  color: var(--callout-accent, var(--brand));
+  cursor: pointer;
+}
+
+.cm-notes-host .cm-lp-callout-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--callout-accent, var(--brand)) 16%, transparent);
+  font-size: 0.85em;
+}
+
+/* MathJax SVG widgets */
+.cm-notes-host .cm-lp-math-inline {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  padding: 0 0.08em;
+}
+
+.cm-notes-host .cm-lp-math-inline mjx-container {
+  display: inline-block !important;
+  margin: 0 !important;
+}
+
+.cm-notes-host .cm-lp-math-block {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
+  padding: 0.55rem 0.25rem;
+  margin: 0.25rem 0;
+  cursor: pointer;
+}
+
+.cm-notes-host .cm-lp-math-quoted {
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.85rem;
+  background: color-mix(in srgb, var(--muted) 40%, transparent);
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+}
+
+.cm-notes-host .cm-lp-math-block mjx-container {
+  display: inline-block !important;
+  margin: 0 auto !important;
+}
+
+.cm-notes-host .cm-lp-math-inline svg,
+.cm-notes-host .cm-lp-math-block svg {
+  max-width: 100%;
+  height: auto;
+  color: currentColor;
+}
+
+.cm-notes-host .cm-lp-math-source,
+.cm-notes-host .cm-lp-math-source-line {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  background: color-mix(in srgb, var(--brand, #6366f1) 8%, transparent);
+  border-radius: 0.25rem;
+}
+
+.cm-notes-host .cm-math-error {
+  color: var(--warning, #dc2626);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.88em;
+  background: color-mix(in srgb, var(--warning, #dc2626) 10%, transparent);
+  padding: 0.08em 0.3em;
+  border-radius: 0.25rem;
+}
+
+/* Wikilink embeds (e.g. Excalidraw placeholders) */
+.cm-notes-host .cm-lp-embed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.6rem;
+  margin: 0.25rem 0;
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+  font-size: 0.85em;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.cm-notes-host .cm-lp-embed-center {
+  display: flex;
+  width: fit-content;
+  margin: 0.4rem auto;
+}
+
+.cm-notes-host .cm-lp-embed-kind {
+  font-weight: 600;
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--brand, var(--primary));
+}
+
+.cm-notes-host .cm-lp-embed-name {
+  max-width: 24rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Paired bracket colors in raw LaTeX */
+.cm-notes-host .cm-math-bracket-0 {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.cm-notes-host .cm-math-bracket-1 {
+  color: #9333ea;
+  font-weight: 600;
+}
+
+.cm-notes-host .cm-math-bracket-2 {
+  color: #059669;
+  font-weight: 600;
+}
+
+.dark .cm-notes-host .cm-math-bracket-0 {
+  color: #60a5fa;
+}
+
+.dark .cm-notes-host .cm-math-bracket-1 {
+  color: #c084fc;
+}
+
+.dark .cm-notes-host .cm-math-bracket-2 {
+  color: #34d399;
+}
+
+.cm-notes-host .cm-math-bracket-match {
+  background: color-mix(in srgb, var(--accent, #2563eb) 22%, transparent);
+  border-radius: 2px;
+}
+
+/* Tooltips (floating MathJax preview + `/` slash command dropdown) — light & dark */
+.cm-notes-host .cm-tooltip {
+  border: 1px solid var(--border) !important;
+  border-radius: 0.5rem !important;
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+  box-shadow: var(--shadow-pop, 0 8px 24px rgb(0 0 0 / 0.16)) !important;
+  z-index: 40;
+}
+
+.cm-notes-host .cm-math-live-preview {
+  max-width: min(36rem, 85vw);
+  overflow-x: auto;
+  padding: 0.45rem 0.75rem;
+  color: var(--foreground);
+}
+
+.cm-notes-host .cm-math-live-preview mjx-container {
+  margin: 0 !important;
+  color: var(--foreground);
+}
+
+.cm-notes-host .cm-tooltip-autocomplete > ul {
+  max-height: 16rem;
+  min-width: 15rem;
+  padding: 0.25rem;
+  font-family: var(--font-sans, inherit);
+}
+
+.cm-notes-host .cm-tooltip-autocomplete > ul > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.375rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.cm-notes-host .cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background-color: var(--accent-soft, var(--accent)) !important;
+  color: var(--accent-foreground, var(--foreground)) !important;
+}
+
+.cm-notes-host .cm-tooltip-autocomplete .cm-completionDetail {
+  margin-inline-start: auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  font-style: normal;
+  color: var(--muted-foreground);
+  opacity: 0.9;
+}

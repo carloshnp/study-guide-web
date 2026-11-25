@@ -83,8 +83,51 @@ type ElementProps = {
 const NO_IMAGES: readonly ChapterImage[] = []
 const NO_SECTIONS: readonly ChapterSection[] = []
 
+type HastNode = {
+  type?: string
+  value?: string
+  properties?: { className?: string[] | string }
+  children?: HastNode[]
+}
+
+/**
+ * Mirrors Obsidian's `auto-displaystyle-inline-math` plugin across the entire
+ * site (study guides + flashcards): inline `$...$` renders fractions, limits
+ * and integrals at full display height instead of cramped `\textstyle`.
+ */
+function rehypeInlineDisplayStyle() {
+  const visit = (node: HastNode) => {
+    const classes = node.properties?.className
+    const isInlineMath = Array.isArray(classes)
+      ? classes.includes("math-inline")
+      : typeof classes === "string" && classes.split(/\s+/).includes("math-inline")
+
+    if (isInlineMath && Array.isArray(node.children)) {
+      const firstText = node.children.find(
+        (child) => child.type === "text" && typeof child.value === "string",
+      )
+      if (
+        firstText &&
+        typeof firstText.value === "string" &&
+        firstText.value.trim().length > 0 &&
+        !firstText.value.trimStart().startsWith("\\displaystyle")
+      ) {
+        firstText.value = `\\displaystyle ${firstText.value}`
+      }
+      return
+    }
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) visit(child)
+    }
+  }
+  return (tree: HastNode) => {
+    visit(tree)
+  }
+}
+
 const REMARK_PLUGINS: PluggableList = [remarkGfm, remarkMath]
 const REHYPE_PLUGINS: PluggableList = [
+  rehypeInlineDisplayStyle,
   [rehypeKatex, { strict: false, throwOnError: false }],
   rehypeObsidianCallouts,
   [rehypeHighlight, { detect: false, plainText: ["text", "output", "log"] }],

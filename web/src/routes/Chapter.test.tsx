@@ -157,6 +157,9 @@ function stubContent(options: { resumos?: string[]; resumo?: unknown } = {}) {
     if (path.startsWith("/api/progress")) {
       return jsonResponse({ count: 0, guideId: "aluminio", units: {} })
     }
+    if (path.startsWith("/api/highlights")) {
+      return jsonResponse({ highlights: [] })
+    }
     return jsonResponse({}, 404)
   })
   vi.stubGlobal("fetch", fetchMock)
@@ -336,13 +339,21 @@ describe("Chapter route", () => {
 
   it("shows the resumo and its label when summary mode is on and the guide lists the chapter", async () => {
     setSummaryMode(true)
-    stubContent({ resumos: ["01-o-aluminio"], resumo: RESUMO })
+    const fetchMock = stubContent({ resumos: ["01-o-aluminio"], resumo: RESUMO })
 
     renderChapter()
 
     expect(await screen.findByText("Guia resumido")).toBeInTheDocument()
     expect(await screen.findByText(/bauxita é lavada/i)).toBeInTheDocument()
     expect(screen.queryByText(/metal não ferroso mais usado/i)).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(
+          ([url]) =>
+            String(url) === "/api/highlights?guideId=aluminio&chapterId=01-o-aluminio&variant=resumo",
+        ),
+      ).toBe(true)
+    })
   })
 
   it("keeps the full chapter when summary mode is on but the guide lists no resumo", async () => {

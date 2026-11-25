@@ -16,10 +16,24 @@ from typing import Annotated, Any
 
 from fastapi import Depends
 
+from app.auth import CurrentUserId
 from app.db import get_connection
 from app.flashcards import cloze
 
 Connection = Annotated[sqlite3.Connection, Depends(get_connection)]
+
+__all__ = [
+    "Connection",
+    "CurrentUserId",
+    "STATE_VALUES",
+    "answer_payload",
+    "card_summary",
+    "deck_card_payload",
+    "note_payload",
+    "question_front",
+    "question_payload",
+    "scope_meta",
+]
 
 STATE_VALUES = ("new", "learning", "review", "suspended", "deprecated")
 

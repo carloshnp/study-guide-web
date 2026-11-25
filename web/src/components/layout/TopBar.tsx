@@ -1,19 +1,23 @@
-import { MenuIcon, SearchIcon } from "lucide-react"
+import { MenuIcon, NotebookPenIcon, SearchIcon } from "lucide-react"
 import { Link } from "react-router"
 
 import { SettingsMenu } from "@/components/layout/SettingsMenu"
 import { Button } from "@/components/ui/button"
+import { AccountMenu } from "@/features/auth/AccountMenu"
 
 type TopBarProps = {
   /** Opens the navigation drawer. The menu button is shown at every width. */
   onOpenNav: () => void
+  notesOpen?: boolean
+  onToggleNotes?: () => void
 }
 
 /**
- * Sticky top bar: the navigation menu button, brand, search entry point and the
- * settings menu (theme, panel width, side margin). 56px on phones, 64px from `md` (`viewport-units`, `fixed-element-offset`).
+ * Sticky top bar: the navigation menu button, brand, search entry point,
+ * standalone notes toggle and the settings menu (theme, panel width, side margin).
+ * 56px on phones, 64px from `md` (`viewport-units`, `fixed-element-offset`).
  */
-export function TopBar({ onOpenNav }: TopBarProps) {
+export function TopBar({ onOpenNav, notesOpen = false, onToggleNotes }: TopBarProps) {
   return (
     <header className="sticky top-0 z-[var(--z-bar)] border-b border-border bg-background/95 backdrop-blur-sm">
       <div className="flex h-[var(--bar-h-phone)] items-center gap-2 px-3 md:h-[var(--bar-h)] md:px-6">
@@ -46,7 +50,24 @@ export function TopBar({ onOpenNav }: TopBarProps) {
           <SearchIcon aria-hidden="true" className="size-5" />
         </Link>
 
+        {onToggleNotes ? (
+          <Button
+            type="button"
+            variant={notesOpen ? "secondary" : "ghost"}
+            size="icon-xl"
+            aria-label="Anotações"
+            aria-expanded={notesOpen}
+            aria-pressed={notesOpen}
+            title="Anotações"
+            onClick={onToggleNotes}
+          >
+            <NotebookPenIcon aria-hidden="true" />
+          </Button>
+        ) : null}
+
         <SettingsMenu />
+
+        <AccountMenu />
       </div>
     </header>
   )

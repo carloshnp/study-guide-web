@@ -310,9 +310,11 @@ def _scheduled_interval(
 # -------------------------------------------------------------------- persistence
 
 
-def retention_for(conn: sqlite3.Connection, guide_id: str | None = None) -> float:
+def retention_for(
+    conn: sqlite3.Connection, guide_id: str | None = None, *, user_id: int = 1
+) -> float:
     """Desired retention for a guide, falling back to the global default."""
-    settings = fdb.get_settings(conn)
+    settings = fdb.get_settings(conn, user_id=user_id)
     per_guide = settings.get("perGuide") or {}
     if guide_id and guide_id in per_guide:
         try:
@@ -331,19 +333,21 @@ def apply_review(
     today: datetime | None = None,
     elapsed_ms: int = 0,
     retention: float | None = None,
+    user_id: int | None = None,
 ) -> Transition:
     """Transition one stored card, persist it and append the revlog entry.
 
     The retention is resolved per guide from ``fc_settings`` unless passed in.
     """
-    card = fdb.card_with_note(conn, card_id)
+    card = fdb.card_with_note(conn, card_id, user_id=user_id)
     if card is None:
         raise LookupError(f"card {card_id} does not exist")
+    owner_id = int(card["user_id"])
     moment = as_datetime(now if now is not None else today)
     target = (
         retention
         if retention is not None
-        else retention_for(conn, card["guide_id"])
+        else retention_for(conn, card["guide_id"], user_id=owner_id)
     )
     result = transition(card, rating, now=moment, retention=target)
     fdb.update_card(conn, card_id, result.card_changes())

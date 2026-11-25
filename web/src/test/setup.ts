@@ -57,3 +57,15 @@ if (typeof Element.prototype.scrollIntoView !== "function") {
 if (typeof Element.prototype.getAnimations !== "function") {
   Element.prototype.getAnimations = () => []
 }
+
+// CodeMirror 6 measures text layout via Range.getClientRects / getBoundingClientRect.
+if (typeof Range !== "undefined" && typeof Range.prototype.getClientRects !== "function") {
+  Range.prototype.getClientRects = () => ({
+    item: () => null,
+    length: 0,
+    [Symbol.iterator]: function* () {},
+  }) as unknown as DOMRectList
+}
+if (typeof Range !== "undefined" && typeof Range.prototype.getBoundingClientRect !== "function") {
+  Range.prototype.getBoundingClientRect = () => new DOMRect(0, 0, 0, 0)
+}

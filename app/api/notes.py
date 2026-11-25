@@ -14,6 +14,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.auth import CurrentUserId
 from app.db import get_connection, utcnow
 
 router = APIRouter(prefix="/api", tags=["notes"])
@@ -63,13 +64,13 @@ class Note(BaseModel):
 
 
 @router.put("/notes", response_model=Note)
-def write_note(payload: NoteWrite, connection: Connection) -> Note:
+def write_note(payload: NoteWrite, connection: Connection, user_id: CurrentUserId) -> Note:
     """Save the chapter note, or delete it when the body is blank."""
     if not payload.body.strip():
         with connection:
             connection.execute(
-                "DELETE FROM notes WHERE guide_id = ? AND chapter_id = ?",
-                (payload.guide_id, payload.chapter_id),
+                "DELETE FROM notes WHERE user_id = ? AND guide_id = ? AND chapter_id = ?",
+                (user_id, payload.guide_id, payload.chapter_id),
             )
         return Note(
             guideId=payload.guide_id,
@@ -83,13 +84,13 @@ def write_note(payload: NoteWrite, connection: Connection) -> Note:
     with connection:
         connection.execute(
             """
-            INSERT INTO notes (guide_id, chapter_id, body, updated_at)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT (guide_id, chapter_id) DO UPDATE SET
+            INSERT INTO notes (user_id, guide_id, chapter_id, body, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT (user_id, guide_id, chapter_id) DO UPDATE SET
                 body = excluded.body,
                 updated_at = excluded.updated_at
             """,
-            (payload.guide_id, payload.chapter_id, body, timestamp),
+            (user_id, payload.guide_id, payload.chapter_id, body, timestamp),
         )
     return Note(
         guideId=payload.guide_id,
@@ -102,6 +103,7 @@ def write_note(payload: NoteWrite, connection: Connection) -> Note:
 @router.get("/notes", response_model=Note)
 def read_note(
     connection: Connection,
+    user_id: CurrentUserId,
     guide_id: Annotated[IdQuery, Query(alias="guideId")],
     chapter_id: Annotated[IdQuery, Query(alias="chapterId")],
 ) -> Note:
@@ -109,8 +111,8 @@ def read_note(
     _require_clean_id(guide_id, "guideId")
     _require_clean_id(chapter_id, "chapterId")
     row = connection.execute(
-        "SELECT body, updated_at FROM notes WHERE guide_id = ? AND chapter_id = ?",
-        (guide_id, chapter_id),
+        "SELECT body, updated_at FROM notes WHERE user_id = ? AND guide_id = ? AND chapter_id = ?",
+        (user_id, guide_id, chapter_id),
     ).fetchone()
     if row is None:
         return Note(guideId=guide_id, chapterId=chapter_id, body="", updatedAt=None)

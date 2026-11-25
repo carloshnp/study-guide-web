@@ -16,12 +16,15 @@ from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 
 from app.api import (
+    auth,
     flashcards_drafts,
     flashcards_notes,
     flashcards_review,
     flashcards_stats,
+    highlights,
     notes,
     progress,
+    study_notes,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -93,8 +96,11 @@ def create_app(
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    application.include_router(auth.router)
     application.include_router(progress.router)
     application.include_router(notes.router)
+    application.include_router(study_notes.router)
+    application.include_router(highlights.router)
     application.include_router(flashcards_drafts.router)
     application.include_router(flashcards_notes.router)
     application.include_router(flashcards_review.router)

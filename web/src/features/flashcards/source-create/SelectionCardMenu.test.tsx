@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { SelectionCardMenu } from "./SelectionCardMenu"
+import { SelectionCardMenu, type CardFromSelection, type HighlightFromSelection } from "./SelectionCardMenu"
 
 function select(anchorNode: Node, text: string) {
   const range = {
@@ -29,12 +29,18 @@ function select(anchorNode: Node, text: string) {
   vi.spyOn(window, "getSelection").mockReturnValue(selection as unknown as Selection)
 }
 
-function renderMenu(onRequestCreate = vi.fn()) {
+function renderMenu(
+  onRequestCreate: (input: CardFromSelection) => void = vi.fn(),
+  onRequestQuote?: (input: CardFromSelection) => void,
+  onRequestHighlight?: (input: HighlightFromSelection) => void,
+) {
   const view = render(
     <SelectionCardMenu
       chapterSlug="01-estrutura"
       guideId="magnesio"
       onRequestCreate={onRequestCreate}
+      onRequestHighlight={onRequestHighlight}
+      onRequestQuote={onRequestQuote}
       sections={[{ id: "12-fases" }, { id: "13-propriedades" }]}
     >
       <article>
@@ -124,6 +130,58 @@ describe("SelectionCardMenu", () => {
         chapterSlug: "01-estrutura",
         front: "a camada passiva é ferrita",
         guideId: "magnesio",
+        sectionId: "12-fases",
+      }),
+    )
+  })
+
+  it("offers Citar nas notas in the floating bar and context menu when onRequestQuote is passed", async () => {
+    const user = userEvent.setup()
+    const onRequestQuote = vi.fn()
+    const { container } = renderMenu(vi.fn(), onRequestQuote)
+    const paragraph = container.querySelectorAll("p")[0]
+    select(paragraph?.firstChild as Node, "a camada passiva é ferrita")
+
+    fireEvent.mouseUp(document)
+    await user.click(await screen.findByRole("button", { name: /citar nas notas/i }))
+
+    expect(onRequestQuote).toHaveBeenCalledWith({
+      chapterSlug: "01-estrutura",
+      front: "a camada passiva é ferrita",
+      guideId: "magnesio",
+      markdown: "a camada passiva é ferrita",
+      sectionId: "12-fases",
+      sourceSnippet: "a camada passiva é ferrita",
+    })
+  })
+
+  it("offers 4 color highlight swatches in the floating bar and context menu", async () => {
+    const user = userEvent.setup()
+    const onRequestHighlight = vi.fn()
+    const { container } = renderMenu(vi.fn(), undefined, onRequestHighlight)
+    const paragraph = container.querySelectorAll("p")[0]
+    select(paragraph?.firstChild as Node, "a camada passiva é ferrita")
+
+    fireEvent.mouseUp(document)
+    await user.click(await screen.findByRole("button", { name: /destacar em amarelo/i }))
+
+    expect(onRequestHighlight).toHaveBeenCalledWith(
+      expect.objectContaining({
+        color: "yellow",
+        sectionId: "12-fases",
+      }),
+    )
+
+    select(paragraph?.firstChild as Node, "a camada passiva é ferrita")
+    fireEvent.contextMenu(container.querySelector("article") as HTMLElement, {
+      clientX: 120,
+      clientY: 180,
+    })
+    await user.click(await screen.findByRole("menuitem", { name: /destacar em rosa/i }))
+
+    expect(onRequestHighlight).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        color: "pink",
         sectionId: "12-fases",
       }),
     )

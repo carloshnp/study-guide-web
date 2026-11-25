@@ -4,8 +4,11 @@ import { Link, Outlet, useLocation } from "react-router"
 
 import { SidebarTree, type SidebarNode } from "@/components/layout/SidebarTree"
 import { TopBar } from "@/components/layout/TopBar"
+import { AuthProvider, useAuth } from "@/features/auth/AuthContext"
 import { ProgressToastProvider } from "@/features/progress/ProgressToastProvider"
 import { SearchDialog } from "@/features/search/SearchDialog"
+import { NotesSidebar } from "@/features/study-notes/NotesSidebar"
+import { StudyNotesProvider, useStudyNotes } from "@/features/study-notes/StudyNotesContext"
 import {
   Sheet,
   SheetDescription,
@@ -47,8 +50,10 @@ const RAIL_LINKS: { to: string; label: string; icon: LucideIcon }[] = [
  * own palette from the route (phase 7 owns that file); the shell skips the
  * duplicate there so only one dialog can ever open.
  */
-export function Shell() {
+function ShellLayout() {
   const [navOpen, setNavOpen] = useState(false)
+  const auth = useAuth()
+  const studyNotes = useStudyNotes()
   const location = useLocation()
   const mainRef = useRef<HTMLElement>(null)
   const lastPath = useRef(location.pathname)
@@ -63,8 +68,7 @@ export function Shell() {
   }, [location.pathname])
 
   return (
-    <ProgressToastProvider>
-      <div className="min-h-dvh bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       <a
         href="#conteudo"
         className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-3 focus:z-[var(--z-toast)] focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-meta focus:font-semibold focus:text-primary-foreground"
@@ -72,7 +76,11 @@ export function Shell() {
         Pular para o conteúdo
       </a>
 
-      <TopBar onOpenNav={() => setNavOpen(true)} />
+      <TopBar
+        notesOpen={studyNotes.open}
+        onOpenNav={() => setNavOpen(true)}
+        onToggleNotes={studyNotes.toggle}
+      />
 
       <div className="flex w-full">
         <nav
@@ -98,10 +106,20 @@ export function Shell() {
           className="min-w-0 flex-1 px-[var(--content-gutter)] pb-24 pt-8"
         >
           {/* Centred by default and switchable to full width in the settings menu. */}
-          <div className="mx-auto w-full max-w-[var(--content-max)]" data-slot="content-column">
+          <div
+            className="mx-auto w-full max-w-[var(--content-max)]"
+            data-slot="content-column"
+            key={auth.sessionKey}
+          >
             <Outlet />
           </div>
         </main>
+
+        <NotesSidebar
+          key={auth.sessionKey}
+          onOpenChange={studyNotes.setOpen}
+          open={studyNotes.open}
+        />
       </div>
 
       <Sheet open={navOpen} onOpenChange={setNavOpen}>
@@ -124,8 +142,19 @@ export function Shell() {
         </SheetPopup>
       </Sheet>
 
-        {location.pathname.startsWith("/busca") ? null : <SearchDialog />}
-      </div>
-    </ProgressToastProvider>
+      {location.pathname.startsWith("/busca") ? null : <SearchDialog />}
+    </div>
+  )
+}
+
+export function Shell() {
+  return (
+    <AuthProvider>
+      <ProgressToastProvider>
+        <StudyNotesProvider>
+          <ShellLayout />
+        </StudyNotesProvider>
+      </ProgressToastProvider>
+    </AuthProvider>
   )
 }

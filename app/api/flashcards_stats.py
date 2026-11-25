@@ -18,7 +18,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.api.flashcards_common import Connection, deck_card_payload, question_payload
+from app.api.flashcards_common import Connection, CurrentUserId, deck_card_payload, question_payload
 from app.flashcards import db as fdb
 from app.flashcards import queue as fqueue
 
@@ -176,6 +176,7 @@ def _window(day_from: str | None, day_to: str | None, *, days: int) -> tuple[str
 @router.get("/stats", response_model=StatsOut)
 def read_stats(
     connection: Connection,
+    user_id: CurrentUserId,
     day_from: str | None = Query(default=None, alias="from", max_length=10),
     day_to: str | None = Query(default=None, alias="to", max_length=10),
 ) -> StatsOut:
@@ -189,12 +190,14 @@ def read_stats(
                SUM(CASE WHEN r.state_before = 'new' THEN 1 ELSE 0 END) AS new
           FROM fc_revlog r
           JOIN fc_cards c ON c.id = r.card_id
-         WHERE c.state != 'deprecated'
+          JOIN fc_notes n ON n.id = c.note_id
+         WHERE n.user_id = ?
+           AND c.state != 'deprecated'
            AND substr(r.reviewed_at, 1, 10) BETWEEN ? AND ?
          GROUP BY day
          ORDER BY day
         """,
-        (start, end),
+        (user_id, start, end),
     ).fetchall()
     daily = [
         DayCount(day=row["day"], reviews=int(row["reviews"]), new=int(row["new"] or 0))
@@ -207,11 +210,13 @@ def read_stats(
                SUM(CASE WHEN r.rating >= 3 THEN 1 ELSE 0 END) AS hits
           FROM fc_revlog r
           JOIN fc_cards c ON c.id = r.card_id
-         WHERE c.state != 'deprecated'
+          JOIN fc_notes n ON n.id = c.note_id
+         WHERE n.user_id = ?
+           AND c.state != 'deprecated'
            AND r.interval_before >= ?
            AND substr(r.reviewed_at, 1, 10) BETWEEN ? AND ?
         """,
-        (MATURE_INTERVAL_DAYS, start, end),
+        (user_id, MATURE_INTERVAL_DAYS, start, end),
     ).fetchone()
     mature = int(retention_row["total"] or 0)
     hits = int(retention_row["hits"] or 0)
@@ -221,14 +226,16 @@ def read_stats(
     last_forecast = today + timedelta(days=FORECAST_DAYS - 1)
     due_rows = connection.execute(
         """
-        SELECT substr(due, 1, 10) AS day, COUNT(*) AS due
-          FROM fc_cards
-         WHERE state IN ('learning', 'review')
-           AND due IS NOT NULL
-           AND substr(due, 1, 10) BETWEEN ? AND ?
+        SELECT substr(c.due, 1, 10) AS day, COUNT(*) AS due
+          FROM fc_cards c
+          JOIN fc_notes n ON n.id = c.note_id
+         WHERE n.user_id = ?
+           AND c.state IN ('learning', 'review')
+           AND c.due IS NOT NULL
+           AND substr(c.due, 1, 10) BETWEEN ? AND ?
          GROUP BY day
         """,
-        (today.isoformat(), last_forecast.isoformat()),
+        (user_id, today.isoformat(), last_forecast.isoformat()),
     ).fetchall()
     due_by_day = {row["day"]: int(row["due"]) for row in due_rows}
     forecast = [
@@ -272,16 +279,17 @@ def _streak(active_days: set[str], today_str: str) -> tuple[int, int, int]:
 @router.get("/habits", response_model=HabitsOut)
 def read_habits(
     connection: Connection,
+    user_id: CurrentUserId,
     day_from: str | None = Query(default=None, alias="from", max_length=10),
     day_to: str | None = Query(default=None, alias="to", max_length=10),
 ) -> HabitsOut:
     """Active days (heatmap) plus the streak with its freeze tokens."""
     start, end = _window(day_from, day_to, days=HABIT_WINDOW_DAYS)
-    habits = fdb.list_habits(connection, day_from=start, day_to=end)
+    habits = fdb.list_habits(connection, day_from=start, day_to=end, user_id=user_id)
     active_days = [row["day"] for row in habits if int(row["reviews_done"]) > 0]
     all_active = {
         row["day"]
-        for row in fdb.list_habits(connection)
+        for row in fdb.list_habits(connection, user_id=user_id)
         if int(row["reviews_done"]) > 0
     }
     today_str = datetime.now(UTC).date().isoformat()
@@ -301,14 +309,19 @@ def read_habits(
 
 
 @router.get("/decks", response_model=list[DeckSummary])
-def list_decks(connection: Connection) -> list[DeckSummary]:
+def list_decks(connection: Connection, user_id: CurrentUserId) -> list[DeckSummary]:
     """Every derived deck with its live card count."""
-    return [DeckSummary.model_validate(deck) for deck in fqueue.list_decks(connection)]
+    return [
+        DeckSummary.model_validate(deck)
+        for deck in fqueue.list_decks(connection, user_id=user_id)
+    ]
 
 
-def _deck_cards_or_404(connection: Connection, deck_id: str) -> list[Any]:
+def _deck_cards_or_404(
+    connection: Connection, deck_id: str, *, user_id: int
+) -> list[Any]:
     try:
-        cards = fqueue.deck_cards(connection, deck_id)
+        cards = fqueue.deck_cards(connection, deck_id, user_id=user_id)
     except fqueue.InvalidScope as exc:
         raise HTTPException(status_code=404, detail="deck not found") from exc
     if not cards:
@@ -317,10 +330,10 @@ def _deck_cards_or_404(connection: Connection, deck_id: str) -> list[Any]:
 
 
 @router.get("/decks/{deck_id}", response_model=DeckDetail)
-def read_deck(deck_id: str, connection: Connection) -> DeckDetail:
+def read_deck(deck_id: str, connection: Connection, user_id: CurrentUserId) -> DeckDetail:
     """Deck metadata plus every card, for browsing."""
-    cards = _deck_cards_or_404(connection, deck_id)
-    meta = fqueue.deck_meta(connection, deck_id)
+    cards = _deck_cards_or_404(connection, deck_id, user_id=user_id)
+    meta = fqueue.deck_meta(connection, deck_id, user_id=user_id)
     if meta is None:  # pragma: no cover - guarded by the call above
         raise HTTPException(status_code=404, detail="deck not found")
     payload = {**meta, "cards": [deck_card_payload(row) for row in cards]}
@@ -329,10 +342,13 @@ def read_deck(deck_id: str, connection: Connection) -> DeckDetail:
 
 @router.post("/decks/{deck_id}/session", response_model=DeckSessionOut)
 def start_deck_session(
-    deck_id: str, payload: SessionRequest, connection: Connection
+    deck_id: str,
+    payload: SessionRequest,
+    connection: Connection,
+    user_id: CurrentUserId,
 ) -> DeckSessionOut:
     """Start (or continue) a session on one deck: training or scheduled review."""
-    _deck_cards_or_404(connection, deck_id)
+    _deck_cards_or_404(connection, deck_id, user_id=user_id)
     scope = fqueue.parse_deck_id(deck_id)
     reschedule = (
         payload.reschedule
@@ -345,6 +361,7 @@ def start_deck_session(
         limit=payload.limit,
         mode=payload.mode,
         reschedule=reschedule,
+        user_id=user_id,
     )
     return DeckSessionOut(
         deckId=deck_id,

@@ -8,14 +8,16 @@ from pathlib import Path
 from app import db
 
 EXPECTED_PROGRESS_COLUMNS = [
-    ("guide_id", "TEXT", 1, 1),
-    ("unit_id", "TEXT", 1, 2),
+    ("user_id", "INTEGER", 1, 1),
+    ("guide_id", "TEXT", 1, 2),
+    ("unit_id", "TEXT", 1, 3),
     ("status", "TEXT", 1, 0),
     ("updated_at", "TEXT", 1, 0),
 ]
 EXPECTED_NOTES_COLUMNS = [
-    ("guide_id", "TEXT", 1, 1),
-    ("chapter_id", "TEXT", 1, 2),
+    ("user_id", "INTEGER", 1, 1),
+    ("guide_id", "TEXT", 1, 2),
+    ("chapter_id", "TEXT", 1, 3),
     ("body", "TEXT", 1, 0),
     ("updated_at", "TEXT", 1, 0),
 ]

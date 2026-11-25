@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { createMemoryRouter, RouterProvider } from "react-router"
-import { beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ThemeProvider } from "@/lib/theme-provider"
 import { routes } from "@/router"
@@ -20,6 +20,10 @@ describe("Shell", () => {
   beforeEach(() => {
     window.localStorage.clear()
     document.documentElement.classList.remove("dark")
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it("exposes a skip link that targets the main region", () => {
@@ -107,5 +111,24 @@ describe("Shell", () => {
   it("centres the routed page in a content column", () => {
     renderAt("/")
     expect(document.querySelector("[data-slot='content-column']")).not.toBeNull()
+  })
+
+  it("toggles the standalone notes sidebar from the top bar", async () => {
+    const user = userEvent.setup()
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ notes: [] }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      }),
+    )
+
+    renderAt("/")
+    const topbar = screen.getByRole("banner")
+    const toggle = within(topbar).getByRole("button", { name: /anotações/i })
+    expect(toggle).toHaveAttribute("aria-expanded", "false")
+
+    await user.click(toggle)
+    expect(toggle).toHaveAttribute("aria-expanded", "true")
+    expect(await screen.findByRole("button", { name: /nova nota/i })).toBeInTheDocument()
   })
 })

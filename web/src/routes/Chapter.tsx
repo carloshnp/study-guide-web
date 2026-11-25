@@ -21,7 +21,7 @@ import { Link, useParams, useSearchParams } from "react-router"
 
 import { writeLastRead } from "@/features/catalog/last-read"
 import { Editor, type EditorSeed } from "@/features/flashcards/editor/Editor"
-import { SelectionCardMenu } from "@/features/flashcards/source-create/SelectionCardMenu"
+import { HighlightLayer } from "@/features/highlights/HighlightLayer"
 import { ChapterToc } from "@/features/reader/ChapterToc"
 import { useLayout } from "@/features/preferences/layout"
 import { prepareChapterBody, shiftHeadings } from "@/features/reader/leading-heading"
@@ -29,6 +29,7 @@ import { PinnedReader } from "@/features/reader/pinned/PinnedReader"
 import { dropPinnedFigures } from "@/features/reader/pinned/drop-pinned-figures"
 import { SectionCheck } from "@/features/progress/SectionCheck"
 import { useSummaryMode } from "@/features/preferences/summary"
+import { useStudyNotes } from "@/features/study-notes/StudyNotesContext"
 import {
   kindLabel,
   useChapterContent,
@@ -127,6 +128,7 @@ export function Chapter() {
   const [editorOpen, setEditorOpen] = useState(false)
   const [seed, setSeed] = useState<EditorSeed | undefined>(undefined)
   const [savedCard, setSavedCard] = useState<string | null>(null)
+  const studyNotes = useStudyNotes()
 
   const data = chapter.data
   const title = data?.title ?? chapterSlug
@@ -319,10 +321,11 @@ export function Chapter() {
       ) : null}
 
       {data ? (
-        <SelectionCardMenu
-          chapterSlug={chapterSlug}
+        <HighlightLayer
+          chapterId={chapterSlug}
+          contentKey={textBody}
           guideId={guideId}
-          onRequestCreate={(input) => {
+          onRequestCreateCard={(input) => {
             setSeed({
               chapterSlug: input.chapterSlug,
               front: input.front,
@@ -333,7 +336,18 @@ export function Chapter() {
             })
             setEditorOpen(true)
           }}
+          onRequestQuote={(input) => {
+            studyNotes.requestInsertQuote({
+              chapterSlug: input.chapterSlug,
+              chapterTitle: title,
+              guideId: input.guideId,
+              markdown: input.markdown,
+              sectionId: input.sectionId,
+              text: input.sourceSnippet,
+            })
+          }}
           sections={sections}
+          variant={preparedResumo ? "resumo" : "full"}
         >
           <Suspense
             fallback={<p className="text-meta text-muted-foreground">Carregando o texto…</p>}
@@ -347,7 +361,7 @@ export function Chapter() {
               sections={sections}
             />
           </Suspense>
-        </SelectionCardMenu>
+        </HighlightLayer>
       ) : null}
 
       <nav

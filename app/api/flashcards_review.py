@@ -16,7 +16,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.api.flashcards_common import Connection, answer_payload, question_payload
+from app.api.flashcards_common import Connection, CurrentUserId, answer_payload, question_payload
 from app.flashcards import db as fdb
 from app.flashcards import queue as fqueue
 from app.flashcards import scheduler as sched
@@ -173,8 +173,8 @@ def _session_out(session: fqueue.Session) -> QueueOut:
     )
 
 
-def _settings_out(conn: Any) -> SettingsOut:
-    settings = fdb.get_settings(conn)
+def _settings_out(conn: Any, *, user_id: int) -> SettingsOut:
+    settings = fdb.get_settings(conn, user_id=user_id)
     per_guide = {str(key): float(value) for key, value in (settings["perGuide"] or {}).items()}
     warnings: list[str] = []
     if float(settings["desiredRetentionDefault"]) > WARN_RETENTION:
@@ -198,6 +198,7 @@ def _settings_out(conn: Any) -> SettingsOut:
 @router.get("/queue", response_model=QueueOut)
 def read_queue(
     connection: Connection,
+    user_id: CurrentUserId,
     scope: str | None = Query(default=None),
     limit: int = Query(default=fqueue.DEFAULT_LIMIT, ge=1, le=MAX_LIMIT),
     mode: SessionMode = Query(default="review"),
@@ -213,6 +214,7 @@ def read_queue(
             mode=mode,
             reschedule=reschedule if reschedule is not None else mode == "review",
             cursor=cursor,
+            user_id=user_id,
         )
     except fqueue.InvalidScope as exc:
         raise HTTPException(
@@ -222,9 +224,9 @@ def read_queue(
 
 
 @router.get("/cards/{card_id}", response_model=CardPrompt)
-def read_card(card_id: int, connection: Connection) -> CardPrompt:
+def read_card(card_id: int, connection: Connection, user_id: CurrentUserId) -> CardPrompt:
     """The card prompt; the answer is only released by a review."""
-    card = fdb.card_with_note(connection, card_id)
+    card = fdb.card_with_note(connection, card_id, user_id=user_id)
     if card is None:
         raise HTTPException(status_code=404, detail="card not found")
     payload = question_payload(card)
@@ -233,24 +235,34 @@ def read_card(card_id: int, connection: Connection) -> CardPrompt:
 
 
 @router.post("/cards/{card_id}/review", response_model=ReviewOut)
-def review_card(card_id: int, payload: ReviewRequest, connection: Connection) -> ReviewOut:
+def review_card(
+    card_id: int,
+    payload: ReviewRequest,
+    connection: Connection,
+    user_id: CurrentUserId,
+) -> ReviewOut:
     """Apply one rating; training without reschedule records nothing."""
-    card = fdb.card_with_note(connection, card_id)
+    card = fdb.card_with_note(connection, card_id, user_id=user_id)
     if card is None:
         raise HTTPException(status_code=404, detail="card not found")
     record = payload.mode == "review" or bool(payload.reschedule)
     try:
         if record:
             result = sched.apply_review(
-                connection, card_id, payload.rating, elapsed_ms=payload.elapsed_ms
+                connection,
+                card_id,
+                payload.rating,
+                elapsed_ms=payload.elapsed_ms,
+                user_id=user_id,
             )
             fdb.record_review(
                 connection,
                 day=result.last_review[:10],
                 is_new=result.state_before == "new",
+                user_id=user_id,
             )
         else:
-            retention = sched.retention_for(connection, card["guide_id"])
+            retention = sched.retention_for(connection, card["guide_id"], user_id=user_id)
             result = sched.transition(card, payload.rating, retention=retention)
     except sched.CardNotReviewable as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -273,13 +285,15 @@ def review_card(card_id: int, payload: ReviewRequest, connection: Connection) ->
 
 
 @router.get("/settings", response_model=SettingsOut)
-def read_settings(connection: Connection) -> SettingsOut:
+def read_settings(connection: Connection, user_id: CurrentUserId) -> SettingsOut:
     """Current limits, retention and per-guide overrides."""
-    return _settings_out(connection)
+    return _settings_out(connection, user_id=user_id)
 
 
 @router.post("/settings", response_model=SettingsOut)
-def write_settings(payload: SettingsPatch, connection: Connection) -> SettingsOut:
+def write_settings(
+    payload: SettingsPatch, connection: Connection, user_id: CurrentUserId
+) -> SettingsOut:
     """Partial update of the settings, validated against the documented ranges."""
     changes = {
         _SETTING_KEYS[field]: value
@@ -287,5 +301,5 @@ def write_settings(payload: SettingsPatch, connection: Connection) -> SettingsOu
         if value is not None
     }
     if changes:
-        fdb.save_settings(connection, changes)
-    return _settings_out(connection)
+        fdb.save_settings(connection, changes, user_id=user_id)
+    return _settings_out(connection, user_id=user_id)

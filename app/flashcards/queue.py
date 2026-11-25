@@ -162,6 +162,7 @@ def select_cards(
     now: datetime | None = None,
     after: tuple[str, int] | None = None,
     limit: int | None = None,
+    user_id: int = 1,
 ) -> list[sqlite3.Row]:
     """Cards matching scope/states, ordered by ``(due, id)``.
 
@@ -170,14 +171,14 @@ def select_cards(
     active = scope if scope is not None else Scope()
     scope_clauses, scope_params = active.clauses()
     placeholders = ",".join("?" for _ in states)
-    where = " AND ".join([f"c.state IN ({placeholders})", *scope_clauses])
+    where = " AND ".join(["n.user_id = ?", f"c.state IN ({placeholders})", *scope_clauses])
     sql = f"""
         SELECT {CARD_COLUMNS}
         FROM fc_cards c
         JOIN fc_notes n ON n.id = c.note_id
         WHERE {where}
     """
-    params: list[Any] = [*states, *scope_params]
+    params: list[Any] = [user_id, *states, *scope_params]
     if now is not None:
         sql += " AND c.due IS NOT NULL AND c.due <= ?"
         params.append(as_datetime(now).isoformat().replace("+00:00", "Z"))
@@ -196,9 +197,10 @@ def due_cards(
     *,
     scope: Scope | None = None,
     now: datetime | None = None,
+    user_id: int = 1,
 ) -> list[sqlite3.Row]:
     """Cards that are due now (learning/review only, suspended/deprecated excluded)."""
-    return select_cards(conn, scope=scope, states=DUE_STATES, now=now)
+    return select_cards(conn, scope=scope, states=DUE_STATES, now=now, user_id=user_id)
 
 
 def interleave(rows: Sequence[sqlite3.Row]) -> list[sqlite3.Row]:
@@ -217,16 +219,18 @@ def interleave(rows: Sequence[sqlite3.Row]) -> list[sqlite3.Row]:
     return ordered
 
 
-def daily_new_allowance(conn: sqlite3.Connection, moment: datetime) -> int:
+def daily_new_allowance(
+    conn: sqlite3.Connection, moment: datetime, *, user_id: int = 1
+) -> int:
     """How many new cards may still be introduced today."""
-    settings = fdb.get_settings(conn)
-    habit = fdb.get_habit(conn, moment.date().isoformat())
+    settings = fdb.get_settings(conn, user_id=user_id)
+    habit = fdb.get_habit(conn, moment.date().isoformat(), user_id=user_id)
     already = int(habit["new_reviewed"]) if habit is not None else 0
     return max(0, int(settings["dailyNewLimit"]) - already)
 
 
-def _session_limit(conn: sqlite3.Connection, limit: int | None) -> int:
-    settings = fdb.get_settings(conn)
+def _session_limit(conn: sqlite3.Connection, limit: int | None, *, user_id: int = 1) -> int:
+    settings = fdb.get_settings(conn, user_id=user_id)
     requested = DEFAULT_LIMIT if limit is None else int(limit)
     cap = int(settings["reviewCap"])
     return max(1, min(requested, MAX_LIMIT, max(cap, 1)))
@@ -243,16 +247,17 @@ def build_session(
     now: datetime | None = None,
     today: datetime | None = None,
     seed: str | None = None,
+    user_id: int = 1,
 ) -> Session:
     """Build one page of a session; the only writer is :func:`apply_review`."""
     moment = as_datetime(now if now is not None else today)
     active = scope if isinstance(scope, Scope) else parse_scope(scope)
-    size = _session_limit(conn, limit)
+    size = _session_limit(conn, limit, user_id=user_id)
     if mode not in ("review", "training"):
         raise ValueError(f"unknown session mode {mode!r}")
 
     if mode == "training":
-        rows = select_cards(conn, scope=active, states=TRAINING_STATES)
+        rows = select_cards(conn, scope=active, states=TRAINING_STATES, user_id=user_id)
         rows.sort(key=lambda row: row["id"])
         random.Random(seed if seed is not None else moment.date().isoformat()).shuffle(rows)
         if cursor is not None:
@@ -268,10 +273,15 @@ def build_session(
             reschedule=bool(reschedule),
         )
 
-    rows = due_cards(conn, scope=active, now=moment)
-    allowance = daily_new_allowance(conn, moment)
+    rows = due_cards(conn, scope=active, now=moment, user_id=user_id)
+    allowance = daily_new_allowance(conn, moment, user_id=user_id)
     if allowance:
-        rows = [*rows, *select_cards(conn, scope=active, states=("new",), now=moment, limit=allowance)]
+        rows = [
+            *rows,
+            *select_cards(
+                conn, scope=active, states=("new",), now=moment, limit=allowance, user_id=user_id
+            ),
+        ]
     rows.sort(key=lambda row: (row["due"] or "", row["id"]))
     rows = interleave(rows)
     if cursor is not None:
@@ -279,7 +289,7 @@ def build_session(
         if cursor in ids:
             rows = rows[ids.index(cursor) + 1 :]
         else:
-            anchor = fdb.get_card(conn, cursor)
+            anchor = fdb.card_with_note(conn, cursor, user_id=user_id)
             if anchor is not None and anchor["due"] is not None:
                 key = (anchor["due"], cursor)
                 rows = [row for row in rows if (row["due"] or "", row["id"]) > key]
@@ -343,7 +353,7 @@ def _deck_payload(
     }
 
 
-def list_decks(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+def list_decks(conn: sqlite3.Connection, *, user_id: int = 1) -> list[dict[str, Any]]:
     """Derive the deck list (guide, chapter, section, outras) with live counts."""
     rows = conn.execute(
         """
@@ -353,9 +363,10 @@ def list_decks(conn: sqlite3.Connection) -> list[dict[str, Any]]:
                COUNT(*) AS card_count
           FROM fc_cards c
           JOIN fc_notes n ON n.id = c.note_id
-         WHERE c.state != 'deprecated'
+         WHERE n.user_id = ? AND c.state != 'deprecated'
          GROUP BY n.guide_id, n.chapter_slug, n.section_id
-        """
+        """,
+        (user_id,),
     ).fetchall()
 
     guides: dict[str, int] = {}
@@ -391,7 +402,9 @@ def list_decks(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     return decks
 
 
-def deck_cards(conn: sqlite3.Connection, deck_id: str | None) -> list[sqlite3.Row]:
+def deck_cards(
+    conn: sqlite3.Connection, deck_id: str | None, *, user_id: int = 1
+) -> list[sqlite3.Row]:
     """Every non-deprecated card of a deck, ordered by anchor then id."""
     scope = parse_deck_id(deck_id)
     if scope.kind == "outras":
@@ -399,12 +412,12 @@ def deck_cards(conn: sqlite3.Connection, deck_id: str | None) -> list[sqlite3.Ro
             SELECT {CARD_COLUMNS}
             FROM fc_cards c
             JOIN fc_notes n ON n.id = c.note_id
-            WHERE c.state != 'deprecated' AND n.guide_id IS NULL
+            WHERE n.user_id = ? AND c.state != 'deprecated' AND n.guide_id IS NULL
             ORDER BY c.id
         """
-        return conn.execute(sql).fetchall()
+        return conn.execute(sql, (user_id,)).fetchall()
     clauses, params = scope.clauses()
-    where = " AND ".join(["c.state != 'deprecated'", *clauses])
+    where = " AND ".join(["n.user_id = ?", "c.state != 'deprecated'", *clauses])
     sql = f"""
         SELECT {CARD_COLUMNS}
         FROM fc_cards c
@@ -412,13 +425,15 @@ def deck_cards(conn: sqlite3.Connection, deck_id: str | None) -> list[sqlite3.Ro
         WHERE {where}
         ORDER BY n.chapter_slug, n.section_id, c.id
     """
-    return conn.execute(sql, params).fetchall()
+    return conn.execute(sql, [user_id, *params]).fetchall()
 
 
-def deck_meta(conn: sqlite3.Connection, deck_id: str | None) -> dict[str, Any] | None:
+def deck_meta(
+    conn: sqlite3.Connection, deck_id: str | None, *, user_id: int = 1
+) -> dict[str, Any] | None:
     """Deck metadata with its live card count, or ``None`` when the deck is empty."""
     scope = parse_deck_id(deck_id)
-    cards = deck_cards(conn, deck_id)
+    cards = deck_cards(conn, deck_id, user_id=user_id)
     if not cards:
         return None
     payload = _deck_payload(

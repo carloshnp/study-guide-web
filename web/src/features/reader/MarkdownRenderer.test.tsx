@@ -59,6 +59,10 @@ describe("MarkdownRenderer", () => {
 
     expect(container.querySelectorAll(".katex").length).toBeGreaterThanOrEqual(2)
     expect(container.querySelector(".katex-display")).not.toBeNull()
+    const annotations = Array.from(
+      container.querySelectorAll('annotation[encoding="application/x-tex"]'),
+    ).map((el) => el.textContent ?? "")
+    expect(annotations.some((tex) => tex.startsWith("\\displaystyle "))).toBe(true)
   })
 
   it("keeps display math inside a horizontally scrollable block", () => {

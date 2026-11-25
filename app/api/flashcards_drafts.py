@@ -20,6 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.api.flashcards_notes import NoteCreate, create_note
+from app.auth import CurrentUserId
 from app.db import ROOT, get_connection
 
 router = APIRouter(prefix="/api/flashcards", tags=["flashcards-drafts"])
@@ -115,15 +116,18 @@ def list_drafts() -> DraftList:
     return DraftList(drafts=summaries)
 
 
-def _note_exists(connection: sqlite3.Connection, draft: dict[str, Any]) -> bool:
+def _note_exists(
+    connection: sqlite3.Connection, draft: dict[str, Any], *, user_id: int
+) -> bool:
     row = connection.execute(
         """
         SELECT 1 FROM fc_notes
-         WHERE kind = ? AND front = ? AND guide_id IS ?
+         WHERE user_id = ? AND kind = ? AND front = ? AND guide_id IS ?
            AND chapter_slug IS ? AND section_id IS ?
          LIMIT 1
         """,
         (
+            user_id,
             draft["kind"],
             draft["front"].strip(),
             draft.get("guide_id"),
@@ -135,13 +139,15 @@ def _note_exists(connection: sqlite3.Connection, draft: dict[str, Any]) -> bool:
 
 
 @router.post("/drafts/{file}/import", response_model=DraftImportResult)
-def import_drafts(file: str, connection: Connection) -> DraftImportResult:
+def import_drafts(
+    file: str, connection: Connection, user_id: CurrentUserId
+) -> DraftImportResult:
     path = _safe_draft_path(file)
     drafts = _load_drafts(path)
     created = 0
     skipped = 0
     for draft in drafts:
-        if _note_exists(connection, draft):
+        if _note_exists(connection, draft, user_id=user_id):
             skipped += 1
             continue
         payload = NoteCreate(
@@ -154,6 +160,6 @@ def import_drafts(file: str, connection: Connection) -> DraftImportResult:
             sourceSnippet=draft.get("source_snippet"),
             tags=draft.get("tags") or "",
         )
-        create_note(payload, connection)
+        create_note(payload, connection, user_id)
         created += 1
     return DraftImportResult(file=path.name, created=created, skipped=skipped)

@@ -91,6 +91,7 @@ def create_note(
     source_snippet: str | None = None,
     tags: str = "",
     now: str | datetime | None = None,
+    user_id: int = 1,
 ) -> int:
     """Insert one note and return its id."""
     stamp = _timestamp(now)
@@ -98,11 +99,12 @@ def create_note(
         cursor = conn.execute(
             """
             INSERT INTO fc_notes (
-                kind, front, back, guide_id, chapter_slug, section_id,
+                user_id, kind, front, back, guide_id, chapter_slug, section_id,
                 source_snippet, tags, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
+                user_id,
                 kind,
                 front,
                 back,
@@ -118,17 +120,28 @@ def create_note(
     return int(cursor.lastrowid or 0)
 
 
-def get_note(conn: sqlite3.Connection, note_id: int) -> sqlite3.Row | None:
+def get_note(
+    conn: sqlite3.Connection, note_id: int, *, user_id: int | None = None
+) -> sqlite3.Row | None:
     """Return one note, or ``None`` when it does not exist."""
-    return conn.execute("SELECT * FROM fc_notes WHERE id = ?", (note_id,)).fetchone()
+    if user_id is None:
+        return conn.execute("SELECT * FROM fc_notes WHERE id = ?", (note_id,)).fetchone()
+    return conn.execute(
+        "SELECT * FROM fc_notes WHERE id = ? AND user_id = ?", (note_id, user_id)
+    ).fetchone()
 
 
-def list_notes(conn: sqlite3.Connection, *, guide_id: str | None = None) -> list[sqlite3.Row]:
+def list_notes(
+    conn: sqlite3.Connection, *, guide_id: str | None = None, user_id: int = 1
+) -> list[sqlite3.Row]:
     """Return notes ordered by id, optionally narrowed to one guide."""
     if guide_id is None:
-        return conn.execute("SELECT * FROM fc_notes ORDER BY id").fetchall()
+        return conn.execute(
+            "SELECT * FROM fc_notes WHERE user_id = ? ORDER BY id", (user_id,)
+        ).fetchall()
     return conn.execute(
-        "SELECT * FROM fc_notes WHERE guide_id = ? ORDER BY id", (guide_id,)
+        "SELECT * FROM fc_notes WHERE user_id = ? AND guide_id = ? ORDER BY id",
+        (user_id, guide_id),
     ).fetchall()
 
 
@@ -138,25 +151,36 @@ def update_note(
     changes: Mapping[str, Any],
     *,
     now: str | datetime | None = None,
+    user_id: int | None = None,
 ) -> sqlite3.Row | None:
     """Patch the given columns; ``updated_at`` is stamped unless provided."""
     payload = _checked(changes, NOTE_COLUMNS, "note")
     if not payload:
-        return get_note(conn, note_id)
+        return get_note(conn, note_id, user_id=user_id)
     payload["updated_at"] = _timestamp(payload.get("updated_at", now))
     assignments = ", ".join(f"{column} = ?" for column in payload)
     with conn:
-        cursor = conn.execute(
-            f"UPDATE fc_notes SET {assignments} WHERE id = ?",
-            (*payload.values(), note_id),
-        )
+        if user_id is None:
+            cursor = conn.execute(
+                f"UPDATE fc_notes SET {assignments} WHERE id = ?",
+                (*payload.values(), note_id),
+            )
+        else:
+            cursor = conn.execute(
+                f"UPDATE fc_notes SET {assignments} WHERE id = ? AND user_id = ?",
+                (*payload.values(), note_id, user_id),
+            )
     if cursor.rowcount == 0:
         return None
-    return get_note(conn, note_id)
+    return get_note(conn, note_id, user_id=user_id)
 
 
-def delete_note(conn: sqlite3.Connection, note_id: int) -> bool:
+def delete_note(
+    conn: sqlite3.Connection, note_id: int, *, user_id: int | None = None
+) -> bool:
     """Delete a note; cards and revlog rows follow through ``ON DELETE CASCADE``."""
+    if user_id is not None and get_note(conn, note_id, user_id=user_id) is None:
+        return False
     card_ids = [
         int(row["id"])
         for row in conn.execute("SELECT id FROM fc_cards WHERE note_id = ?", (note_id,))
@@ -166,7 +190,12 @@ def delete_note(conn: sqlite3.Connection, note_id: int) -> bool:
             placeholders = ",".join("?" for _ in card_ids)
             conn.execute(f"DELETE FROM fc_revlog WHERE card_id IN ({placeholders})", card_ids)
             conn.execute("DELETE FROM fc_cards WHERE note_id = ?", (note_id,))
-        cursor = conn.execute("DELETE FROM fc_notes WHERE id = ?", (note_id,))
+        if user_id is None:
+            cursor = conn.execute("DELETE FROM fc_notes WHERE id = ?", (note_id,))
+        else:
+            cursor = conn.execute(
+                "DELETE FROM fc_notes WHERE id = ? AND user_id = ?", (note_id, user_id)
+            )
     return cursor.rowcount > 0
 
 
@@ -214,11 +243,33 @@ def get_card(conn: sqlite3.Connection, card_id: int) -> sqlite3.Row | None:
     return conn.execute("SELECT * FROM fc_cards WHERE id = ?", (card_id,)).fetchone()
 
 
-def card_with_note(conn: sqlite3.Connection, card_id: int) -> sqlite3.Row | None:
+def card_with_note(
+    conn: sqlite3.Connection, card_id: int, *, user_id: int | None = None
+) -> sqlite3.Row | None:
     """Return a card joined with its note's anchor columns (``n_*`` aliases)."""
+    if user_id is None:
+        return conn.execute(
+            """
+            SELECT c.*,
+                   n.user_id AS user_id,
+                   n.kind AS kind,
+                   n.front AS front,
+                   n.back AS back,
+                   n.guide_id AS guide_id,
+                   n.chapter_slug AS chapter_slug,
+                   n.section_id AS section_id,
+                   n.source_snippet AS source_snippet,
+                   n.tags AS tags
+            FROM fc_cards c
+            JOIN fc_notes n ON n.id = c.note_id
+            WHERE c.id = ?
+            """,
+            (card_id,),
+        ).fetchone()
     return conn.execute(
         """
         SELECT c.*,
+               n.user_id AS user_id,
                n.kind AS kind,
                n.front AS front,
                n.back AS back,
@@ -229,9 +280,9 @@ def card_with_note(conn: sqlite3.Connection, card_id: int) -> sqlite3.Row | None
                n.tags AS tags
         FROM fc_cards c
         JOIN fc_notes n ON n.id = c.note_id
-        WHERE c.id = ?
+        WHERE c.id = ? AND n.user_id = ?
         """,
-        (card_id,),
+        (card_id, user_id),
     ).fetchone()
 
 
@@ -360,70 +411,88 @@ def list_revlog(
 # -------------------------------------------------------------------------- habits
 
 
-def record_review(conn: sqlite3.Connection, *, day: str, is_new: bool = False) -> None:
-    """Bump the daily habit counters (one row per UTC day)."""
+def record_review(
+    conn: sqlite3.Connection, *, day: str, is_new: bool = False, user_id: int = 1
+) -> None:
+    """Bump the daily habit counters (one row per UTC day per user)."""
     with conn:
         conn.execute(
             """
-            INSERT INTO fc_habits (day, new_reviewed, reviews_done, streak_frozen)
-            VALUES (?, ?, 1, 0)
-            ON CONFLICT (day) DO UPDATE SET
+            INSERT INTO fc_habits (user_id, day, new_reviewed, reviews_done, streak_frozen)
+            VALUES (?, ?, ?, 1, 0)
+            ON CONFLICT (user_id, day) DO UPDATE SET
                 new_reviewed = fc_habits.new_reviewed + excluded.new_reviewed,
                 reviews_done = fc_habits.reviews_done + 1
             """,
-            (day, 1 if is_new else 0),
+            (user_id, day, 1 if is_new else 0),
         )
 
 
-def get_habit(conn: sqlite3.Connection, day: str) -> sqlite3.Row | None:
+def get_habit(
+    conn: sqlite3.Connection, day: str, *, user_id: int = 1
+) -> sqlite3.Row | None:
     """Return the habit row for one day, if the user studied that day."""
-    return conn.execute("SELECT * FROM fc_habits WHERE day = ?", (day,)).fetchone()
+    return conn.execute(
+        "SELECT * FROM fc_habits WHERE user_id = ? AND day = ?", (user_id, day)
+    ).fetchone()
 
 
 def list_habits(
-    conn: sqlite3.Connection, *, day_from: str | None = None, day_to: str | None = None
+    conn: sqlite3.Connection,
+    *,
+    day_from: str | None = None,
+    day_to: str | None = None,
+    user_id: int = 1,
 ) -> list[sqlite3.Row]:
     """Return habit rows ordered by day, optionally within a window."""
-    clauses: list[str] = []
-    params: list[Any] = []
+    clauses: list[str] = ["user_id = ?"]
+    params: list[Any] = [user_id]
     if day_from is not None:
         clauses.append("day >= ?")
         params.append(day_from)
     if day_to is not None:
         clauses.append("day <= ?")
         params.append(day_to)
-    where = f" WHERE {' AND '.join(clauses)}" if clauses else ""
+    where = f" WHERE {' AND '.join(clauses)}"
     return conn.execute(f"SELECT * FROM fc_habits{where} ORDER BY day", params).fetchall()
 
 
 # ------------------------------------------------------------------------ settings
 
 
-def get_setting(conn: sqlite3.Connection, key: str) -> str | None:
+def get_setting(
+    conn: sqlite3.Connection, key: str, *, user_id: int = 1
+) -> str | None:
     """Return one raw setting value, or ``None`` when unset."""
-    row = conn.execute("SELECT value FROM fc_settings WHERE key = ?", (key,)).fetchone()
+    row = conn.execute(
+        "SELECT value FROM fc_settings WHERE user_id = ? AND key = ?", (user_id, key)
+    ).fetchone()
     return None if row is None else str(row["value"])
 
 
-def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
+def set_setting(
+    conn: sqlite3.Connection, key: str, value: str, *, user_id: int = 1
+) -> None:
     """Upsert one raw setting value."""
     with conn:
         conn.execute(
             """
-            INSERT INTO fc_settings (key, value) VALUES (?, ?)
-            ON CONFLICT (key) DO UPDATE SET value = excluded.value
+            INSERT INTO fc_settings (user_id, key, value) VALUES (?, ?, ?)
+            ON CONFLICT (user_id, key) DO UPDATE SET value = excluded.value
             """,
-            (key, value),
+            (user_id, key, value),
         )
 
 
-def get_settings(conn: sqlite3.Connection) -> dict[str, Any]:
+def get_settings(conn: sqlite3.Connection, *, user_id: int = 1) -> dict[str, Any]:
     """Return the effective settings: defaults merged with stored rows."""
     settings: dict[str, Any] = {
         key: (dict(value) if isinstance(value, dict) else value)
         for key, value in SETTINGS_DEFAULTS.items()
     }
-    for row in conn.execute("SELECT key, value FROM fc_settings").fetchall():
+    for row in conn.execute(
+        "SELECT key, value FROM fc_settings WHERE user_id = ?", (user_id,)
+    ).fetchall():
         key = str(row["key"])
         if key not in SETTINGS_DEFAULTS:
             continue
@@ -447,7 +516,9 @@ def get_settings(conn: sqlite3.Connection) -> dict[str, Any]:
     return settings
 
 
-def save_settings(conn: sqlite3.Connection, changes: Mapping[str, Any]) -> dict[str, Any]:
+def save_settings(
+    conn: sqlite3.Connection, changes: Mapping[str, Any], *, user_id: int = 1
+) -> dict[str, Any]:
     """Merge ``changes`` into the stored settings and return the new state."""
     unknown = sorted(set(changes) - set(SETTINGS_DEFAULTS))
     if unknown:
@@ -460,9 +531,9 @@ def save_settings(conn: sqlite3.Connection, changes: Mapping[str, Any]) -> dict[
                 serialised = str(value)
             conn.execute(
                 """
-                INSERT INTO fc_settings (key, value) VALUES (?, ?)
-                ON CONFLICT (key) DO UPDATE SET value = excluded.value
+                INSERT INTO fc_settings (user_id, key, value) VALUES (?, ?, ?)
+                ON CONFLICT (user_id, key) DO UPDATE SET value = excluded.value
                 """,
-                (key, serialised),
+                (user_id, key, serialised),
             )
-    return get_settings(conn)
+    return get_settings(conn, user_id=user_id)

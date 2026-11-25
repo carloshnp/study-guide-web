@@ -14,6 +14,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.auth import CurrentUserId
 from app.db import get_connection, utcnow
 
 router = APIRouter(prefix="/api", tags=["progress"])
@@ -79,13 +80,15 @@ class ProgressMap(BaseModel):
 
 
 @router.put("/progress", response_model=ProgressUnit)
-def write_progress(payload: ProgressWrite, connection: Connection) -> ProgressUnit:
+def write_progress(
+    payload: ProgressWrite, connection: Connection, user_id: CurrentUserId
+) -> ProgressUnit:
     """Upsert one unit; ``absent`` deletes it."""
     if payload.status == "absent":
         with connection:
             connection.execute(
-                "DELETE FROM progress WHERE guide_id = ? AND unit_id = ?",
-                (payload.guide_id, payload.unit_id),
+                "DELETE FROM progress WHERE user_id = ? AND guide_id = ? AND unit_id = ?",
+                (user_id, payload.guide_id, payload.unit_id),
             )
         return ProgressUnit(
             guideId=payload.guide_id,
@@ -98,13 +101,13 @@ def write_progress(payload: ProgressWrite, connection: Connection) -> ProgressUn
     with connection:
         connection.execute(
             """
-            INSERT INTO progress (guide_id, unit_id, status, updated_at)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT (guide_id, unit_id) DO UPDATE SET
+            INSERT INTO progress (user_id, guide_id, unit_id, status, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT (user_id, guide_id, unit_id) DO UPDATE SET
                 status = excluded.status,
                 updated_at = excluded.updated_at
             """,
-            (payload.guide_id, payload.unit_id, payload.status, timestamp),
+            (user_id, payload.guide_id, payload.unit_id, payload.status, timestamp),
         )
     return ProgressUnit(
         guideId=payload.guide_id,
@@ -117,6 +120,7 @@ def write_progress(payload: ProgressWrite, connection: Connection) -> ProgressUn
 @router.get("/progress", response_model=ProgressMap)
 def read_progress(
     connection: Connection,
+    user_id: CurrentUserId,
     guide_id: Annotated[
         str | None, Query(alias="guideId", min_length=1, max_length=MAX_GUIDE_ID_CHARS)
     ] = None,
@@ -124,12 +128,13 @@ def read_progress(
     """Return the unit map, optionally narrowed to one guide."""
     if guide_id is None:
         rows = connection.execute(
-            "SELECT unit_id, status FROM progress ORDER BY unit_id"
+            "SELECT unit_id, status FROM progress WHERE user_id = ? ORDER BY unit_id",
+            (user_id,),
         ).fetchall()
     else:
         rows = connection.execute(
-            "SELECT unit_id, status FROM progress WHERE guide_id = ? ORDER BY unit_id",
-            (guide_id,),
+            "SELECT unit_id, status FROM progress WHERE user_id = ? AND guide_id = ? ORDER BY unit_id",
+            (user_id, guide_id),
         ).fetchall()
     units: dict[str, StoredStatus] = {row["unit_id"]: row["status"] for row in rows}
     return ProgressMap(guideId=guide_id, count=len(units), units=units)

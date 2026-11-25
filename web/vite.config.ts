@@ -6,6 +6,10 @@ import { defineConfig } from "vitest/config"
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    // mathjax-full/js/components/version.js falls back to eval('require') when unset.
+    PACKAGE_VERSION: JSON.stringify("3.2.2"),
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

@@ -15,7 +15,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from app.api.flashcards_common import Connection, card_summary, note_payload
+from app.api.flashcards_common import Connection, CurrentUserId, card_summary, note_payload
 from app.db import utcnow
 from app.flashcards import cloze
 from app.flashcards import db as fdb
@@ -186,8 +186,8 @@ def _sync_cards(
     return fdb.list_cards(connection, note_id=note_id)
 
 
-def _note_out(connection: sqlite3.Connection, note_id: int) -> NoteOut:
-    note = fdb.get_note(connection, note_id)
+def _note_out(connection: sqlite3.Connection, note_id: int, *, user_id: int) -> NoteOut:
+    note = fdb.get_note(connection, note_id, user_id=user_id)
     if note is None:  # pragma: no cover - callers check first
         raise HTTPException(status_code=404, detail="note not found")
     cards = fdb.list_cards(connection, note_id=note_id)
@@ -195,7 +195,9 @@ def _note_out(connection: sqlite3.Connection, note_id: int) -> NoteOut:
 
 
 @router.post("/notes", status_code=201, response_model=NoteOut)
-def create_note(payload: NoteCreate, connection: Connection) -> NoteOut:
+def create_note(
+    payload: NoteCreate, connection: Connection, user_id: CurrentUserId
+) -> NoteOut:
     """Create a note and the cards its kind requires."""
     stamp = utcnow()
     note_id = fdb.create_note(
@@ -209,34 +211,38 @@ def create_note(payload: NoteCreate, connection: Connection) -> NoteOut:
         source_snippet=payload.source_snippet,
         tags=payload.tags,
         now=stamp,
+        user_id=user_id,
     )
     _sync_cards(connection, note_id, payload.kind, payload.front)
-    return _note_out(connection, note_id)
+    return _note_out(connection, note_id, user_id=user_id)
 
 
 @router.get("/notes", response_model=NoteList)
 def list_notes(
     connection: Connection,
+    user_id: CurrentUserId,
     guide_id: str | None = Query(default=None, alias="guideId", min_length=1, max_length=MAX_ID_CHARS),
 ) -> NoteList:
     """List notes, optionally narrowed to one guide."""
     notes = [
-        _note_out(connection, note["id"])
-        for note in fdb.list_notes(connection, guide_id=guide_id)
+        _note_out(connection, note["id"], user_id=user_id)
+        for note in fdb.list_notes(connection, guide_id=guide_id, user_id=user_id)
     ]
     return NoteList(count=len(notes), notes=notes)
 
 
 @router.get("/notes/{note_id}", response_model=NoteOut)
-def read_note(note_id: int, connection: Connection) -> NoteOut:
+def read_note(note_id: int, connection: Connection, user_id: CurrentUserId) -> NoteOut:
     """Return one note."""
-    return _note_out(connection, note_id)
+    return _note_out(connection, note_id, user_id=user_id)
 
 
 @router.patch("/notes/{note_id}", response_model=NoteOut)
-def patch_note(note_id: int, payload: NoteUpdate, connection: Connection) -> NoteOut:
+def patch_note(
+    note_id: int, payload: NoteUpdate, connection: Connection, user_id: CurrentUserId
+) -> NoteOut:
     """Update a note and re-sync its cards."""
-    note = fdb.get_note(connection, note_id)
+    note = fdb.get_note(connection, note_id, user_id=user_id)
     if note is None:
         raise HTTPException(status_code=404, detail="note not found")
     changes = payload.model_dump(exclude_unset=True)
@@ -256,25 +262,27 @@ def patch_note(note_id: int, payload: NoteUpdate, connection: Connection) -> Not
         changes.get("section_id", note["section_id"]),
     )
     if changes:
-        fdb.update_note(connection, note_id, changes, now=utcnow())
+        fdb.update_note(connection, note_id, changes, now=utcnow(), user_id=user_id)
     _sync_cards(connection, note_id, kind, front)
-    return _note_out(connection, note_id)
+    return _note_out(connection, note_id, user_id=user_id)
 
 
 @router.post("/notes/{note_id}/cards", response_model=NoteOut)
-def regenerate_cards(note_id: int, connection: Connection) -> NoteOut:
+def regenerate_cards(
+    note_id: int, connection: Connection, user_id: CurrentUserId
+) -> NoteOut:
     """Re-sync the note's cards from its current text."""
-    note = fdb.get_note(connection, note_id)
+    note = fdb.get_note(connection, note_id, user_id=user_id)
     if note is None:
         raise HTTPException(status_code=404, detail="note not found")
     _require_content(note["kind"], note["front"], note["back"])
     _sync_cards(connection, note_id, note["kind"], note["front"])
-    return _note_out(connection, note_id)
+    return _note_out(connection, note_id, user_id=user_id)
 
 
 @router.delete("/notes/{note_id}", response_model=DeletedNote)
-def delete_note(note_id: int, connection: Connection) -> DeletedNote:
+def delete_note(note_id: int, connection: Connection, user_id: CurrentUserId) -> DeletedNote:
     """Delete a note; its cards and revlog go with it."""
-    if not fdb.delete_note(connection, note_id):
+    if not fdb.delete_note(connection, note_id, user_id=user_id):
         raise HTTPException(status_code=404, detail="note not found")
     return DeletedNote(id=note_id, deleted=True)
