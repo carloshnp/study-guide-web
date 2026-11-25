@@ -32,6 +32,21 @@
   z-index: 2;
 }
 
+/* Table titles (standalone bold paragraph directly above a table) stay tight
+ * against the table, and table notes (standalone italic paragraph right below)
+ * match `<figcaption>` typography (`text-caption text-faint`). */
+.reader-prose p:has(> strong:only-child) + [data-slot="table-region"] {
+  margin-top: 0.5rem;
+}
+
+.reader-prose [data-slot="table-region"] + p:has(> em:only-child),
+.reader-prose [data-slot="table-region"] + p:has(> em:only-child) + p:has(> em:only-child) {
+  margin-top: 0.5rem;
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  color: var(--faint);
+}
+
 /* -------------------------------------------------------------------------- *
  * Math: display blocks scroll inside themselves, never clipped and never
  * pushing the page sideways (`horizontal-scroll`).
