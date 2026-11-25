@@ -31,6 +31,7 @@ import type { ChapterImage, ChapterSection } from "@/lib/content"
 import { cn } from "@/lib/utils"
 import { normalizeDisplayMath } from "./display-math"
 import { createSectionResolver } from "./leading-heading"
+import { rehypeObsidianCallouts } from "./obsidian-callouts"
 import { ChapterHeading, type HeadingLevel } from "./nodes/Heading"
 import { ChapterLink } from "./nodes/ChapterLink"
 import { CodeBlock } from "./nodes/CodeBlock"
@@ -85,6 +86,7 @@ const NO_SECTIONS: readonly ChapterSection[] = []
 const REMARK_PLUGINS: PluggableList = [remarkGfm, remarkMath]
 const REHYPE_PLUGINS: PluggableList = [
   [rehypeKatex, { strict: false, throwOnError: false }],
+  rehypeObsidianCallouts,
   [rehypeHighlight, { detect: false, plainText: ["text", "output", "log"] }],
 ]
 

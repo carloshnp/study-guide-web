@@ -190,4 +190,77 @@ describe("MarkdownRenderer", () => {
     expect(container.querySelector("figure")).not.toBeNull()
     expect(container.querySelector("figcaption")).toHaveTextContent("Diagrama de equilíbrio Al-Cu")
   })
+
+  it("renders Obsidian callouts with distinct tones, inline math titles, and display math bodies", () => {
+    const { container } = renderMarkdown(
+      [
+        "> [!theorem] Regra $1/3$ de Simpson",
+        "> **Hipóteses:** seja $f \\in C^4([a, b])$. Então o erro local satisfaz:",
+        ">",
+        "> $$",
+        "> \\begin{align}",
+        "> E_S &= -\\frac{f^{(4)}(\\xi)}{90} h^5",
+        "> \\end{align}",
+        "> $$",
+        "",
+        "> [!proof]",
+        "> **Ideia da prova:** expandir $f$ em torno do ponto médio.",
+        "",
+        "> [!warning] Paridade obrigatória",
+        "> Nunca aplique Simpson composta com $n$ ímpar.",
+        "",
+        "> [!summary] Em resumo",
+        "> * Item 1.",
+        "> * Item 2.",
+      ].join("\n"),
+    )
+
+    const theorem = container.querySelector('[data-callout-type="theorem"]')
+    expect(theorem).not.toBeNull()
+    expect(theorem).toHaveAttribute("data-callout-tone", "purple")
+    expect(theorem?.querySelector(".reader-callout-title .katex")).not.toBeNull()
+    expect(theorem?.querySelector('[data-slot="math-display"] .katex')).not.toBeNull()
+    expect(theorem?.textContent).not.toContain("[!theorem]")
+
+    const proof = container.querySelector('[data-callout-type="proof"]')
+    expect(proof).toHaveAttribute("data-callout-tone", "green")
+    expect(proof?.querySelector(".reader-callout-title")).toHaveTextContent("Demonstração")
+    expect(proof).toHaveTextContent("Ideia da prova:")
+
+    const warning = container.querySelector('[data-callout-type="warning"]')
+    expect(warning).toHaveAttribute("data-callout-tone", "amber")
+
+    const summary = container.querySelector('[data-callout-type="summary"]')
+    expect(summary).toHaveAttribute("data-callout-tone", "blue")
+    expect(within(summary as HTMLElement).getAllByRole("listitem")).toHaveLength(2)
+  })
+
+  it("renders Obsidian obs callouts always expanded even when a fold suffix is present", () => {
+    const { container } = renderMarkdown(
+      [
+        "> [!obs] Lembrando: Resto de Lagrange",
+        "> Para $f \\in C^2$, vale $f(x) - p_1(x) = \\frac{f''(\\xi)}{2}(x - a)(x - b)$.",
+        "",
+        "> [!obs]- Nota com sufixo legado",
+        "> Corpo permanece sempre visível no leitor.",
+      ].join("\n"),
+    )
+
+    const callouts = container.querySelectorAll('[data-callout-type="obs"]')
+    expect(callouts).toHaveLength(2)
+
+    const first = callouts[0] as HTMLElement
+    expect(first).toHaveAttribute("data-callout-tone", "teal")
+    expect(first.querySelector(".reader-callout-title")).toHaveTextContent(
+      "Lembrando: Resto de Lagrange",
+    )
+    expect(first.querySelector(".reader-callout-body .katex")).not.toBeNull()
+
+    const second = callouts[1] as HTMLElement
+    expect(second.querySelector(".reader-callout-title")).toHaveTextContent(
+      "Nota com sufixo legado",
+    )
+    expect(second).toHaveTextContent("Corpo permanece sempre visível no leitor.")
+    expect(second.textContent).not.toContain("[!obs]-")
+  })
 })

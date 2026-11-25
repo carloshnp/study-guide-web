@@ -150,3 +150,87 @@
 .reader-prose sup {
   line-height: 0;
 }
+
+/* -------------------------------------------------------------------------- *
+ * Obsidian callouts in the chapter reader: exact tone palette shared with
+ * `study-notes/editor/editor.css` so notes and study guides match across both
+ * light and dark themes.
+ * -------------------------------------------------------------------------- */
+.reader-callout {
+  --callout-accent: #2563eb;
+  background: color-mix(in srgb, var(--callout-accent) 9%, transparent);
+  border-inline-start-color: var(--callout-accent);
+}
+
+.reader-callout[data-callout-tone="blue"] {
+  --callout-accent: #2563eb;
+}
+
+.reader-callout[data-callout-tone="teal"] {
+  --callout-accent: #0891b2;
+}
+
+.reader-callout[data-callout-tone="green"] {
+  --callout-accent: #059669;
+}
+
+.reader-callout[data-callout-tone="amber"] {
+  --callout-accent: #d97706;
+}
+
+.reader-callout[data-callout-tone="red"] {
+  --callout-accent: #e11d48;
+}
+
+.reader-callout[data-callout-tone="purple"] {
+  --callout-accent: #7c3aed;
+}
+
+.reader-callout[data-callout-tone="neutral"] {
+  --callout-accent: #64748b;
+}
+
+.dark .reader-callout[data-callout-tone="blue"] {
+  --callout-accent: #60a5fa;
+}
+
+.dark .reader-callout[data-callout-tone="teal"] {
+  --callout-accent: #22d3ee;
+}
+
+.dark .reader-callout[data-callout-tone="green"] {
+  --callout-accent: #34d399;
+}
+
+.dark .reader-callout[data-callout-tone="amber"] {
+  --callout-accent: #fbbf24;
+}
+
+.dark .reader-callout[data-callout-tone="red"] {
+  --callout-accent: #fb7185;
+}
+
+.dark .reader-callout[data-callout-tone="purple"] {
+  --callout-accent: #a78bfa;
+}
+
+.dark .reader-callout[data-callout-tone="neutral"] {
+  --callout-accent: #94a3b8;
+}
+
+.reader-callout-header {
+  font-weight: 700;
+  color: var(--callout-accent);
+}
+
+.reader-callout-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--callout-accent) 16%, transparent);
+  font-size: 0.85em;
+  line-height: 1;
+}

@@ -34,4 +34,30 @@ describe("normalizeDisplayMath", () => {
 
     expect(normalizeDisplayMath(markdown)).toBe(markdown)
   })
+
+  it("normalizes one-line and glued display math inside Obsidian callouts", () => {
+    const markdown = [
+      "> [!theorem] Transformada de Laplace",
+      "> $$F(s) = \\int_0^\\infty e^{-st} f(t)\\,dt$$",
+      ">",
+      "> $$\\begin{align}",
+      "> x &= 1",
+      "> \\end{align}$$",
+    ].join("\n")
+
+    expect(normalizeDisplayMath(markdown)).toBe(
+      [
+        "> [!theorem] Transformada de Laplace",
+        "> $$",
+        "> F(s) = \\int_0^\\infty e^{-st} f(t)\\,dt",
+        "> $$",
+        ">",
+        "> $$",
+        "> \\begin{align}",
+        "> x &= 1",
+        "> \\end{align}",
+        "> $$",
+      ].join("\n"),
+    )
+  })
 })

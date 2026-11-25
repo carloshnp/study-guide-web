@@ -19,6 +19,7 @@
  */
 
 const FENCE_OPEN = /^[ \t]*(```|~~~)/
+const QUOTE_PREFIX = /^([ \t]*(?:>[ \t]*)+)/
 const SOLE_DISPLAY_MATH = /^[ \t]*\$\$(.+?)\$\$[ \t]*$/
 
 export function normalizeDisplayMath(markdown: string): string {
@@ -27,7 +28,11 @@ export function normalizeDisplayMath(markdown: string): string {
   const out: string[] = []
 
   for (const line of markdown.split("\n")) {
-    if (FENCE_OPEN.test(line)) {
+    const quoteMatch = !fenced ? QUOTE_PREFIX.exec(line) : null
+    const prefix = quoteMatch ? quoteMatch[1] : ""
+    const content = quoteMatch ? line.slice(prefix.length) : line
+
+    if (FENCE_OPEN.test(content)) {
       fenced = !fenced
       out.push(line)
       continue
@@ -37,7 +42,8 @@ export function normalizeDisplayMath(markdown: string): string {
       continue
     }
 
-    const trimmed = line.trim()
+    const trimmed = content.trim()
+    const emit = (text: string) => (prefix ? `${prefix}${text}` : text)
 
     if (!display) {
       if (trimmed === "$$") {
@@ -47,12 +53,12 @@ export function normalizeDisplayMath(markdown: string): string {
       }
 
       if (trimmed.startsWith("$$")) {
-        const oneLine = SOLE_DISPLAY_MATH.exec(line)
+        const oneLine = SOLE_DISPLAY_MATH.exec(content)
         if (oneLine) {
           const body = oneLine[1].trim()
           // `$$a$$ and $$b$$` is two inline formulas, not one display block.
           if (body !== "" && !body.includes("$$")) {
-            out.push("$$", body, "$$")
+            out.push(emit("$$"), emit(body), emit("$$"))
             continue
           }
           out.push(line)
@@ -62,7 +68,7 @@ export function normalizeDisplayMath(markdown: string): string {
         // `$$\begin{align}`: opener carrying the first line of the formula.
         const rest = trimmed.slice(2)
         if (rest !== "" && !rest.includes("$$")) {
-          out.push("$$", rest)
+          out.push(emit("$$"), emit(rest))
           display = true
           continue
         }
@@ -83,8 +89,8 @@ export function normalizeDisplayMath(markdown: string): string {
     // `\end{align}$$`: closer carrying the last line of the formula.
     if (trimmed.endsWith("$$") && !trimmed.startsWith("$$")) {
       const body = trimmed.slice(0, -2)
-      if (body.trim() !== "") out.push(body)
-      out.push("$$")
+      if (body.trim() !== "") out.push(emit(body))
+      out.push(emit("$$"))
       display = false
       continue
     }

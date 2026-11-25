@@ -8,8 +8,14 @@
  * targets and no hover-only affordance.
  */
 
-import type { ComponentPropsWithoutRef, ReactNode } from "react"
+import {
+  Children,
+  isValidElement,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+} from "react"
 
+import type { CalloutTone } from "@/lib/callouts"
 import { cn } from "@/lib/utils"
 
 /** react-markdown hands the hast node along with the element props. */
@@ -41,14 +47,69 @@ export function ListItem({ children }: MdProps<"li">) {
   return <li className="ps-1 marker:text-faint [&>p]:mt-0">{children}</li>
 }
 
-/** Blockquote as a callout: 3px accent rule, soft background, no shadow. */
-export function Callout({ children }: MdProps<"blockquote">) {
+type CalloutProps = MdProps<"blockquote"> & {
+  "data-callout-type"?: string
+  "data-callout-tone"?: CalloutTone
+  "data-callout-icon"?: string
+}
+
+function isCalloutTitleNode(child: ReactNode): boolean {
+  if (!isValidElement<{ "data-callout-part"?: string }>(child)) return false
+  return child.props["data-callout-part"] === "title"
+}
+
+/**
+ * Blockquote as a callout: legacy blockquotes keep the calm single-accent strip,
+ * while Obsidian callouts (`> [!theorem]`, `> [!proof]`, `> [!obs]`, …) render
+ * always expanded with their tone, icon and title matching the study-notes editor.
+ */
+export function Callout({
+  children,
+  "data-callout-type": calloutType,
+  "data-callout-tone": tone = "blue",
+  "data-callout-icon": icon = "•",
+}: CalloutProps) {
+  if (!calloutType) {
+    return (
+      <blockquote
+        className="mt-6 rounded-e-lg border-s-[3px] border-brand bg-brand-soft px-4 py-3 text-body text-foreground [&>p:first-child]:mt-0 [&>p]:mt-2"
+        data-slot="callout"
+      >
+        {children}
+      </blockquote>
+    )
+  }
+
+  const allChildren = Children.toArray(children)
+  const titleEl = allChildren.find((child) => isCalloutTitleNode(child))
+  const bodyNodes = allChildren.filter((child) => {
+    if (isCalloutTitleNode(child)) return false
+    if (typeof child === "string" && child.trim() === "") return false
+    return true
+  })
+
+  const titleContent = isValidElement<{ children?: ReactNode }>(titleEl)
+    ? titleEl.props.children
+    : calloutType
+
   return (
     <blockquote
-      className="mt-6 rounded-e-lg border-s-[3px] border-brand bg-brand-soft px-4 py-3 text-body text-foreground [&>p:first-child]:mt-0 [&>p]:mt-2"
+      className="reader-callout mt-6 rounded-e-lg border-s-[3px] px-4 py-3 text-body text-foreground"
+      data-callout-tone={tone}
+      data-callout-type={calloutType}
       data-slot="callout"
     >
-      {children}
+      <div className="reader-callout-header flex items-center gap-2">
+        <span aria-hidden="true" className="reader-callout-icon shrink-0">
+          {icon}
+        </span>
+        <span className="reader-callout-title min-w-0 flex-1">{titleContent}</span>
+      </div>
+      {bodyNodes.length > 0 ? (
+        <div className="reader-callout-body mt-2 [&>p:first-child]:mt-0 [&>p]:mt-2 [&>ul:first-child]:mt-0 [&>ol:first-child]:mt-0">
+          {bodyNodes}
+        </div>
+      ) : null}
     </blockquote>
   )
 }
